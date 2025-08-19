@@ -15,15 +15,15 @@ export default function SamplePage() {
   ];
 
   return (
-    <MainCard title="Sample Page">
+    <MainCard>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {cards.map((card, index) => (
           <Link 
             to={card.link} 
             key={index} 
-            className="block p-4 rounded-xl shadow-md bg-white hover:shadow-lg transition"
+            className="block p-4 rounded shadow-md bg-white hover:shadow-lg transition"
           >
-            <Typography variant="h6" className="mb-2 font-bold text-gray-800 text-center">
+            <Typography variant="h3" className="mb-2 text-gray-800 text-center">
               {card.title}
             </Typography>
           </Link>

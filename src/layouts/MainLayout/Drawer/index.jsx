@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 // material-ui
 import { alpha } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 import Box from '@mui/material/Box';
 
@@ -11,7 +10,6 @@ import DrawerContent from './DrawerContent';
 
 import { DRAWER_WIDTH } from 'config';
 import { handlerDrawerOpen, useGetMenuMaster } from 'states/menu';
-
 
 // ==============================|| MAIN LAYOUT - DRAWER ||============================== //
 

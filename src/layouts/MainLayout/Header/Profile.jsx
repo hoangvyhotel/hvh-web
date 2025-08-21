@@ -21,9 +21,7 @@ import MainCard from 'components/cards/MainCard';
 import AccountCircleTwoToneIcon from '@mui/icons-material/AccountCircleTwoTone';
 import MeetingRoomTwoToneIcon from '@mui/icons-material/MeetingRoomTwoTone';
 
-const menuItems = [
-  { icon: <MeetingRoomTwoToneIcon />, label: 'Đăng xuất' }
-];
+const menuItems = [{ icon: <MeetingRoomTwoToneIcon />, label: 'Đăng xuất' }];
 
 // ==============================|| PROFILE ||============================== //
 

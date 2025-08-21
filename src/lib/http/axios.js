@@ -1,6 +1,6 @@
-import axios from "axios";
-import { apiConfig } from "./config";
-import { tokenStorage } from "./storage";
+import axios from 'axios';
+import { apiConfig } from './config';
+import { tokenStorage } from './storage';
 
 let isRefreshing = false;
 let pendingQueue = [];
@@ -13,7 +13,7 @@ function flushQueue(token, error) {
 export const http = axios.create({
   baseURL: apiConfig.baseURL,
   timeout: apiConfig.timeoutMs,
-  withCredentials: true, // if using cookies/CSRF
+  withCredentials: true // if using cookies/CSRF
 });
 
 http.interceptors.request.use((config) => {
@@ -33,7 +33,7 @@ http.interceptors.response.use(
     if (status === 401 && !original._retry) {
       if (isRefreshing) {
         const newToken = await new Promise((resolve, reject) => pendingQueue.push({ resolve, reject }));
-        if (newToken && original.headers) original.headers["Authorization"] = `Bearer ${newToken}`;
+        if (newToken && original.headers) original.headers['Authorization'] = `Bearer ${newToken}`;
         original._retry = true;
         return http(original);
       }
@@ -44,16 +44,12 @@ http.interceptors.response.use(
       try {
         const refreshToken = tokenStorage.refresh;
         if (!refreshToken) throw error;
-        const { data } = await axios.post(
-          apiConfig.baseURL + apiConfig.refreshPath,
-          { refreshToken },
-          { withCredentials: true }
-        );
+        const { data } = await axios.post(apiConfig.baseURL + apiConfig.refreshPath, { refreshToken }, { withCredentials: true });
         const newAccess = data?.accessToken;
         if (!newAccess) throw error;
         tokenStorage.access = newAccess;
         flushQueue(newAccess);
-        if (original.headers) original.headers["Authorization"] = `Bearer ${newAccess}`;
+        if (original.headers) original.headers['Authorization'] = `Bearer ${newAccess}`;
         return http(original);
       } catch (e) {
         tokenStorage.clear();

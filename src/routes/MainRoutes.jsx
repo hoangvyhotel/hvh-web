@@ -4,6 +4,8 @@ import { lazy } from 'react';
 import Loadable from 'components/Loadable';
 import MainLayout from 'layouts/MainLayout';
 import LoginPage from '../sections/auth/AuthLogin';
+import RoomManagement from '../views/pages/management/room-management';
+import HotelManagementLayout from '../layouts/HotelManagementLayout';
 
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
@@ -32,7 +34,17 @@ const MainRoutes = {
     },
     {
       path: '/pages/management',
-      element: <SamplePage />
+      element: <HotelManagementLayout />,
+      children: [
+        {
+          path: '',
+          element: <SamplePage />
+        },
+        {
+          path: 'room-management',
+          element: <RoomManagement />
+        }
+      ]
     },
     {
       path: '/pages/lodging-report',

@@ -1,4 +1,4 @@
-const RoomItem = ({ room }) => {
+const RoomItem = ({ room, onEdit, onDelete }) => {
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price) + 'vnđ';
   };
@@ -9,6 +9,14 @@ const RoomItem = ({ room }) => {
 
   const getStatusColor = (status) => {
     return status === 'maintenance' ? 'text-orange-600' : 'text-green-600';
+  };
+
+  const handleEdit = () => {
+    onEdit(room);
+  };
+
+  const handleDelete = () => {
+    onDelete(room.id);
   };
 
   return (
@@ -44,9 +52,11 @@ const RoomItem = ({ room }) => {
 
       {/* Actions */}
       <div className="col-span-3 flex items-center justify-center space-x-1">
-        <button className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors">CẬP NHẬT</button>
+        <button onClick={handleEdit} className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors">
+          CẬP NHẬT
+        </button>
         <span className="text-gray-400 text-sm">|</span>
-        <button className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors">
+        <button onClick={handleDelete} className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors">
           {room.status === 'maintenance' ? 'BỎ XÓA' : 'XÓA'}
         </button>
       </div>

@@ -6,6 +6,7 @@ import MainLayout from 'layouts/MainLayout';
 import LoginPage from '../sections/auth/AuthLogin';
 import RoomManagement from '../views/pages/management/room-management';
 import HotelManagementLayout from '../layouts/HotelManagementLayout';
+import CostManagement from '../views/pages/management/cost-management';
 
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
@@ -43,6 +44,10 @@ const MainRoutes = {
         {
           path: 'room-management',
           element: <RoomManagement />
+        },
+        {
+          path: 'cost-management',
+          element: <CostManagement />
         }
       ]
     },

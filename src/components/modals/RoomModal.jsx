@@ -1,6 +1,8 @@
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
 
+import { floorData } from '../../views/pages/home/data/room-data';
+
 const RoomModal = ({ isOpen, onClose, room, onSave }) => {
   // Handle keyboard events
   useEffect(() => {
@@ -83,13 +85,14 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white"
                 required
               >
-                <option value="">Tầng Trệt</option>
-                <option value="0">Tầng Trệt</option>
-                <option value="1">Tầng 1</option>
-                <option value="2">Tầng 2</option>
-                <option value="3">Tầng 3</option>
-                <option value="4">Tầng 4</option>
-                <option value="5">Tầng 5</option>
+                {floorData.map(
+                  (floor) =>
+                    floorData.id !== 0 && (
+                      <option key={floor.id} value={floor.id}>
+                        {floor.name}
+                      </option>
+                    )
+                )}
               </select>
             </div>
           </div>

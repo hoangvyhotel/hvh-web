@@ -16,7 +16,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 // project imports
 import MainCard from 'components/cards/MainCard';
-import { tokenStorage } from 'lib/http/storage';
+// auth removed: tokenStorage no longer used
 
 // assets
 import AccountCircleTwoToneIcon from '@mui/icons-material/AccountCircleTwoTone';
@@ -34,10 +34,8 @@ export default function Profile() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // menu items depending on auth state (kept here so useEffect can reference)
-  const menuItems = tokenStorage.access
-    ? [{ icon: <MeetingRoomTwoToneIcon />, label: 'Đăng xuất', action: () => { tokenStorage.clear(); navigate('/'); } }]
-    : [{ icon: <AccountCircleTwoToneIcon />, label: 'Đăng nhập', action: () => navigate('/auth/login') }];
+  // simple profile menu (no auth)
+  const menuItems = [{ icon: <AccountCircleTwoToneIcon />, label: 'Profile', action: () => navigate('/pages/management') }];
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -86,10 +84,7 @@ export default function Profile() {
             <Fade {...TransitionProps} timeout={100}>
               <MainCard content={false} sx={{ width: 250 }}>
                 <List>
-                  {(tokenStorage.access
-                    ? [{ icon: <MeetingRoomTwoToneIcon />, label: 'Đăng xuất', action: () => { tokenStorage.clear(); navigate('/'); } }]
-                    : [{ icon: <AccountCircleTwoToneIcon />, label: 'Đăng nhập', action: () => navigate('/auth/login') }]
-                  ).map((item, index) => (
+                  {menuItems.map((item, index) => (
                     <ListItemButton key={item.label} selected={selectedIndex === index} onClick={() => handleMenuItemClick(index, item)}>
                       <ListItemIcon>{item.icon}</ListItemIcon>
                       <ListItemText primary={item.label} />

@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { authRequests } from '../../services/authService';
-import { tokenStorage } from '../../lib/http/storage';
+// auth removed: no token storage or authRequests
 import { useApiMutation } from '../../hooks/useApi';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -25,18 +24,10 @@ export default function LoginPage() {
     formState: { errors }
   } = useForm();
 
-  const loginMutation = useApiMutation(authRequests.login, {
-    onSuccess: (data) => {
-      tokenStorage.access = data.accessToken;
-      tokenStorage.refresh = data.refreshToken;
-      console.log('Login success', data);
-    },
-    onError: (err) => {
-      console.error('Login failed', err);
-    }
-  });
-
-  const onSubmit = (form) => loginMutation.mutate(form);
+  // no auth backend: simply print form to console or call your API directly
+  const onSubmit = (form) => {
+    console.log('Login form submitted', form);
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

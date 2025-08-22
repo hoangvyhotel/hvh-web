@@ -1,9 +1,13 @@
 import RoomItem from '../../../components/items/RoomItem';
+import AddButton from '../../../layouts/HotelManagementLayout/AddButton';
 import Header from '../../../layouts/HotelManagementLayout/Header';
+import RoomModal from '../../../components/modals/RoomModal';
+import { useState } from 'react';
 
 const RoomManagement = () => {
-  // Seed data dựa trên giao diện mẫu
-  const roomsData = [
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [rooms, setRooms] = useState([
     {
       id: '001',
       floor: 0,
@@ -74,7 +78,37 @@ const RoomManagement = () => {
       status: 'maintenance',
       actions: ['UPDATE', 'DELETE']
     }
-  ];
+  ]);
+
+  const handleEditRoom = (room) => {
+    setSelectedRoom(room);
+    setIsModalOpen(true);
+  };
+
+  const handleAddRoom = () => {
+    setSelectedRoom(null);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveRoom = (roomData) => {
+    if (selectedRoom) {
+      // Update existing room
+      setRooms(rooms.map((room) => (room.id === selectedRoom.id ? { ...room, ...roomData } : room)));
+    } else {
+      // Add new room
+      setRooms([...rooms, { ...roomData, status: 'operating', actions: ['UPDATE', 'DELETE'] }]);
+    }
+  };
+
+  const handleDeleteRoom = (roomId) => {
+    setRooms(rooms.filter((room) => room.id !== roomId));
+  };
+
+  const handleEscapeKey = (event) => {
+    if (event.key === 'Escape') {
+      setIsModalOpen(false);
+    }
+  };
 
   return (
     <>
@@ -94,11 +128,25 @@ const RoomManagement = () => {
 
         {/* Room List */}
         <div className="bg-white">
-          {roomsData.map((room, index) => (
-            <RoomItem key={room.id} room={room} />
+          {rooms.map((room, index) => (
+            <RoomItem key={room.id} room={room} onEdit={handleEditRoom} onDelete={handleDeleteRoom} />
           ))}
         </div>
+
+        {/* Add Button positioned at bottom right */}
+        <div className="flex justify-end mt-12">
+          <AddButton onClick={handleAddRoom} />
+        </div>
       </div>
+
+      {/* Room Modal */}
+      <RoomModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        room={selectedRoom}
+        onSave={handleSaveRoom}
+        onKeyDown={handleEscapeKey}
+      />
     </>
   );
 };

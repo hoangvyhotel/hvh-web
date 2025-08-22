@@ -3,7 +3,6 @@ import { lazy } from 'react';
 // project imports
 import Loadable from 'components/Loadable';
 import MainLayout from 'layouts/MainLayout';
-import LoginPage from '../sections/auth/AuthLogin';
 import RoomManagement from '../views/pages/management/room-management';
 import HotelManagementLayout from '../layouts/HotelManagementLayout';
 import CostManagement from '../views/pages/management/cost-management';
@@ -60,10 +59,7 @@ const MainRoutes = {
       path: '/pages/lodging-report',
       element: <SamplePage />
     },
-    {
-      path: '/auth/login',
-      element: <LoginPage />
-    },
+  // auth routes removed
     {
       path: 'components',
       children: [

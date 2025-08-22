@@ -1,12 +1,14 @@
 export const endpoints = {
-  auth: {
-    login: () => '/auth/login',
-    refresh: () => '/auth/refresh',
-    me: () => '/auth/me'
-  },
+  // auth endpoints removed
   users: {
     root: () => '/users',
     list: () => '/users',
     detail: (id) => `/users/${id}`
+  }
+  ,
+  utilities: {
+    root: () => '/utilities',
+    list: () => '/utilities',
+    detail: (id) => `/utilities/${id}`
   }
 };

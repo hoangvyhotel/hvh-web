@@ -11,6 +11,7 @@ import CostManagement from '../views/pages/management/cost-management';
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
 const SamplePage = Loadable(lazy(() => import('views/pages/SamplePage')));
+const UtilitiesPage = Loadable(lazy(() => import('views/pages/management/utilities')));
 
 // utils
 const UtilsTypography = Loadable(lazy(() => import('views/components/Typography')));
@@ -50,6 +51,10 @@ const MainRoutes = {
           element: <CostManagement />
         }
       ]
+    },
+    {
+      path: '/pages/management/utilities',
+      element: <UtilitiesPage />
     },
     {
       path: '/pages/lodging-report',

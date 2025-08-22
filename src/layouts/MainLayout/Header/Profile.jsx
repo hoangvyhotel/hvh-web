@@ -16,12 +16,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 // project imports
 import MainCard from 'components/cards/MainCard';
+import { tokenStorage } from 'lib/http/storage';
 
 // assets
 import AccountCircleTwoToneIcon from '@mui/icons-material/AccountCircleTwoTone';
 import MeetingRoomTwoToneIcon from '@mui/icons-material/MeetingRoomTwoTone';
 
 const menuItems = [{ icon: <MeetingRoomTwoToneIcon />, label: 'Đăng xuất' }];
+// menuItems will be computed per-render depending on auth state
 
 // ==============================|| PROFILE ||============================== //
 
@@ -31,6 +33,11 @@ export default function Profile() {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // menu items depending on auth state (kept here so useEffect can reference)
+  const menuItems = tokenStorage.access
+    ? [{ icon: <MeetingRoomTwoToneIcon />, label: 'Đăng xuất', action: () => { tokenStorage.clear(); navigate('/'); } }]
+    : [{ icon: <AccountCircleTwoToneIcon />, label: 'Đăng nhập', action: () => navigate('/auth/login') }];
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -46,12 +53,14 @@ export default function Profile() {
 
   const handleMenuItemClick = (index, item) => {
     setSelectedIndex(index);
-
-    if (item.path) {
-      navigate(item.path);
-    } else if (item.action) {
+    // perform action or navigate
+    if (item.action) {
       item.action();
+    } else if (item.path) {
+      navigate(item.path);
     }
+    // close popper after action
+    setOpen(false);
   };
 
   const canBeOpen = open && Boolean(anchorEl);
@@ -77,7 +86,10 @@ export default function Profile() {
             <Fade {...TransitionProps} timeout={100}>
               <MainCard content={false} sx={{ width: 250 }}>
                 <List>
-                  {menuItems.map((item, index) => (
+                  {(tokenStorage.access
+                    ? [{ icon: <MeetingRoomTwoToneIcon />, label: 'Đăng xuất', action: () => { tokenStorage.clear(); navigate('/'); } }]
+                    : [{ icon: <AccountCircleTwoToneIcon />, label: 'Đăng nhập', action: () => navigate('/auth/login') }]
+                  ).map((item, index) => (
                     <ListItemButton key={item.label} selected={selectedIndex === index} onClick={() => handleMenuItemClick(index, item)}>
                       <ListItemIcon>{item.icon}</ListItemIcon>
                       <ListItemText primary={item.label} />

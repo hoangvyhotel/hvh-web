@@ -1,9 +1,5 @@
 export const floorData = [
   {
-    id: 0,
-    name: 'Tầng trệt'
-  },
-  {
     id: 1,
     name: 'Tầng 1'
   },

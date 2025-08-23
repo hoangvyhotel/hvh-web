@@ -1,85 +1,31 @@
 import RoomItem from '../../../components/items/RoomItem';
-import AddButton from '../../../layouts/HotelManagementLayout/AddButton';
 import Header from '../../../layouts/HotelManagementLayout/Header';
 import RoomModal from '../../../components/modals/RoomModal';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { House } from 'lucide-react';
+import { fetchRoomsByHotelId, addRoom, updateRoom, updateStatusRoom } from 'services/roomService';
 
 const RoomManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
-  const [rooms, setRooms] = useState([
-    {
-      id: '001',
-      floor: 0,
-      hourlyPrice: 60000,
-      hourlyDiscount: 20000,
-      nightPrice: 200000,
-      dailyPrice: 300000,
-      status: 'maintenance', // bảo trì
-      actions: ['UPDATE', 'DELETE']
-    },
-    {
-      id: '101',
-      floor: 1,
-      hourlyPrice: 60000,
-      hourlyDiscount: 20000,
-      nightPrice: 200000,
-      dailyPrice: 300000,
-      status: 'operating', // đang hoạt động
-      actions: ['UPDATE', 'DELETE']
-    },
-    {
-      id: '102',
-      floor: 1,
-      hourlyPrice: 60000,
-      hourlyDiscount: 20000,
-      nightPrice: 180000,
-      dailyPrice: 300000,
-      status: 'operating',
-      actions: ['UPDATE', 'DELETE']
-    },
-    {
-      id: '103',
-      floor: 1,
-      hourlyPrice: 60000,
-      hourlyDiscount: 20000,
-      nightPrice: 200000,
-      dailyPrice: 350000,
-      status: 'operating',
-      actions: ['UPDATE', 'DELETE']
-    },
-    {
-      id: '201',
-      floor: 2,
-      hourlyPrice: 60000,
-      hourlyDiscount: 20000,
-      nightPrice: 200000,
-      dailyPrice: 350000,
-      status: 'operating',
-      actions: ['UPDATE', 'DELETE']
-    },
-    {
-      id: '202',
-      floor: 2,
-      hourlyPrice: 60000,
-      hourlyDiscount: 20000,
-      nightPrice: 180000,
-      dailyPrice: 300000,
-      status: 'operating',
-      actions: ['UPDATE', 'DELETE']
-    },
-    {
-      id: '203',
-      floor: 2,
-      hourlyPrice: 60000,
-      hourlyDiscount: 20000,
-      nightPrice: 200000,
-      dailyPrice: 300000,
-      status: 'maintenance',
-      actions: ['UPDATE', 'DELETE']
+  const [rooms, setRooms] = useState([]);
+
+  const fetchRooms = async () => {
+    try {
+      console.log('Fetching rooms...');
+      const roomData = await fetchRoomsByHotelId('68a6b81c9924e1f3880ce291');
+      console.log('Room data fetched:', roomData);
+      if (roomData) {
+        setRooms(roomData);
+      }
+    } catch (error) {
+      throw new Error('Failed to fetch rooms', error);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    fetchRooms();
+  }, []);
 
   const handleEditRoom = (room) => {
     setSelectedRoom(room);
@@ -91,18 +37,51 @@ const RoomManagement = () => {
     setIsModalOpen(true);
   };
 
-  const handleSaveRoom = (roomData) => {
-    if (selectedRoom) {
-      // Update existing room
-      setRooms(rooms.map((room) => (room.id === selectedRoom.id ? { ...room, ...roomData } : room)));
-    } else {
-      // Add new room
-      setRooms([...rooms, { ...roomData, status: 'operating', actions: ['UPDATE', 'DELETE'] }]);
+  const handleSaveRoom = async (roomData) => {
+    try {
+      console.log('Saving room data:', roomData);
+      if (selectedRoom) {
+        // Update existing room
+        const updatedRoom = await updateRoom(selectedRoom.id, roomData);
+        setRooms(rooms.map((room) => (room.id === selectedRoom.id ? updatedRoom.data : room)));
+        console.log('Room updated successfully:', updatedRoom);
+      } else {
+        // Add new room
+        const newRoom = await addRoom(roomData);
+        setRooms([...rooms, newRoom.data]);
+        console.log('Room added successfully:', newRoom);
+      }
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error saving room:', error);
+      // TODO: Add error handling/notification
     }
   };
 
-  const handleDeleteRoom = (roomId) => {
-    setRooms(rooms.filter((room) => room.id !== roomId));
+  const handleDeleteRoom = async (roomId) => {
+    try {
+      console.log('Deleting room with ID:', roomId);
+      const response = await updateStatusRoom(roomId, false); // Soft delete by updating status
+      console.log('Room deleted (status updated) successfully:', response);
+      // Reload data after successful status update
+      await fetchRooms();
+    } catch (error) {
+      console.error('Error deleting room:', error);
+      // TODO: Add error handling/notification
+    }
+  };
+
+  const handleUpdateStatus = async (roomId, newStatus) => {
+    try {
+      console.log('Updating room status:', roomId, newStatus);
+      const response = await updateStatusRoom(roomId, newStatus);
+      console.log('Room status updated successfully:', response);
+      // Reload data after successful status update
+      await fetchRooms();
+    } catch (error) {
+      console.error('Error updating room status:', error);
+      // TODO: Add error handling/notification
+    }
   };
 
   const handleEscapeKey = (event) => {
@@ -119,7 +98,7 @@ const RoomManagement = () => {
 
       <div className="p-6">
         <div className="flex items-center justify-between">
-          <div>Time</div>
+          <div></div>
           <button className="px-4 py-2 bg-green-600 rounded text-white hover:bg-gray-500 transition-colors" onClick={handleAddRoom}>
             Thêm phòng
           </button>
@@ -137,15 +116,23 @@ const RoomManagement = () => {
 
           {/* Room List */}
           <div className="bg-white">
-            {rooms.map((room, index) => (
-              <RoomItem key={room.id} room={room} onEdit={handleEditRoom} onDelete={handleDeleteRoom} />
-            ))}
+            {rooms.length > 0 ? (
+              rooms.map((room, index) => (
+                <RoomItem
+                  key={room.id}
+                  room={room}
+                  onEdit={handleEditRoom}
+                  onDelete={handleDeleteRoom}
+                  onUpdateStatus={handleUpdateStatus}
+                  index={index}
+                />
+              ))
+            ) : (
+              <div className="text-center text-gray-500 py-10">Không có dữ liệu</div>
+            )}
           </div>
 
           {/* Add Button positioned at bottom right */}
-          <div className="flex justify-end mt-12">
-            <AddButton onClick={handleAddRoom} />
-          </div>
         </div>
 
         {/* Room Modal */}

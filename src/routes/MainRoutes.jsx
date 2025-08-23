@@ -11,6 +11,7 @@ import ChangePassword from '../views/pages/management/change-password';
 import RoomPriceUpdate from 'views/pages/management/price-management/update-price-page';
 import UtilitiesPage from 'views/pages/management/utility-management';
 import SummaryManagement from 'views/pages/management/summary-management';
+import AddUserPage from 'views/pages/management/create-user/create-user-page';
 
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
@@ -70,7 +71,9 @@ const MainRoutes = {
         },
         {
           path: 'utility-management',
-          element: <UtilitiesPage />
+          element: <UtilitiesPage />},{
+          path: 'create-user',
+          element: <AddUserPage />
         }
       ]
     },

@@ -8,9 +8,9 @@ export default function SamplePage() {
     { title: 'Cập nhật giá phòng', content: 'Cập nhật giá phòng', link: '/management/edit-price-room' },
     { title: 'Nước', content: 'Nước', link: '/management/utility-management' },
     { title: 'Chi phí', content: 'Chi phí', link: '/pages/management/cost-management' },
-    { title: 'Danh sách', content: 'Danh sách', link: '/management/profit-management' },
+    { title: 'Danh sách thuê', content: 'Danh sách', link: '/pages/management/rental-management' },
     { title: 'Tổng kết', content: 'Extra card example', link: '/management/summary-management' },
-    { title: 'Đổi mật khẩu', content: 'Extra card example', link: '/management/change-password' },
+    { title: 'Đổi mật khẩu', content: 'Extra card example', link: '/pages/management/change-password' },
     { title: 'Đổi mật khẩu admin', content: 'Extra card example', link: '/management/change-password-admin' }
   ];
 

@@ -3,6 +3,7 @@ import AddButton from '../../../layouts/HotelManagementLayout/AddButton';
 import Header from '../../../layouts/HotelManagementLayout/Header';
 import RoomModal from '../../../components/modals/RoomModal';
 import { useState } from 'react';
+import { House } from 'lucide-react';
 
 const RoomManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -113,7 +114,7 @@ const RoomManagement = () => {
   return (
     <>
       <div className="border-b border-gray-300 mb-8" style={{ borderBottomWidth: '0.5px' }}>
-        <Header />
+        <Header title="Danh sách phòng" icon={<House className="w-6 h-6 text-gray-600 mr-2" />} />
       </div>
 
       <div className="p-6">

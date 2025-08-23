@@ -8,7 +8,7 @@ import RoomManagement from '../views/pages/management/room-management';
 import HotelManagementLayout from '../layouts/HotelManagementLayout';
 import CostManagement from '../views/pages/management/cost-management';
 import RetalManagement from '../views/pages/management/rental-management';
-import ChangePassword from '../views/pages/management/change-pws';
+import ChangePassword from '../views/pages/management/change-password';
 
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));

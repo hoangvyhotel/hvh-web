@@ -1,7 +1,7 @@
-import { ArrowLeftToLine, House } from 'lucide-react';
+import { ArrowLeftToLine } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
-const Header = () => {
+const Header = ({ title, icon }) => {
   return (
     <header className="lg:pb-6 pb-4 flex">
       <NavLink
@@ -12,9 +12,9 @@ const Header = () => {
         <span className="font-semibold text-gray-700 hover:text-gray-900">Quay lại</span>
       </NavLink>
       <div className="flex-1 flex items-center justify-center">
-        <House className="w-6 h-6 text-gray-600 mr-2" />
+        {icon}
         <h1 className="font-bold text-2xl" style={{ color: '#348667' }}>
-          Danh sách phòng
+          {title}
         </h1>
       </div>
     </header>

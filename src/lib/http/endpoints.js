@@ -2,12 +2,13 @@ export const endpoints = {
   auth: {
     login: () => '/auth/login',
     refresh: () => '/auth/refresh',
-    me: () => '/auth/me'
+    me: () => '/auth/me',
+    register: () => '/auth/register'
   },
   users: {
     root: () => '/users',
     list: () => '/users',
-    detail: (id) => `/users/${id}`
+    detail: (id) => `/users/${id}`  
   },
   expense: {
     getAlls: (id, date) => `/expenses?id=${id}&date=${date}`,

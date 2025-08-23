@@ -10,6 +10,7 @@ import HotelManagementLayout from '../layouts/HotelManagementLayout';
 import RetalManagement from '../views/pages/management/rental-management';
 import ChangePassword from '../views/pages/management/change-password';
 import RoomPriceUpdate from 'views/pages/management/price-management/update-price-page';
+import AddUserPage from 'views/pages/management/create-user/create-user-page';
 
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
@@ -63,6 +64,10 @@ const MainRoutes = {
         {
           path: 'price-management',
           element: <RoomPriceUpdate />
+        },
+        {
+          path: 'create-user',
+          element: <AddUserPage />
         }
       ]
     },

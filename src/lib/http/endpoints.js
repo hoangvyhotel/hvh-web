@@ -13,7 +13,12 @@ export const endpoints = {
   },
   room: {
     getAlls: (id, isGetAll) => `/rooms?id=${id}&isGetAll=${isGetAll}`,
-    updateRangePrice: () => '/rooms/update-range'
+    getRoomsByHotelId: (id) => `/rooms/hotel/${id}`,
+    updateRangePrice: () => '/rooms/update-range',
+    add: () => '/rooms',
+    update: (id) => `/rooms/${id}`,
+    updateStauts: (id) => `/rooms/status/${id}`,
+    delete: (id) => `/rooms/${id}`
   }
   ,
   utilities: {

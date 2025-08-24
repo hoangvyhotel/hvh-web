@@ -42,13 +42,7 @@ const pages = {
       url: '/pages/management',
       icon: icons.ChromeReaderModeOutlinedIcon
     },
-    {
-      id: 'utilities',
-      title: 'Dịch vụ',
-      type: 'item',
-      url: '/pages/management/utilities',
-      icon: icons.ChromeReaderModeOutlinedIcon
-    },
+  // utilities menu removed
      {
       id: 'lodging-report',
       title: 'Báo lưu trú',

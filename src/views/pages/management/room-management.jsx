@@ -118,36 +118,45 @@ const RoomManagement = () => {
       </div>
 
       <div className="p-6">
-        {/* Header Table */}
-        <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
-          <div className="col-span-1">Phòng</div>
-          <div className="col-span-1">Tầng</div>
-          <div className="col-span-5">Giá</div>
-          <div className="col-span-2">Tình trạng</div>
-          <div className="col-span-3 text-center">Actions</div>
+        <div className="flex items-center justify-between">
+          <div>Time</div>
+          <button className="px-4 py-2 bg-green-600 rounded text-white hover:bg-gray-500 transition-colors" onClick={handleAddRoom}>
+            Thêm phòng
+          </button>
         </div>
 
-        {/* Room List */}
-        <div className="bg-white">
-          {rooms.map((room, index) => (
-            <RoomItem key={room.id} room={room} onEdit={handleEditRoom} onDelete={handleDeleteRoom} />
-          ))}
+        <div className="mt-4">
+          {/* Header Table */}
+          <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
+            <div className="col-span-1">Phòng</div>
+            <div className="col-span-1">Tầng</div>
+            <div className="col-span-5">Giá</div>
+            <div className="col-span-2">Tình trạng</div>
+            <div className="col-span-3 text-center">Actions</div>
+          </div>
+
+          {/* Room List */}
+          <div className="bg-white">
+            {rooms.map((room, index) => (
+              <RoomItem key={room.id} room={room} onEdit={handleEditRoom} onDelete={handleDeleteRoom} />
+            ))}
+          </div>
+
+          {/* Add Button positioned at bottom right */}
+          <div className="flex justify-end mt-12">
+            <AddButton onClick={handleAddRoom} />
+          </div>
         </div>
 
-        {/* Add Button positioned at bottom right */}
-        <div className="flex justify-end mt-12">
-          <AddButton onClick={handleAddRoom} />
-        </div>
+        {/* Room Modal */}
+        <RoomModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          room={selectedRoom}
+          onSave={handleSaveRoom}
+          onKeyDown={handleEscapeKey}
+        />
       </div>
-
-      {/* Room Modal */}
-      <RoomModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        room={selectedRoom}
-        onSave={handleSaveRoom}
-        onKeyDown={handleEscapeKey}
-      />
     </>
   );
 };

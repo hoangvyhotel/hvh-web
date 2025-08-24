@@ -18,10 +18,15 @@ import { handlerDrawerOpen, useGetMenuMaster } from 'states/menu';
 // ==============================|| MAIN LAYOUT ||============================== //
 
 export default function MainLayout() {
-  const upLG = useMediaQuery((theme) => theme.breakpoints.up('lg'));
 
+  const upLG = useMediaQuery((theme) => theme.breakpoints.up('lg'));
   const { menuMaster } = useGetMenuMaster();
   const drawerOpen = menuMaster.isDashboardDrawerOpened;
+  const location = window.location.pathname;
+
+  useEffect(() => {
+    handlerDrawerOpen(false);
+  }, [location]);
 
   useEffect(() => {
     handlerDrawerOpen(upLG);

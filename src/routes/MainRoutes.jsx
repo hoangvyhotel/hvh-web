@@ -13,7 +13,7 @@ import RoomPriceUpdate from 'views/pages/management/price-management/update-pric
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
 const SamplePage = Loadable(lazy(() => import('views/pages/SamplePage')));
-const UtilitiesPage = Loadable(lazy(() => import('views/pages/management/utilities')));
+const UtilitiesPage = Loadable(lazy(() => import('views/pages/management/Utilities')));
 
 // utils
 const UtilsTypography = Loadable(lazy(() => import('views/components/Typography')));

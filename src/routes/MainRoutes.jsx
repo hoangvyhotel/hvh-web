@@ -54,7 +54,9 @@ const MainRoutes = {
         },
         {
           path: 'change-password',
-          element: <ChangePassword />,
+          element: <ChangePassword />
+        },
+        {
           path: 'expense-management',
           element: <ExpenseManagement />
         },

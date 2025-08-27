@@ -6,6 +6,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const APP_BASE_URL = `${env.VITE_APP_BASE_URL}`;
+  const devBase = mode === 'development' ? '' : APP_BASE_URL;
   const PORT = 3000;
 
   return {
@@ -23,7 +24,7 @@ export default defineConfig(({ mode }) => {
     define: {
       global: 'window'
     },
-    base: APP_BASE_URL,
+  base: devBase,
     plugins: [react(), jsconfigPaths(), tailwindcss()]
   };
 });

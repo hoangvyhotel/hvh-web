@@ -29,13 +29,15 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const roomData = {
-      id: formData.get('roomId'),
-      floor: formData.get('floor'),
+      floor: parseInt(formData.get('floor'), 10),
       description: formData.get('description'),
-      hourlyPrice: formData.get('hourlyPrice'),
-      hourlyDiscount: formData.get('hourlyDiscount'),
-      nightPrice: formData.get('nightPrice'),
-      dailyPrice: formData.get('dailyPrice')
+      originalPrice: parseFloat(formData.get('originalPrice')) || 0,
+      afterHoursPrice: parseFloat(formData.get('afterHoursPrice')) || 0,
+      dayPrice: parseFloat(formData.get('dayPrice')) || 0,
+      nightPrice: parseFloat(formData.get('nightPrice')) || 0,
+      typeHire: 1, // 1: Theo giờ, 2: Theo ngày, 3: Theo đêm. Mặc định load là 1
+      status: true,
+      hotelId: '68a6b81c9924e1f3880ce291' // Thay thế bằng ID khách sạn thực tế. Đợi API trả về
     };
     onSave(roomData);
     onClose();
@@ -60,21 +62,6 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5 bg-white">
-          {/* Phòng */}
-          <div className="grid grid-cols-12 gap-4 items-center">
-            <label className="col-span-3 text-gray-700 font-medium">Phòng</label>
-            <div className="col-span-9">
-              <input
-                type="text"
-                name="roomId"
-                defaultValue={room?.id || ''}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                placeholder="Nhập số phòng"
-                required
-              />
-            </div>
-          </div>
-
           {/* Tầng */}
           <div className="grid grid-cols-12 gap-4 items-center">
             <label className="col-span-3 text-gray-700 font-medium">Tầng</label>
@@ -117,8 +104,8 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
             <div className="col-span-9 flex items-center space-x-2">
               <input
                 type="number"
-                name="hourlyPrice"
-                defaultValue={room?.hourlyPrice || ''}
+                name="originalPrice"
+                defaultValue={room?.originalPrice || ''}
                 className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 placeholder="60000"
                 required
@@ -133,8 +120,8 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
             <div className="col-span-9 flex items-center space-x-2">
               <input
                 type="number"
-                name="hourlyDiscount"
-                defaultValue={room?.hourlyDiscount || ''}
+                name="afterHoursPrice"
+                defaultValue={room?.afterHoursPrice || ''}
                 className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 placeholder="20000"
                 required
@@ -165,8 +152,8 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
             <div className="col-span-9 flex items-center space-x-2">
               <input
                 type="number"
-                name="dailyPrice"
-                defaultValue={room?.dailyPrice || ''}
+                name="dayPrice"
+                defaultValue={room?.dayPrice || ''}
                 className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                 placeholder="300000"
                 required

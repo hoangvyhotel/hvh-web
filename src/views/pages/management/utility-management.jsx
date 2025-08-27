@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 // material-ui
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -11,6 +13,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import RoomServiceIcon from '@mui/icons-material/RoomService';
+import Divider from '@mui/material/Divider';
+import Box from '@mui/material/Box';
 import Battery80Icon from '@mui/icons-material/Battery80';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -26,6 +30,7 @@ import Stack from '@mui/material/Stack';
 import MainCard from 'components/cards/MainCard';
 import { useApiQuery, useApiMutation } from 'hooks/useApi';
 import { utilitiesRequests } from 'services/utilitiesService';
+import MainBackButton from 'components/buttons/BackButton';
 
 // no local sample data: table will be populated from API
 
@@ -34,6 +39,7 @@ export default function UtilitiesPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: '', price: '', icon: '', status: true });
   const [editId, setEditId] = useState(null);
+  const navigate = useNavigate();
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -50,7 +56,7 @@ export default function UtilitiesPage() {
   const formatPrice = (v) => {
     if (v == null || v === '') return '';
     const num = Number(String(v).replace(/[^0-9.-]+/g, '')) || 0;
-    return num.toLocaleString('en-US') + 'VND';
+    return num.toLocaleString('en-US') + 'vnđ';
   };
 
   const toNumberString = (v) => {
@@ -144,22 +150,34 @@ export default function UtilitiesPage() {
   };
 
   return (
-    <MainCard title="Quản lý dịch vụ">
+    <MainCard>
       <Grid container spacing={2} alignItems="center" justifyContent="space-between">
-        <Grid>
-          {/* larger heading for readability */}
-          <Typography variant="h5" sx={{ fontWeight: 600, fontSize: '1.25rem' }}>
+        <Grid item>
+          <MainBackButton onClick={() => navigate('/pages/management')}>Quay lại</MainBackButton>
+        </Grid>
+
+        <Grid item xs sx={{ textAlign: 'center' }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: 'success.dark', display: 'inline-flex', alignItems: 'center', gap: 1, fontSize: '2.2rem' }}>
             Danh sách dịch vụ
           </Typography>
         </Grid>
-  <Grid>
-          <Button onClick={handleOpen} variant="contained" color="primary" sx={{ fontSize: '0.95rem', paddingX: 2 }}>
-            Thêm
+
+        <Grid item>
+          <Button
+            onClick={handleOpen}
+            variant="contained"
+            sx={{ backgroundColor: '#16a34a', '&:hover': { backgroundColor: '#15803d' }, fontSize: '0.95rem', paddingX: 2 }}
+          >
+            Thêm dịch vụ
           </Button>
         </Grid>
       </Grid>
 
-      <TableContainer component={Paper} sx={{ mt: 2 }}>
+      <Box sx={{ mt: 2 }}>
+        <Divider />
+      </Box>
+
+      <TableContainer component={Paper} sx={{ mt: 2, boxShadow: 'none' }}>
         {listQuery.isLoading && (
           <Typography sx={{ p: 3 }}>Đang tải dữ liệu...</Typography>
         )}
@@ -174,8 +192,7 @@ export default function UtilitiesPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ width: 64 }} />
-              <TableCell sx={{ fontSize: '1.05rem', fontWeight: 600 }}>Tên</TableCell>
+              <TableCell sx={{ width: 360, minWidth: 240, fontWeight: 700, color: 'success.dark', fontSize: '1.1rem' }}>Tên</TableCell>
               <TableCell sx={{ fontSize: '1.05rem', fontWeight: 600 }}>Giá</TableCell>
               <TableCell sx={{ fontSize: '1.05rem', fontWeight: 600 }}>Tình Trạng</TableCell>
               <TableCell align="right" sx={{ fontSize: '1.05rem', fontWeight: 600 }}>
@@ -186,21 +203,38 @@ export default function UtilitiesPage() {
           <TableBody>
             {rows.map((row) => (
               <TableRow key={row.id}>
-                <TableCell>
+                <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2, width: 360, minWidth: 240 }}>
                   {row.icon ? (
-                    <Avatar src={row.icon} alt={row.name} sx={{ width: 40, height: 40 }} />
+                    <Avatar src={row.icon} alt={row.name} sx={{ width: 44, height: 44 }} />
                   ) : (
-                    <Battery80Icon color="primary" fontSize="large" />
+                    <Battery80Icon color="success" sx={{ fontSize: 36 }} />
                   )}
+                  <Typography sx={{ fontWeight: 700, color: 'success.main', fontSize: '1.125rem' }}>{row.name}</Typography>
                 </TableCell>
-                <TableCell sx={{ fontSize: '1.05rem', py: 2 }}>{row.name}</TableCell>
-                <TableCell sx={{ fontSize: '1.05rem', py: 2 }}>{row.price}</TableCell>
-                <TableCell sx={{ fontSize: '1.05rem', py: 2 }}>{row.status}</TableCell>
-                <TableCell align="right">
-                  <Button onClick={() => handleEdit(row)} color="info" size="small" sx={{ fontSize: '0.95rem', textTransform: 'none', mr: 1 }}>
+                <TableCell sx={{ py: 2 }}>
+                  <div>
+                    <Typography sx={{ color: 'success.main', fontWeight: 700, fontSize: '1.05rem' }}>{row.price}</Typography>
+                  </div>
+                </TableCell>
+                <TableCell sx={{ py: 2 }}>
+                  <Chip
+                    label={row.status}
+                    variant="outlined"
+                    sx={{
+                      color: row.status === 'Đang bán' ? 'success.main' : 'warning.main',
+                      borderColor: 'transparent',
+                      fontSize: '1.05rem',
+                      fontWeight: 600,
+                      paddingY: 0.5,
+                      paddingX: 1.25
+                    }}
+                  />
+                </TableCell>
+                <TableCell align="right" sx={{ py: 2 }}>
+                  <Button onClick={() => handleEdit(row)} variant="outlined" size="small" sx={{ fontSize: '0.95rem', textTransform: 'none', mr: 1, paddingY: 0.5, paddingX: 1.25 }}>
                     Cập nhật
                   </Button>
-                  <Button onClick={() => handleDelete(row.id)} color="error" size="small" sx={{ fontSize: '0.95rem', textTransform: 'none' }}>
+                  <Button onClick={() => handleDelete(row.id)} variant="outlined" color="error" size="small" sx={{ fontSize: '0.95rem', textTransform: 'none', paddingY: 0.5, paddingX: 1.25 }}>
                     Xóa
                   </Button>
                 </TableCell>

@@ -21,4 +21,9 @@ export const endpoints = {
     list: () => '/utilities',
     detail: (id) => `/utilities/${id}`
   }
+  ,
+  bills: {
+  daily: () => '/bills/daily',
+  monthly: () => '/bills/monthly'
+  }
 };

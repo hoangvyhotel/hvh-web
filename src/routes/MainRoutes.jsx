@@ -9,6 +9,8 @@ import HotelManagementLayout from '../layouts/HotelManagementLayout';
 import RetalManagement from '../views/pages/management/rental-management';
 import ChangePassword from '../views/pages/management/change-password';
 import RoomPriceUpdate from 'views/pages/management/price-management/update-price-page';
+import UtilitiesPage from 'views/pages/management/utility-management';
+import SummaryManagement from 'views/pages/management/summary-management';
 
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
@@ -61,12 +63,16 @@ const MainRoutes = {
         {
           path: 'price-management',
           element: <RoomPriceUpdate />
+        },
+        {
+          path: 'summary-management',
+          element: <SummaryManagement />
+        },
+        {
+          path: 'utility-management',
+          element: <UtilitiesPage />
         }
       ]
-    },
-    {
-      path: '/pages/management/utilities',
-      element: <UtilitiesPage />
     },
     {
       path: '/pages/lodging-report',

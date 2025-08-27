@@ -42,7 +42,8 @@ const pages = {
       url: '/pages/management',
       icon: icons.ChromeReaderModeOutlinedIcon
     },
-    {
+  // utilities menu removed
+     {
       id: 'lodging-report',
       title: 'Báo lưu trú',
       type: 'item',

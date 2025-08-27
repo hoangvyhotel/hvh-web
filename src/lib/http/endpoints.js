@@ -1,9 +1,5 @@
 export const endpoints = {
-  auth: {
-    login: () => '/auth/login',
-    refresh: () => '/auth/refresh',
-    me: () => '/auth/me'
-  },
+  // auth endpoints removed
   users: {
     root: () => '/users',
     list: () => '/users',
@@ -18,5 +14,16 @@ export const endpoints = {
   room: {
     getAlls: (id, isGetAll) => `/rooms?id=${id}&isGetAll=${isGetAll}`,
     updateRangePrice: () => '/rooms/update-range'
+  }
+  ,
+  utilities: {
+    root: () => '/utilities',
+    list: () => '/utilities',
+    detail: (id) => `/utilities/${id}`
+  }
+  ,
+  bills: {
+  daily: () => '/bills/daily',
+  monthly: () => '/bills/monthly'
   }
 };

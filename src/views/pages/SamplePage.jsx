@@ -9,8 +9,8 @@ export default function SamplePage() {
     { title: 'Nước', content: 'Nước', link: '/pages/management/utility-management' },
     { title: 'Danh sách thuê', content: 'Danh sách', link: '/pages/management/rental-management' },
     { title: 'Chi phí', content: 'Chi phí', link: '/pages/management/expense-management' },
-    { title: 'Danh sách', content: 'Danh sách', link: '/management/profit-management' },
-    { title: 'Tổng kết', content: 'Extra card example', link: '/management/summary-management' },
+    { title: 'Danh sách', content: 'Danh sách', link: '/pages/management/profit-management' },
+    { title: 'Tổng kết', content: 'Extra card example', link: '/pages/management/summary-management' },
     { title: 'Đổi mật khẩu', content: 'Extra card example', link: '/pages/management/change-password' },
     { title: 'Đổi mật khẩu admin', content: 'Extra card example', link: '/management/change-password-admin' }
   ];

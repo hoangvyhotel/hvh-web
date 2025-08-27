@@ -157,8 +157,7 @@ export default function UtilitiesPage() {
         </Grid>
 
         <Grid item xs sx={{ textAlign: 'center' }}>
-          <Typography variant="h5" sx={{ fontWeight: 700, color: 'success.dark', display: 'inline-flex', alignItems: 'center', gap: 1, fontSize: '26px' }}>
-            <RoomServiceIcon sx={{ color: 'success.main', fontSize: '28px' }} />
+          <Typography variant="h5" sx={{ fontWeight: 700, color: 'success.dark', display: 'inline-flex', alignItems: 'center', gap: 1, fontSize: '2.2rem' }}>
             Danh sách dịch vụ
           </Typography>
         </Grid>

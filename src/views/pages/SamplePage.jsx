@@ -12,7 +12,8 @@ export default function SamplePage() {
     { title: 'Danh sách', content: 'Danh sách', link: '/pages/management/profit-management' },
     { title: 'Tổng kết', content: 'Extra card example', link: '/pages/management/summary-management' },
     { title: 'Đổi mật khẩu', content: 'Extra card example', link: '/pages/management/change-password' },
-    { title: 'Đổi mật khẩu admin', content: 'Extra card example', link: '/management/change-password-admin' }
+    { title: 'Đổi mật khẩu admin', content: 'Extra card example', link: '/management/change-password-admin' },
+    { title: 'Tạo tài khoản mới', content: 'Extra card example', link: '/pages/management/create-user' }
   ];
 
   return (

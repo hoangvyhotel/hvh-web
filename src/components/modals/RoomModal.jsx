@@ -68,7 +68,7 @@ const RoomModal = ({ isOpen, onClose, room, onCreate, onUpdate }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5 bg-white">
-          {/* Tầng */}
+          Tầng
           <div className="grid grid-cols-12 gap-4 items-center">
             <label className="col-span-3 text-gray-700 font-medium">Tầng</label>
             <div className="col-span-9">

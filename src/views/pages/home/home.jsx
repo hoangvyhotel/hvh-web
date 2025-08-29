@@ -22,23 +22,7 @@ import { trafficSourceData } from './data/traffic-source-card-data';
 export default function Home() {
   return (
     <Grid container spacing={GRID_SPACING}>
-      {reportCardData.map((data, index) => (
-        <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
-          <ReportCard {...data} />
-        </Grid>
-      ))}
-      <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
-        <Stack sx={{ gap: GRID_SPACING }}>
-          <SalesLineChartCard {...salesLineCardData} />
-          <SmallFlatCard items={smallFlatCardData} />
-        </Stack>
-      </Grid>
-      <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
-        <RevenuChartCard {...revenueCardData} />
-      </Grid>
-      <Grid size={{ xs: 12, lg: 4 }}>
-        <TrafficSourceCard {...trafficSourceData} />
-      </Grid>
+     
     </Grid>
   );
 }

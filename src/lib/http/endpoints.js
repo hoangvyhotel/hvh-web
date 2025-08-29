@@ -23,18 +23,26 @@ export const endpoints = {
     update: (id) => `/rooms/${id}`,
     updateStauts: (id) => `/rooms/status/${id}`,
     delete: (id) => `/rooms/${id}`
-  }
-  ,
+  },
   utilities: {
     root: () => '/utilities',
     list: () => '/utilities',
     detail: (id) => `/utilities/${id}`
-  }
-  ,
+  },
   bills: {
   getBills: () => '/bills',
   getBillById: (id) => `/bills/${id}`,
   daily: () => '/bills/daily',
   monthly: () => '/bills/monthly'
+  },
+  booking: {
+    getRooms: (id) => `/booking/${id}`,
+    addBooking: () => '/booking',
+    addSurcharge: () => '/booking/add-surcharge',
+    addNote: (id) => `/booking/add-note/${id}`,
+    addUtility: () => '/booking/add-utility',
+    removeUtility: () => '/booking/remove-utility',
+    removeBooking: (id) => `/booking/remove-booking/${id}`,
+    getBooking: (id) => `/booking/booking-info/${id}`
   }
 };

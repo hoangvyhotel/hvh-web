@@ -2,6 +2,7 @@ import Header from '../../../../layouts/HotelManagementLayout/Header';
 import { http } from 'lib/http/axios';
 import { Tag } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { roomRequests } from 'services/roomService';
 
 const RoomPriceUpdate = () => {
@@ -21,7 +22,7 @@ const RoomPriceUpdate = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await http(roomRequests.getAll('60d5ecb54b24c2001f6479a2', 'true'));
+      const res = await http(roomRequests.getAll('68a6b81c9924e1f3880ce291', 'true'));
       if (res.data.succeeded) {
         setRoomsData(res.data.data);
       } else {
@@ -116,7 +117,7 @@ const RoomPriceUpdate = () => {
       const response = await http(roomRequests.updateRangePrice(updateData));
 
       if (response.data.succeeded) {
-        alert('Cập nhật giá thành công!');
+        toast(response.data.message);
         // Reset form
         setPriceType('');
         setNewPrice('');

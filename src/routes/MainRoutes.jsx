@@ -3,6 +3,7 @@ import { lazy } from 'react';
 // project imports
 import Loadable from 'components/Loadable';
 import MainLayout from 'layouts/MainLayout';
+import Login from 'views/auth/Login';
 import RoomManagement from '../views/pages/management/room-management';
 import ExpenseManagement from '../views/pages/management/expense-management/expense-page';
 import HotelManagementLayout from '../layouts/HotelManagementLayout';
@@ -12,6 +13,7 @@ import RoomPriceUpdate from 'views/pages/management/price-management/update-pric
 import UtilitiesPage from 'views/pages/management/utility-management';
 import SummaryManagement from 'views/pages/management/summary-management';
 import AddUserPage from 'views/pages/management/create-user/create-user-page';
+import { ProtectedRoute, AdminProtectedRoute } from 'hooks/useAuth';
 
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
@@ -28,20 +30,34 @@ const MainRoutes = {
   element: <MainLayout />,
   children: [
     {
-      path: '/',
-      element: <DashboardDefault />
+      index: true,
+      element: (
+        <ProtectedRoute>
+          <DashboardDefault />
+        </ProtectedRoute>
+      )
     },
     {
-      path: '/pages/home',
-      element: <DashboardDefault />
+      path: 'pages/home',
+      element: (
+        <ProtectedRoute>
+          <DashboardDefault />
+        </ProtectedRoute>
+      )
     },
     {
-      path: '/pages/instruction',
+      path: 'pages/instruction',
       element: <SamplePage />
     },
     {
-      path: '/pages/management',
-      element: <HotelManagementLayout />,
+      path: 'pages/management',
+      element: (
+        <ProtectedRoute>
+          <AdminProtectedRoute>
+            <HotelManagementLayout />
+          </AdminProtectedRoute>
+        </ProtectedRoute>
+      ),
       children: [
         {
           path: '',
@@ -78,10 +94,9 @@ const MainRoutes = {
       ]
     },
     {
-      path: '/pages/lodging-report',
+      path: 'pages/lodging-report',
       element: <SamplePage />
     },
-  // auth routes removed
     {
       path: 'components',
       children: [

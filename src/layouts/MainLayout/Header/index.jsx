@@ -7,9 +7,9 @@ import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
 
 // project imports
-import Notification from './Notification';
-import Profile from './Profile';
-import Search from './Search';
+import { useNavigate } from 'react-router-dom';
+import Button from '@mui/material/Button';
+import { useAuthState, useHotelState } from 'hooks/useAuth';
 
 import { DRAWER_WIDTH } from 'config';
 import { handlerDrawerOpen, useGetMenuMaster } from 'states/menu';
@@ -44,12 +44,29 @@ export default function Header() {
       </Stack>
       <Box sx={{ flexGrow: 1 }} />
       <Stack direction="row" sx={{ alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
-        <Search />
-        <Notification />
-        <Profile />
+        {/* Replace header utilities (search/notify/profile) with a Logout button */}
+        <LogoutButton />
       </Stack>
     </Toolbar>
   );
 
   return <AppBar {...appBar}>{mainHeader}</AppBar>;
+}
+
+function LogoutButton() {
+  const navigate = useNavigate();
+  const { logout } = useAuthState();
+  const { setHotelId } = useHotelState();
+
+  const onLogout = () => {
+    logout();
+    setHotelId(null);
+    navigate('/login');
+  };
+
+  return (
+    <Button variant="contained" color="secondary" size="small" onClick={onLogout} sx={{ textTransform: 'none' }}>
+      Đăng xuất
+    </Button>
+  );
 }

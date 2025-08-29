@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 
 // project imports
 import { handlerActiveItem, handlerDrawerOpen, useGetMenuMaster } from 'states/menu';
+import { http } from 'lib/http/axios';
 
 // assets
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -28,14 +29,41 @@ export default function NavItem({ item, level = 0 }) {
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
 
   const location = useLocation();
+    // handled navigation for protected menu items in the click handler below
 
+
+  const navigate = useNavigate();
+
+  const handleProtectedNavigation = async () => {
+    // protect management routes
+    const isProtected = item.id === 'management' || (item.url && item.url.includes('/pages/management'));
+    if (!isProtected) return true; // allow
+
+    // check admin flag
+    const isAdmin = localStorage.getItem('is_admin_logged_in') === 'true';
+    if (isAdmin) return true;
+
+    // not admin => redirect to admin-login page (handled by AdminLogin component)
+    return false;
+  };
   useEffect(() => {
     if (location.pathname === item.url) handlerActiveItem(item.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
-  const itemHandler = () => {
+  const itemHandler = async () => {
     if (downLG) handlerDrawerOpen(false);
+    const ok = await handleProtectedNavigation();
+    if (ok && item.url) {
+      navigate(item.url);
+      return;
+    }
+
+    // if protected and not ok (i.e. not admin), redirect to /admin-login with target
+    const isProtected = item.id === 'management' || (item.url && item.url.includes('/pages/management'));
+    if (isProtected) {
+      navigate('/admin-login', { state: { from: item.url } });
+    }
   };
 
   const Icon = item.icon;
@@ -44,8 +72,7 @@ export default function NavItem({ item, level = 0 }) {
   return (
     <ListItemButton
       id={`${item.id}-btn`}
-      {...(item.url && { component: Link, to: item.url })}
-      {...(item.target && { target: item.target })}
+  {...(item.target && { target: item.target })}
       selected={openItem === item.id}
       disabled={item.disabled}
       onClick={itemHandler}

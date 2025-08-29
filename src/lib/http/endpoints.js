@@ -1,6 +1,7 @@
 export const endpoints = {
   auth: {
     login: () => '/auth/login',
+  loginAdmin: () => '/auth/login-admin',
     refresh: () => '/auth/refresh',
     me: () => '/auth/me',
     register: () => '/auth/register'
@@ -30,10 +31,9 @@ export const endpoints = {
     root: () => '/utilities',
     list: () => '/utilities',
     detail: (id) => `/utilities/${id}`
-  }
-  ,
+  },
   bills: {
-  daily: () => '/bills/daily',
-  monthly: () => '/bills/monthly'
+    daily: () => '/bills/daily',
+    monthly: () => '/bills/monthly'
   }
 };

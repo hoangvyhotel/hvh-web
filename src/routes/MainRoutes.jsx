@@ -87,7 +87,9 @@ const MainRoutes = {
         },
         {
           path: 'utility-management',
-          element: <UtilitiesPage />},{
+          element: <UtilitiesPage />
+        },
+        {
           path: 'create-user',
           element: <AddUserPage />
         }

@@ -2,8 +2,8 @@ import { endpoints } from '../lib/http/endpoints';
 import { toQuery } from '../lib/http/utils';
 
 export const utilitiesRequests = {
-  list: (params = {}) => {
-    const p = { ...params };
+  list: (id) => {
+    const p = { hotelId: id ?? DEFAULT_HOTEL_ID };
     return { method: 'GET', url: endpoints.utilities.list() + toQuery(p) };
   },
   get: (id) => ({ method: 'GET', url: endpoints.utilities.detail(id) }),

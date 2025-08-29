@@ -103,7 +103,6 @@ const ExpenseManagement = () => {
   // ---------------- RENDER ----------------
   if (loading) return <div className="p-6">Đang tải...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
-  const totalAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
 
   return (
     <>
@@ -112,8 +111,42 @@ const ExpenseManagement = () => {
         <Header title="Quản lý chi phí" icon={<FileText className="w-6 h-6 mr-2 text-green-600" />} />
       </div>
 
+      {/* FILTER & ADD BUTTON */}
       <div className="p-2 sm:p-4 md:p-6">
-        {/* ... phần filter & add button giữ nguyên ... */}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <select
+              value={month}
+              onChange={(e) => setMonth(Number(e.target.value))}
+              className="border border-gray-300 rounded px-2 py-1 w-full sm:w-auto"
+            >
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                <option key={m} value={m}>
+                  Tháng {m}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+              className="border border-gray-300 rounded px-2 py-1 w-full sm:w-auto"
+            >
+              {Array.from({ length: 5 }, (_, i) => currentYear - 2 + i).map((y) => (
+                <option key={y} value={y}>
+                  Năm {y}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            className="px-4 py-2 bg-green-500 text-white font-semibold rounded hover:bg-green-600 transition-colors cursor-pointer w-full sm:w-auto"
+            onClick={openAddModal}
+          >
+            Thêm chi phí
+          </button>
+        </div>
 
         {/* TABLE HEADER */}
         <div className="hidden md:grid grid-cols-12 gap-2 py-4 px-2 md:px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700 text-xs md:text-base">
@@ -129,22 +162,11 @@ const ExpenseManagement = () => {
           {expenses.length === 0 ? (
             <div className="text-center py-8 text-gray-400">Không có dữ liệu</div>
           ) : (
-            <>
-              {expenses.map((exp) => (
-                <ExpenseItem key={exp._id} expense={exp} onEdit={openEditModal} onDelete={openConfirmModal} />
-              ))}
-
-              {/* Hàng tổng cộng */}
-              <div className="border-t border-gray-300 font-bold px-2 md:px-4 py-4 grid grid-cols-12 gap-2 text-xs md:text-base bg-gray-50">
-                <div className="col-span-2">Tổng cộng</div>
-                <div className="col-span-2 text-green-700">{new Intl.NumberFormat('vi-VN').format(totalAmount)} VND</div>
-                <div className="col-span-8"></div>
-              </div>
-            </>
+            expenses.map((exp) => <ExpenseItem key={exp._id} expense={exp} onEdit={openEditModal} onDelete={openConfirmModal} />)
           )}
         </div>
 
-        {/* MODALS giữ nguyên */}
+        {/* MODALS */}
         <ExpenseModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}

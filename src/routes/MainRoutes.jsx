@@ -14,6 +14,8 @@ import UtilitiesPage from 'views/pages/management/utility-management';
 import SummaryManagement from 'views/pages/management/summary-management';
 import AddUserPage from 'views/pages/management/create-user/create-user-page';
 import { ProtectedRoute, AdminProtectedRoute } from 'hooks/useAuth';
+import RoomTrackingDemo from 'views/pages/home/room-tracking/RoomTracking';
+import CheckinPage from 'views/pages/management/checkin-zone/checkin-page';
 
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
@@ -59,6 +61,10 @@ const MainRoutes = {
         </ProtectedRoute>
       ),
       children: [
+        {
+          path: 'checkin-zone',
+          element: <CheckinPage />
+        },
         {
           path: '',
           element: <SamplePage />

@@ -32,7 +32,7 @@ const pages = {
       id: 'home',
       title: 'Trang chủ',
       type: 'item',
-      url: '/pages/home',
+      url: '/pages/home/room-tracking',
       icon: icons.ChromeReaderModeOutlinedIcon
     },
     {

@@ -12,6 +12,8 @@ import RoomPriceUpdate from 'views/pages/management/price-management/update-pric
 import UtilitiesPage from 'views/pages/management/utility-management';
 import SummaryManagement from 'views/pages/management/summary-management';
 import AddUserPage from 'views/pages/management/create-user/create-user-page';
+import RoomTrackingDemo from 'views/pages/home/room-tracking/RoomTracking';
+import CheckinPage from 'views/pages/management/checkin-zone/checkin-page';
 
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
@@ -31,17 +33,25 @@ const MainRoutes = {
       element: <DashboardDefault />
     },
     {
-      path: '/pages/home',
-      element: <DashboardDefault />
+      path: '/pages/home/room-tracking',
+      element: <RoomTrackingDemo />
     },
     {
       path: '/pages/instruction',
       element: <SamplePage />
     },
     {
+      path: '/  ',
+      element: <CheckinPage />
+    },
+    {
       path: '/pages/management',
       element: <HotelManagementLayout />,
       children: [
+        {
+          path: 'checkin-zone',
+          element: <CheckinPage />
+        },
         {
           path: '',
           element: <SamplePage />

@@ -4,8 +4,8 @@ import { toQuery } from '../lib/http/utils';
 const DEFAULT_HOTEL_ID = '60d5ecb54b24c2001f6479a1';
 
 export const utilitiesRequests = {
-  list: (params = {}) => {
-    const p = { hotelId: DEFAULT_HOTEL_ID, ...params };
+  list: (id) => {
+    const p = { hotelId: id ?? DEFAULT_HOTEL_ID };
     return { method: 'GET', url: endpoints.utilities.list() + toQuery(p) };
   },
   get: (id) => ({ method: 'GET', url: endpoints.utilities.detail(id) }),

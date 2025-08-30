@@ -1,4 +1,4 @@
-const RoomItem = ({ room, onEdit, onDelete, onUpdateStatus, index }) => {
+const RoomItem = ({ room, onEdit, onUpdateStatus, index }) => {
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price) + ' vnđ';
   };
@@ -15,10 +15,6 @@ const RoomItem = ({ room, onEdit, onDelete, onUpdateStatus, index }) => {
     onEdit(room);
   };
 
-  const handleDelete = () => {
-    onDelete(room.id);
-  };
-
   const handleUpdateStatus = () => {
     const newStatus = !room.status;
     onUpdateStatus(room.id, newStatus);
@@ -28,11 +24,11 @@ const RoomItem = ({ room, onEdit, onDelete, onUpdateStatus, index }) => {
     <div className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-200 hover:bg-gray-50 transition-colors items-center">
       {/* Phòng */}
       <div className="col-span-1">
-        <span className="text-green-600 font-semibold">{index + 1}</span>
+        <span className="text-green-600 font-semibold">{room.name}</span>
       </div>
 
       {/* Tầng */}
-      <div className="col-span-1">
+      <div className="col-span-1 flex justify-center">
         <span className="text-green-600 font-semibold">{room.floor}</span>
       </div>
 
@@ -51,7 +47,7 @@ const RoomItem = ({ room, onEdit, onDelete, onUpdateStatus, index }) => {
       </div>
 
       {/* Tình trạng */}
-      <div className="col-span-2">
+      <div className="col-span-2 flex justify-center">
         {room.status === true ? (
           <span className={`font-medium ${getStatusColor(room.status)}`}>{getStatusDisplay(room.status)}</span>
         ) : (

@@ -6,7 +6,7 @@ import MainLayout from 'layouts/MainLayout';
 import RoomManagement from '../views/pages/management/room-management';
 import ExpenseManagement from '../views/pages/management/expense-management/expense-page';
 import HotelManagementLayout from '../layouts/HotelManagementLayout';
-import RetalManagement from '../views/pages/management/rental-management';
+import RetalManagement from '../views/pages/management/bill-management';
 import ChangePassword from '../views/pages/management/change-password';
 import RoomPriceUpdate from 'views/pages/management/price-management/update-price-page';
 import UtilitiesPage from 'views/pages/management/utility-management';
@@ -72,7 +72,9 @@ const MainRoutes = {
         },
         {
           path: 'utility-management',
-          element: <UtilitiesPage />},{
+          element: <UtilitiesPage />
+        },
+        {
           path: 'create-user',
           element: <AddUserPage />
         }
@@ -82,7 +84,7 @@ const MainRoutes = {
       path: '/pages/lodging-report',
       element: <SamplePage />
     },
-  // auth routes removed
+    // auth routes removed
     {
       path: 'components',
       children: [

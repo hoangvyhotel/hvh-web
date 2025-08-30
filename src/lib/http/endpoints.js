@@ -8,7 +8,7 @@ export const endpoints = {
   users: {
     root: () => '/users',
     list: () => '/users',
-    detail: (id) => `/users/${id}`  
+    detail: (id) => `/users/${id}`
   },
   expense: {
     getAlls: (id, date) => `/expenses?id=${id}&date=${date}`,
@@ -18,7 +18,6 @@ export const endpoints = {
   },
   room: {
     getAlls: (id, isGetAll) => `/rooms?id=${id}&isGetAll=${isGetAll}`,
-    getRoomsByHotelId: (id) => `/rooms/hotel/${id}`,
     updateRangePrice: () => '/rooms/update-range',
     add: () => '/rooms',
     update: (id) => `/rooms/${id}`,
@@ -33,6 +32,8 @@ export const endpoints = {
   }
   ,
   bills: {
+  getBills: () => '/bills',
+  getBillById: (id) => `/bills/${id}`,
   daily: () => '/bills/daily',
   monthly: () => '/bills/monthly'
   }

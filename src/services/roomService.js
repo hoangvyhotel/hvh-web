@@ -2,10 +2,6 @@ import { http } from 'lib/http/axios.js';
 import { endpoints } from '../lib/http/endpoints.js';
 
 export const roomRequests = {
-  fetchRoomsByHotelId: (hotelId) => ({
-    method: 'GET',
-    url: endpoints.room.getRoomsByHotelId(hotelId),
-  }),
   getAll: (id, isGetAll) => ({
     method: 'GET',
     url: endpoints.room.getAlls(id, isGetAll),
@@ -36,8 +32,8 @@ export const roomRequests = {
   })
 };
 
-export const fetchRoomsByHotelId = async (hotelId) => {
-  const response = await http(roomRequests.fetchRoomsByHotelId(hotelId));
+export const fetchRoomsByHotelId = async (hotelId, isGetAll) => {
+  const response = await http(roomRequests.getAll(hotelId, isGetAll));
   return response.data.data;
 };
 

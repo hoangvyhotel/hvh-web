@@ -7,7 +7,7 @@ import Login from 'views/auth/Login';
 import RoomManagement from '../views/pages/management/room-management';
 import ExpenseManagement from '../views/pages/management/expense-management/expense-page';
 import HotelManagementLayout from '../layouts/HotelManagementLayout';
-import RetalManagement from '../views/pages/management/rental-management';
+import RetalManagement from '../views/pages/management/bill-management';
 import ChangePassword from '../views/pages/management/change-password';
 import RoomPriceUpdate from 'views/pages/management/price-management/update-price-page';
 import UtilitiesPage from 'views/pages/management/utility-management';

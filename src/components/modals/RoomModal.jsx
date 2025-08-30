@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 
 import { floorData } from '../../views/pages/home/data/room-data';
 
-const RoomModal = ({ isOpen, onClose, room, onSave }) => {
+const RoomModal = ({ isOpen, onClose, room, onCreate, onUpdate }) => {
   // Handle keyboard events
   useEffect(() => {
     if (!isOpen) return;
@@ -30,6 +30,7 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
     const formData = new FormData(e.target);
     const roomData = {
       floor: parseInt(formData.get('floor'), 10),
+      name: formData.get('roomName'),
       description: formData.get('description'),
       originalPrice: parseFloat(formData.get('originalPrice')) || 0,
       afterHoursPrice: parseFloat(formData.get('afterHoursPrice')) || 0,
@@ -39,7 +40,12 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
       status: true,
       hotelId: '68a6b81c9924e1f3880ce291' // Thay thế bằng ID khách sạn thực tế. Đợi API trả về
     };
-    onSave(roomData);
+    if (room) {
+      roomData.id = room.id;
+      onUpdate(roomData);
+    } else {
+      onCreate(roomData);
+    }
     onClose();
   };
 
@@ -81,6 +87,20 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
                     )
                 )}
               </select>
+            </div>
+          </div>
+
+          {/* Tên phòng */}
+          <div className="grid grid-cols-12 gap-4 items-center">
+            <label className="col-span-3 text-gray-700 font-medium pt-2">Tên phòng</label>
+            <div className="col-span-9">
+              <input
+                type="text"
+                name="roomName"
+                defaultValue={room?.name || ''}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                placeholder="Nhập tên phòng"
+              />
             </div>
           </div>
 

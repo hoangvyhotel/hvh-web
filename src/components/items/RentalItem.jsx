@@ -1,53 +1,51 @@
-const RentalItem = ({ rental, onEdit, onDelete }) => {
-  const formatCurrency = (amount) => {
-    if (!amount) return '-';
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(amount);
-  };
+import BillModal from 'components/modals/BillModal';
+import { useState } from 'react';
+import { fetchBillById } from 'services/billsService';
 
-  const formatDateTime = (dateString) => {
-    if (!dateString) return '-';
-    return dateString;
+const RentalItem = ({ bill, onEdit, onDelete }) => {
+  const [isModelOpen, setIsModalOpen] = useState(false);
+  const [selectedBill, setSelectedBill] = useState(null);
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN').format(price) + ' vnđ';
   };
 
   const handleEdit = () => {
     if (onEdit) onEdit(rental);
   };
 
-  const handleViewDetails = () => {
+  const handleViewDetails = async () => {
     // Handle view details logic
-    console.log('View details for rental:', rental.id);
+    const billData = await fetchBillById(bill._id.toString());
+    setSelectedBill(billData);
+    setIsModalOpen(true);
   };
 
   return (
     <div className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-200 hover:bg-gray-50 transition-colors items-center">
       {/* Phòng */}
       <div className="col-span-1">
-        <span className="text-green-600 font-semibold">{rental.roomNumber}</span>
+        <span className="text-green-600 font-semibold">{bill.roomName}</span>
       </div>
 
       {/* Giờ (Check-in và Check-out) */}
-      <div className="col-span-4 space-y-1">
+      <div className="col-span-4 space-y-1 flex justify-center">
         <div className="text-sm">
           <span className="font-medium text-gray-700">Check-in:</span>
-          <span className="ml-2 text-gray-600">{formatDateTime(rental.checkIn)}</span>
         </div>
         <div className="text-sm">
           <span className="font-medium text-gray-700">Check-out:</span>
-          <span className="ml-2 text-gray-600">{formatDateTime(rental.checkOut)}</span>
         </div>
       </div>
 
       {/* Tiền Nước */}
-      <div className="col-span-2">
-        <span className="text-gray-600">{formatCurrency(rental.waterFee)}</span>
+      <div className="col-span-2 flex justify-center">
+        <span className="text-gray-600">{formatPrice(bill.totalUtilitiesPrice)}</span>
       </div>
 
       {/* Số Tiền */}
-      <div className="col-span-2">
-        <span className="text-green-600 font-semibold">{formatCurrency(rental.totalAmount)}</span>
+      <div className="col-span-2 flex justify-center">
+        <span className="text-green-600 font-semibold">{formatPrice(bill.totalRoomPrice)}</span>
       </div>
 
       {/* Actions */}
@@ -63,6 +61,7 @@ const RentalItem = ({ rental, onEdit, onDelete }) => {
           XEM CHI TIẾT
         </button>
       </div>
+      <BillModal isOpen={isModelOpen} onClose={() => setIsModalOpen(false)} bill={bill} />
     </div>
   );
 };

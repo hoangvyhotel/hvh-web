@@ -15,6 +15,7 @@ import Typography from '@mui/material/Typography';
 // project imports
 import { handlerActiveItem, handlerDrawerOpen, useGetMenuMaster } from 'states/menu';
 import { http } from 'lib/http/axios';
+import { useAuthState, useHotelState } from 'hooks/useAuth';
 
 // assets
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -46,6 +47,8 @@ export default function NavItem({ item, level = 0 }) {
     // not admin => redirect to admin-login page (handled by AdminLogin component)
     return false;
   };
+  const { logout } = useAuthState();
+  const { setHotelId } = useHotelState();
   useEffect(() => {
     if (location.pathname === item.url) handlerActiveItem(item.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,6 +56,25 @@ export default function NavItem({ item, level = 0 }) {
 
   const itemHandler = async () => {
     if (downLG) handlerDrawerOpen(false);
+    // handle logout menu item directly
+    if (item.id === 'logout') {
+      try {
+        logout();
+      } catch (e) {
+        try {
+          localStorage.setItem('is_logged_in', 'false');
+          localStorage.removeItem('hotel_id');
+          localStorage.removeItem('username');
+          localStorage.removeItem('is_admin_logged_in');
+        } catch (err) {}
+      }
+      try {
+        setHotelId(null);
+      } catch (e) {}
+      navigate('/login');
+      return;
+    }
+
     const ok = await handleProtectedNavigation();
     if (ok && item.url) {
       navigate(item.url);
@@ -79,6 +101,7 @@ export default function NavItem({ item, level = 0 }) {
       sx={{
         color: 'text.primary',
         mb: 0.625,
+  mt: level === 0 && item.id === 'home' ? 1 : 0,
         borderRadius: 1,
         pl: `${level * 16}px`,
         ...(level === 0 && { '&.Mui-selected': { color: 'primary.main' } }),

@@ -27,6 +27,7 @@ import Stack from '@mui/material/Stack';
 import MainCard from 'components/cards/MainCard';
 import { useApiQuery, useApiMutation } from 'hooks/useApi';
 import { utilitiesRequests } from 'services/utilitiesService';
+import { useHotelState } from 'hooks/useAuth';
 import MainBackButton from 'components/buttons/BackButton';
 import Header from 'layouts/HotelManagementLayout/Header';
 import { Tag } from 'lucide-react';
@@ -68,8 +69,10 @@ export default function UtilitiesPage() {
   const updateMutation = useApiMutation((dto) => utilitiesRequests.update(dto.id, dto));
   const deleteMutation = useApiMutation((id) => utilitiesRequests.remove(id));
 
-  // load list from API (hotelId handled on backend or by default)
-  const listQuery = useApiQuery(['utilities'], utilitiesRequests.list());
+  const { hotelId } = useHotelState();
+
+  // load list from API using current hotelId
+  const listQuery = useApiQuery(['utilities', hotelId], utilitiesRequests.list({ hotelId }));
 
   useEffect(() => {
     // map incoming query data (supports either raw array or wrapper { data: [...] })
@@ -95,7 +98,7 @@ export default function UtilitiesPage() {
       price: Number(String(form.price).replace(/[^0-9.-]+/g, '')) || 0,
       icon: form.icon || '',
       status: !!form.status,
-      hotelId: '60d5ecb54b24c2001f6479a1'
+      hotelId
     };
 
     if (editId) {

@@ -3,7 +3,10 @@ import { useEffect } from 'react';
 
 import { floorData } from '../../views/pages/home/data/room-data';
 
+import { useHotelState } from 'hooks/useAuth';
+
 const RoomModal = ({ isOpen, onClose, room, onSave }) => {
+  const { hotelId } = useHotelState();
   // Handle keyboard events
   useEffect(() => {
     if (!isOpen) return;
@@ -37,7 +40,7 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
       nightPrice: parseFloat(formData.get('nightPrice')) || 0,
       typeHire: 1, // 1: Theo giờ, 2: Theo ngày, 3: Theo đêm. Mặc định load là 1
       status: true,
-      hotelId: '68a6b81c9924e1f3880ce291' // Thay thế bằng ID khách sạn thực tế. Đợi API trả về
+  hotelId: hotelId || ''
     };
     onSave(roomData);
     onClose();

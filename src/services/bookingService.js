@@ -33,6 +33,11 @@ export const bookingRequests = {
     url: endpoints.booking.moveRoom(),
     data: dto
   }),
+  changeTypeBooking: (dto) => ({
+    method: 'PATCH',
+    url: endpoints.booking.changeTypeBooking(),
+    data: dto
+  }),
   removeUtility: (dto) => ({
     method: 'DELETE',
     url: endpoints.booking.removeUtility(),

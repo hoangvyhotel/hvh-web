@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import { utilitiesRequests } from 'services/utilitiesService';
 import { roomRequests } from 'services/roomService';
 import MoveRoomModal from './modal-actions/move-room-modal';
+import ChangeBookingTypeModal from './modal-actions/change-booking-type';
 function translateBookingType(type) {
   switch (type.toLowerCase()) {
     case 'day':
@@ -37,26 +38,26 @@ const CheckinPage = () => {
   const [noteData, setNoteData] = useState(null);
   const [isMoveRoomOpen, setIsMoveRoomOpen] = useState(false);
   const [availableRooms, setAvailableRooms] = useState([]);
+  const [isChangeTypeOpen, setIsChangeTypeOpen] = useState(false);
+  const fetchBooking = async () => {
+    if (!roomId) return;
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await http(bookingRequests.getBooking(roomId));
+      setBooking(res.data.data);
+    } catch (err) {
+      console.error(err);
+      setError('Không thể tải thông tin booking');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchBooking = async () => {
-      if (!roomId) return;
-      try {
-        setLoading(true);
-        setError(null);
-
-        const res = await http(bookingRequests.getBooking(roomId));
-        setBooking(res.data.data);
-      } catch (err) {
-        console.error(err);
-        setError('Không thể tải thông tin booking');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBooking();
   }, [roomId]);
-
   useEffect(() => {
     const fetchUtilities = async () => {
       if (!hotelId) return;
@@ -101,9 +102,13 @@ const CheckinPage = () => {
         {/* Top Bar */}
         <div className="bg-[#ADDDC0] text-gray-800 p-4 flex items-center justify-between">
           <div className="flex items-center space-x-2 p-2 rounded-md">
-            <button className="text-2xl p-2 rounded-full hover:bg-gray-200 transition-colors bg-white cursor-pointer">
+            <button
+              className="text-2xl p-2 rounded-full hover:bg-gray-200 transition-colors bg-white cursor-pointer"
+              onClick={() => navigate('/pages/home/room-tracking')}
+            >
               <Home />
             </button>
+
             <span className="text-xl font-semibold">Về Trang Chủ</span>
           </div>
           <div className="text-2xl font-bold">{booking.RoomName || ''}</div>
@@ -120,7 +125,10 @@ const CheckinPage = () => {
               <div className="flex flex-col sm:flex-row justify-between items-center border-b border-green-500 p-2 sm:p-4">
                 <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3">
                   <span className="text-lg font-bold">THUÊ THEO:</span>
-                  <button className="bg-green-600 text-white px-2 sm:px-3 py-1 rounded-md font-bold cursor-pointer">
+                  <button
+                    className="bg-green-600 text-white px-2 sm:px-3 py-1 rounded-md font-bold cursor-pointer"
+                    onClick={() => setIsChangeTypeOpen(true)}
+                  >
                     {translateBookingType(booking.TypeBooking) || ''}
                   </button>
                   <span className="text-lg font-bold">LÚC:</span>
@@ -518,6 +526,30 @@ const CheckinPage = () => {
           } catch (err) {
             console.error(err);
             toast.error('Đổi phòng thất bại');
+          }
+        }}
+      />
+
+      <ChangeBookingTypeModal
+        isOpen={isChangeTypeOpen}
+        onClose={() => setIsChangeTypeOpen(false)}
+        initialType={booking.TypeBooking} // VD: "HOUR", "DAY", "NIGHT"
+        onChangeType={async (newType) => {
+          try {
+            // Gọi API đổi kiểu booking
+            const res = await http(
+              bookingRequests.changeTypeBooking({
+                bookingId: booking.BookingId,
+                newPriceType: newType
+              })
+            );
+            toast.success(res.data.message || 'Đổi kiểu booking thành công');
+
+            await fetchBooking();
+            setIsChangeTypeOpen(false);
+          } catch (err) {
+            console.error(err);
+            toast.error('Đổi kiểu booking thất bại');
           }
         }}
       />

@@ -44,11 +44,12 @@ export default function MainLayout() {
         component="main"
         sx={{
           width: { xs: 1, lg: drawerOpen ? `calc(100% - ${DRAWER_WIDTH}px)` : 1 },
-          p: { xs: 2, sm: 3, md: 5 },
+          p: { xs: 1, sm: 2, md: 3 },
+          pt: { xs: 0.5, sm: 1, md: 2 },
           ml: { xs: 0, lg: 'auto' }
         }}
       >
-        <Toolbar />
+        <Toolbar sx={{ minHeight: 48 }} />
         <Breadcrumbs />
         <Outlet />
       </Box>

@@ -171,79 +171,45 @@ export default function UtilitiesPage() {
         </Grid>
       </div>
 
-      <TableContainer component={Paper} sx={{ mt: 2, boxShadow: 'none' }}>
-        {listQuery.isLoading && <Typography sx={{ p: 3 }}>Đang tải dữ liệu...</Typography>}
-        {listQuery.isError && (
-          <Typography color="error" sx={{ p: 3 }}>
-            Lỗi khi tải: {listQuery.error?.message ?? 'Không xác định'}
-          </Typography>
-        )}
-        {!listQuery.isLoading && !listQuery.isError && rows.length === 0 && <Typography sx={{ p: 3 }}>Chưa có dịch vụ nào.</Typography>}
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ width: 360, minWidth: 240, fontWeight: 700, color: 'success.dark', fontSize: '1.1rem' }}>Tên</TableCell>
-              <TableCell sx={{ fontSize: '1.05rem', fontWeight: 600 }}>Giá</TableCell>
-              <TableCell sx={{ fontSize: '1.05rem', fontWeight: 600 }}>Tình Trạng</TableCell>
-              <TableCell align="right" sx={{ fontSize: '1.05rem', fontWeight: 600 }}>
-                Hành động
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      <div className="p-6">
+        {listQuery.isLoading && <div className="p-3">Đang tải dữ liệu...</div>}
+        {listQuery.isError && <div className="p-3 text-red-600">Lỗi khi tải: {listQuery.error?.message ?? 'Không xác định'}</div>}
+        {!listQuery.isLoading && !listQuery.isError && rows.length === 0 && <div className="p-3">Chưa có dịch vụ nào.</div>}
+
+        <div className="mt-4">
+          <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
+            <div className="col-span-6">Tên</div>
+            <div className="col-span-2">Giá</div>
+            <div className="col-span-2">Tình Trạng</div>
+            <div className="col-span-2 text-right">Hành động</div>
+          </div>
+
+          <div className="bg-white">
             {rows.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2, width: 360, minWidth: 240 }}>
+              <div key={row.id} className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center">
+                <div className="col-span-6 flex items-center gap-3">
                   {row.icon ? (
                     <Avatar src={row.icon} alt={row.name} sx={{ width: 44, height: 44 }} />
                   ) : (
                     <Battery80Icon color="success" sx={{ fontSize: 36 }} />
                   )}
-                  <Typography sx={{ fontWeight: 700, color: 'success.main', fontSize: '1.125rem' }}>{row.name}</Typography>
-                </TableCell>
-                <TableCell sx={{ py: 2 }}>
-                  <div>
-                    <Typography sx={{ color: 'success.main', fontWeight: 700, fontSize: '1.05rem' }}>{row.price}</Typography>
-                  </div>
-                </TableCell>
-                <TableCell sx={{ py: 2 }}>
-                  <Chip
-                    label={row.status}
-                    variant="outlined"
-                    sx={{
-                      color: row.status === 'Đang bán' ? 'success.main' : 'warning.main',
-                      borderColor: 'transparent',
-                      fontSize: '1.05rem',
-                      fontWeight: 600,
-                      paddingY: 0.5,
-                      paddingX: 1.25
-                    }}
-                  />
-                </TableCell>
-                <TableCell align="right" sx={{ py: 2 }}>
-                  <Button
-                    onClick={() => handleEdit(row)}
-                    variant="outlined"
-                    size="small"
-                    sx={{ fontSize: '0.95rem', textTransform: 'none', mr: 1, paddingY: 0.5, paddingX: 1.25 }}
-                  >
+                  <div className="font-semibold text-success-main text-lg">{row.name}</div>
+                </div>
+                <div className="col-span-2">{row.price}</div>
+                <div className="col-span-2">{row.status}</div>
+                <div className="col-span-2 text-right">
+                  <Button onClick={() => handleEdit(row)} variant="outlined" size="small" sx={{ fontSize: '0.95rem', textTransform: 'none', mr: 1, paddingY: 0.5, paddingX: 1.25 }}>
                     Cập nhật
                   </Button>
-                  <Button
-                    onClick={() => handleDelete(row.id)}
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    sx={{ fontSize: '0.95rem', textTransform: 'none', paddingY: 0.5, paddingX: 1.25 }}
-                  >
+                  <Button onClick={() => handleDelete(row.id)} variant="outlined" color="error" size="small" sx={{ fontSize: '0.95rem', textTransform: 'none', paddingY: 0.5, paddingX: 1.25 }}>
                     Xóa
                   </Button>
-                </TableCell>
-              </TableRow>
+                </div>
+              </div>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </div>
+        </div>
+      </div>
 
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle>Thêm dịch vụ mới</DialogTitle>

@@ -48,7 +48,7 @@ export default function Header() {
         localStorage.setItem('is_logged_in', 'false');
         localStorage.removeItem('hotel_id');
         localStorage.removeItem('username');
-        localStorage.removeItem('is_admin_logged_in');
+          localStorage.removeItem('is_admin_logged_in');
       } catch (err) {}
     }
     try {

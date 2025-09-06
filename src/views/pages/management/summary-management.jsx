@@ -7,17 +7,13 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+
 
 // project
 import MainCard from 'components/cards/MainCard';
-import MainBackButton from 'components/buttons/BackButton';
+import Header from 'layouts/HotelManagementLayout/Header';
+import Button from '@mui/material/Button';
+import { BarChart } from 'lucide-react';
 
 // services
 import { billsRequests } from 'services/billsService';
@@ -53,18 +49,8 @@ export default function SummaryManagement() {
 
   return (
     <MainCard>
-      <Box sx={{ fontSize: '1.15rem' }}>
-      <Grid container alignItems="center" spacing={2} justifyContent="space-between">
-        <Grid item>
-          <MainBackButton onClick={() => window.history.back()}>Quay Lại</MainBackButton>
-        </Grid>
-
-        <Grid item xs sx={{ textAlign: 'center' }}>
-          <Typography variant="h3" sx={{ fontWeight: 700, color: 'success.dark', fontSize: '2.2rem' }}>
-            TỔNG KẾT
-          </Typography>
-        </Grid>
-
+      <div className="border-b border-gray-300 mb-4 flex items-center justify-between" style={{ borderBottomWidth: '0.5px' }}>
+        <Header title="Tổng kết" icon={<BarChart className="w-6 h-6 mr-2 text-blue-600" />} />
         <Grid item>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
             <FormControl size="small" sx={{ minWidth: 110 }}>
@@ -100,91 +86,72 @@ export default function SummaryManagement() {
             </FormControl>
           </Box>
         </Grid>
-      </Grid>
+      </div>
 
       <Box sx={{ mt: 2 }}>
         <Divider />
       </Box>
 
-      <TableContainer component={Paper} sx={{ mt: 2 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 1000 }}></TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: '1.5rem' }}>Tiền nước</TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: '1.5rem' }}>Tiền phòng</TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: '1.5rem' }}>Tổng</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 700, fontSize: '1.25rem' }}>CHI PHÍ</TableCell>
-              <TableCell sx={{ fontSize: '1.25rem' }}>{formatCurrency(0)}</TableCell>
-              <TableCell sx={{ fontSize: '1.25rem' }}>{formatCurrency(0)}</TableCell>
-              <TableCell sx={{ fontSize: '1.25rem' }}>{formatCurrency(0)}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 700, fontSize: '1.25rem' }}>DOANH THU</TableCell>
-              <TableCell sx={{ fontSize: '1.25rem' }}>{monthlyLoading ? '...' : formatCurrency(getMonthlyField('totalUtilities'))}</TableCell>
-              <TableCell sx={{ fontSize: '1.25rem' }}>{monthlyLoading ? '...' : formatCurrency(getMonthlyField('totalRoom'))}</TableCell>
-              <TableCell sx={{ fontSize: '1.25rem' }}>{monthlyLoading ? '...' : formatCurrency(getMonthlyField('total'))}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <div className="p-6">
+        <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
+          <div className="col-span-6">Mục</div>
+          <div className="col-span-3 text-right">Tiền nước</div>
+          <div className="col-span-3 text-right">Doanh thu</div>
+        </div>
+
+        <div className="bg-white">
+          <div className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center">
+            <div className="col-span-6 font-semibold">CHI PHÍ</div>
+            <div className="col-span-3 text-right">{formatCurrency(0)}</div>
+            <div className="col-span-3 text-right">{formatCurrency(0)}</div>
+          </div>
+
+          <div className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center">
+            <div className="col-span-6 font-semibold">DOANH THU</div>
+            <div className="col-span-3 text-right">{monthlyLoading ? '...' : formatCurrency(getMonthlyField('totalUtilities'))}</div>
+            <div className="col-span-3 text-right">{monthlyLoading ? '...' : formatCurrency(getMonthlyField('total'))}</div>
+          </div>
+        </div>
+      </div>
 
       {/* Daily breakdown - data from API */}
-  <TableContainer component={Paper} sx={{ mt: 2 }}>
-        <Table>
-          <TableHead>
-                <TableRow>
-          <TableCell sx={{ fontWeight: 700, fontSize: '1.2rem' }}>Thời điểm</TableCell>
-          <TableCell sx={{ fontWeight: 700, textAlign: 'right', fontSize: '1.15rem' }}>Tiền nước</TableCell>
-          <TableCell sx={{ fontWeight: 700, textAlign: 'right', fontSize: '1.15rem' }}>Tiền phòng</TableCell>
-          <TableCell sx={{ fontWeight: 700, textAlign: 'right', fontSize: '1.15rem' }}>Doanh thu</TableCell>
-                </TableRow>
-              </TableHead>
-          <TableBody>
-                {isLoading && (
-                  <TableRow>
-                    <TableCell colSpan={4} sx={{ textAlign: 'center' }}>Loading...</TableCell>
-                  </TableRow>
-                )}
+  <div className="p-6">
+    {isLoading && <div className="p-3">Đang tải dữ liệu...</div>}
+    {!isLoading && billsData && Array.isArray(billsData.data) && billsData.data.length === 0 && <div className="p-3">Không có dữ liệu</div>}
 
-            {!isLoading && billsData && Array.isArray(billsData.data) && billsData.data.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} sx={{ textAlign: 'center' }}>Không có dữ liệu</TableCell>
-              </TableRow>
-            )}
+    <div className="mt-4">
+      <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
+        <div className="col-span-6">Thời điểm</div>
+        <div className="col-span-3 text-right">Tiền nước</div>
+        <div className="col-span-3 text-right">Doanh thu</div>
+      </div>
 
-            {!isLoading && billsData && Array.isArray(billsData.data) && billsData.data.map((r) => {
-              // safe weekday: use API weekday if available, otherwise compute from year/month/day
-              const getWeekdayName = (y, m, d) => {
-                try {
-                  if (d == null) return '';
-                  const date = new Date(Number(y), Number(m) - 1, Number(d));
-                  return date.toLocaleDateString('vi-VN', { weekday: 'long' });
-                } catch (e) {
-                  return '';
-                }
-              };
+      <div className="bg-white">
+        {billsData && Array.isArray(billsData.data) && billsData.data.map((r) => {
+          const getWeekdayName = (y, m, d) => {
+            try {
+              if (d == null) return '';
+              const date = new Date(Number(y), Number(m) - 1, Number(d));
+              return date.toLocaleDateString('vi-VN', { weekday: 'long' });
+            } catch (e) {
+              return '';
+            }
+          };
 
-              const weekday = r.weekday ?? getWeekdayName(year, month, r.day);
-              const label = weekday ? `${weekday} (${String(r.day).padStart(2, '0')}/${String(month).padStart(2, '0')})` : `(${String(r.day).padStart(2, '0')}/${String(month).padStart(2, '0')})`;
+          const weekday = r.weekday ?? getWeekdayName(year, month, r.day);
+          const label = weekday ? `${weekday} (${String(r.day).padStart(2, '0')}/${String(month).padStart(2, '0')})` : `(${String(r.day).padStart(2, '0')}/${String(month).padStart(2, '0')})`;
 
-              return (
-                <TableRow key={r.day}>
-                  <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{label}</TableCell>
-                    <TableCell sx={{ textAlign: 'right', fontSize: '1.1rem' }}>{formatCurrency(r.totalUtilities)}</TableCell>
-                    <TableCell sx={{ textAlign: 'right', fontSize: '1.1rem' }}>{formatCurrency(r.totalRoom ?? r.totalRoomAmount ?? null)}</TableCell>
-                    <TableCell sx={{ textAlign: 'right', fontSize: '1.1rem' }}>{formatCurrency(r.total)}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      </Box>
+          return (
+            <div key={r.day} className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center">
+              <div className="col-span-6 font-semibold">{label}</div>
+              <div className="col-span-3 text-right">{formatCurrency(r.totalUtilities)}</div>
+              <div className="col-span-3 text-right">{formatCurrency(r.total ?? null)}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
     </MainCard>
   );
 }

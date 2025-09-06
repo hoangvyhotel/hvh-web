@@ -41,7 +41,7 @@ export default function NavItem({ item, level = 0 }) {
     if (!isProtected) return true; // allow
 
     // check admin flag
-    const isAdmin = localStorage.getItem('is_admin_logged_in') === 'true';
+  const isAdmin = typeof window !== 'undefined' && localStorage.getItem('is_admin_logged_in') === 'true';
     if (isAdmin) return true;
 
     // not admin => redirect to admin-login page (handled by AdminLogin component)
@@ -58,7 +58,7 @@ export default function NavItem({ item, level = 0 }) {
     if (downLG) handlerDrawerOpen(false);
     // handle logout menu item directly
     if (item.id === 'logout') {
-      try {
+        try {
         logout();
       } catch (e) {
         try {
@@ -84,7 +84,7 @@ export default function NavItem({ item, level = 0 }) {
     // if protected and not ok (i.e. not admin), redirect to /admin-login with target
     const isProtected = item.id === 'management' || (item.url && item.url.includes('/pages/management'));
     if (isProtected) {
-      navigate('/admin-login', { state: { from: item.url } });
+  navigate('/admin-login', { state: { from: item.url } });
     }
   };
 

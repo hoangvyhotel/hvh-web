@@ -4,6 +4,10 @@ export const bookingRequests = {
     method: 'GET',
     url: endpoints.booking.getRooms(id)
   }),
+  getNote: (id) => ({
+    method: 'GET',
+    url: endpoints.booking.getNote(id)
+  }),
   addBooking: (dto) => ({
     method: 'POST',
     url: endpoints.booking.addBooking(),
@@ -24,6 +28,11 @@ export const bookingRequests = {
     url: endpoints.booking.addUtility(),
     data: dto
   }),
+  moveRoom: (dto) => ({
+    method: 'PATCH',
+    url: endpoints.booking.moveRoom(),
+    data: dto
+  }),
   removeUtility: (dto) => ({
     method: 'DELETE',
     url: endpoints.booking.removeUtility(),
@@ -36,5 +45,9 @@ export const bookingRequests = {
   getBooking: (id) => ({
     method: 'GET',
     url: endpoints.booking.getBooking(id)
+  }),
+  getBookingById: (id) => ({
+    method: 'GET',
+    url: endpoints.booking.getBookingById(id)
   })
 };

@@ -7,6 +7,7 @@ import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlin
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
+import MeetingRoomTwoToneIcon from '@mui/icons-material/MeetingRoomTwoTone';
 
 const icons = {
   NavigationOutlinedIcon,
@@ -32,14 +33,21 @@ const pages = {
       id: 'home',
       title: 'Trang chủ',
       type: 'item',
-      url: '/pages/home',
+      url: '/pages/home/room-tracking',
       icon: icons.ChromeReaderModeOutlinedIcon
     },
-     {
+    {
       id: 'management',
       title: 'Quản lý',
       type: 'item',
       url: '/pages/management',
+      icon: icons.ChromeReaderModeOutlinedIcon
+    },
+    {
+      id: 'utilities',
+      title: 'Dịch vụ',
+      type: 'item',
+      url: '/pages/management/utilities',
       icon: icons.ChromeReaderModeOutlinedIcon
     },
      {
@@ -49,13 +57,21 @@ const pages = {
       url: '/pages/lodging-report',
       icon: icons.ChromeReaderModeOutlinedIcon
     },
-     {
+    {
       id: 'instruction',
       title: 'Hướng dẫn',
       type: 'item',
       url: '/pages/instruction',
       icon: icons.ChromeReaderModeOutlinedIcon
-    },
+    }
+    ,
+    {
+      id: 'logout',
+      title: 'Đăng xuất',
+      type: 'item',
+      url: '/login',
+      icon: MeetingRoomTwoToneIcon
+    }
     // {
     //   id: 'auth',
     //   title: 'Authentication',

@@ -4,19 +4,25 @@ import RoomModal from '../../../components/modals/RoomModal';
 import { useEffect, useState } from 'react';
 import { House } from 'lucide-react';
 import { fetchRoomsByHotelId, addRoom, updateRoom, updateStatusRoom } from 'services/roomService';
-import { toast } from 'react-toastify';
+import { useHotelState } from 'hooks/useAuth';
 
 const RoomManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [rooms, setRooms] = useState([]);
 
+  const { hotelId } = useHotelState();
+
   const fetchRooms = async () => {
-    console.log('Fetching rooms...');
-    const roomData = await fetchRoomsByHotelId('68a6b81c9924e1f3880ce291', 'true');
-    if (roomData) {
-      setRooms(roomData);
-      toast.success(`Đã tải dữ liệu phòng thành công!`);
+    try {
+      console.log('Fetching rooms...');
+      const roomData = await fetchRoomsByHotelId(hotelId);
+      console.log('Room data fetched:', roomData);
+      if (roomData) {
+        setRooms(roomData);
+      }
+    } catch (error) {
+      throw new Error('Failed to fetch rooms', error);
     }
   };
 

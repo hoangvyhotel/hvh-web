@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import Header from '../../../../layouts/HotelManagementLayout/Header';
 import { http } from '../../../../lib/http/axios';
 import { expenseRequests } from '../../../../services/expenseService';
+import { useHotelState } from 'hooks/useAuth';
 import ExpenseItem from '../../../../components/items/ExpenseItem';
 import ExpenseModal from './action-form/form-expense';
 import ConfirmModal from 'components/ui/modal/confirm-modal';
@@ -29,12 +30,14 @@ const ExpenseManagement = () => {
   const [month, setMonth] = useState(currentMonth);
 
   // ---------------- FETCH DATA ----------------
+  const { hotelId } = useHotelState();
+
   const fetchData = async (y, m) => {
     setLoading(true);
     setError(null);
     try {
       const monthStr = `${y}-${String(m).padStart(2, '0')}`;
-      const res = await http(expenseRequests.getAll('68a6b81c9924e1f3880ce291', monthStr));
+      const res = await http(expenseRequests.getAll(hotelId, monthStr));
       setExpenses(res.data.data);
     } catch (err) {
       console.error(err);

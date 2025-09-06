@@ -4,12 +4,12 @@ import { endpoints } from '../lib/http/endpoints.js';
 export const roomRequests = {
   getAll: (id, isGetAll) => ({
     method: 'GET',
-    url: endpoints.room.getAlls(id, isGetAll),
+    url: endpoints.room.getAlls(id, isGetAll)
   }),
   updateRangePrice: (dto) => ({
     method: 'PATCH',
     url: endpoints.room.updateRangePrice(),
-    data: dto,
+    data: dto
   }),
   addRoom: (roomData) => ({
     method: 'POST',
@@ -29,6 +29,10 @@ export const roomRequests = {
   deleteRoom: (roomId) => ({
     method: 'DELETE',
     url: endpoints.room.delete(roomId)
+  }),
+  getRoomAvailable: (roomId, hotelId) => ({
+    method: 'PATCH',
+    url: endpoints.room.getRoomAvailable(roomId, hotelId)
   })
 };
 

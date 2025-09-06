@@ -7,6 +7,8 @@ import SurchargeModal from './modal-actions/surcharge-modal';
 import NoteModal from './modal-actions/note-modal';
 import { toast } from 'react-toastify';
 import { utilitiesRequests } from 'services/utilitiesService';
+import { roomRequests } from 'services/roomService';
+import MoveRoomModal from './modal-actions/move-room-modal';
 function translateBookingType(type) {
   switch (type.toLowerCase()) {
     case 'day':
@@ -32,7 +34,9 @@ const CheckinPage = () => {
   const [error, setError] = useState(null);
   const [isSurchargeOpen, setIsSurchargeOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
-  console.log('hotel', hotelId);
+  const [noteData, setNoteData] = useState(null);
+  const [isMoveRoomOpen, setIsMoveRoomOpen] = useState(false);
+  const [availableRooms, setAvailableRooms] = useState([]);
   useEffect(() => {
     const fetchBooking = async () => {
       if (!roomId) return;
@@ -52,6 +56,7 @@ const CheckinPage = () => {
 
     fetchBooking();
   }, [roomId]);
+
   useEffect(() => {
     const fetchUtilities = async () => {
       if (!hotelId) return;
@@ -66,6 +71,26 @@ const CheckinPage = () => {
 
     fetchUtilities();
   }, [hotelId]);
+
+  useEffect(() => {
+    if (isNoteOpen) {
+      http.get(`/booking/get-note/${booking.BookingId}`).then((res) => {
+        if (res.data?.succeeded) {
+          setNoteData(res.data.data);
+        }
+      });
+    }
+  }, [isNoteOpen, booking]);
+  const fetchAvailableRooms = async () => {
+    if (!hotelId) return;
+    try {
+      const res = await http(roomRequests.getRoomAvailable(roomId, hotelId)); // giả sử API này trả về danh sách phòng
+      setAvailableRooms(res.data.data || []);
+    } catch (err) {
+      console.error(err);
+      toast.error('Không thể tải danh sách phòng');
+    }
+  };
 
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
   if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
@@ -221,7 +246,13 @@ const CheckinPage = () => {
                   HỦY PHÒNG
                 </button>
 
-                <button className="cursor-pointer bg-yellow-500 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-yellow-600 transition-colors w-full sm:w-auto">
+                <button
+                  className="cursor-pointer bg-yellow-500 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-yellow-600 transition-colors w-full sm:w-auto"
+                  onClick={async () => {
+                    await fetchAvailableRooms();
+                    setIsMoveRoomOpen(true);
+                  }}
+                >
                   ĐỔI PHÒNG
                 </button>
               </div>
@@ -306,7 +337,7 @@ const CheckinPage = () => {
                 {booking.BookingPricing?.map((bp, index) => (
                   <div key={index} className="p-2 sm:p-4">
                     <div className="text-gray-500 text-sm mt-1">
-                      Bắt đầu:{' '}
+                      Giờ vào:{' '}
                       {new Date(bp.StartDate).toLocaleString('vi-VN', {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -350,6 +381,22 @@ const CheckinPage = () => {
                                   month: '2-digit',
                                   year: 'numeric'
                                 })}
+                              </span>
+                              {h.AppliedTo && (
+                                <span className="text-gray-500 text-xs">
+                                  Đến:{' '}
+                                  {new Date(h.AppliedTo).toLocaleString('vi-VN', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric'
+                                  })}
+                                </span>
+                              )}
+
+                              <span className="text-gray-500 text-xs mt-1">
+                                Số giờ: <b>{h.Times}</b> giờ
                               </span>
 
                               {/* Nếu là HOUR thì hiển thị giá giờ đầu / giờ sau */}
@@ -451,10 +498,34 @@ const CheckinPage = () => {
           }
         }}
       />
+      <MoveRoomModal
+        isOpen={isMoveRoomOpen}
+        onClose={() => setIsMoveRoomOpen(false)}
+        rooms={availableRooms}
+        initialRoomId={booking.RoomId}
+        onMove={async (targetRoomId) => {
+          try {
+            // Gọi API đổi phòng
+            const res = await http(
+              bookingRequests.moveRoom({
+                bookingId: booking.BookingId,
+                newRoomId: targetRoomId
+              })
+            );
+            toast.success(res.data.message || 'Đổi phòng thành công');
+            navigate(`/pages/management/checkin-zone?roomId=${targetRoomId}&hotelId=${hotelId}`, { replace: true });
+            setIsMoveRoomOpen(false);
+          } catch (err) {
+            console.error(err);
+            toast.error('Đổi phòng thất bại');
+          }
+        }}
+      />
+
       <NoteModal
         isOpen={isNoteOpen}
         onClose={() => setIsNoteOpen(false)}
-        initialData={null}
+        initialData={noteData}
         onSave={async (noteData) => {
           try {
             // ✅ Gọi API thêm ghi chú (bạn cần định nghĩa bookingRequests.addNote)

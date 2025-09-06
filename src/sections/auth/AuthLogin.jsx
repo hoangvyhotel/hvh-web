@@ -1,6 +1,8 @@
 import { useState } from 'react';
-// auth removed: no token storage or authRequests
+import { useNavigate } from 'react-router-dom';
 import { useApiMutation } from '../../hooks/useApi';
+import { authRequests } from '../../services/authService';
+import { useAuthState, useHotelState } from '../../hooks/useAuth';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -23,10 +25,33 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors }
   } = useForm();
+  const navigate = useNavigate();
+  const { setAuth } = useAuthState();
+  const { setHotelId } = useHotelState();
 
-  // no auth backend: simply print form to console or call your API directly
+  const loginMutation = useApiMutation((dto) => authRequests.login(dto), {
+    onSuccess: (res) => {
+      if (res?.succeeded) {
+        // mark logged in and store hotelId
+        setAuth(true);
+  // store username for potential admin login
+  try { localStorage.setItem('username', res?.data?.user?.username || ''); } catch (e) {}
+        const hotelId = res?.data?.user?.hotelId;
+        if (hotelId) setHotelId(hotelId);
+        navigate('/');
+      } else {
+        // show server message
+        alert(res?.message || 'Login failed');
+      }
+    },
+    onError: (err) => {
+      const message = err?.message || 'Login failed';
+      alert(message);
+    }
+  });
+
   const onSubmit = (form) => {
-    console.log('Login form submitted', form);
+    loginMutation.mutate({ username: form.userName, password: form.password });
   };
 
   return (
@@ -36,6 +61,8 @@ export default function LoginPage() {
           <Box>
             <TextField
               id="userName"
+              name="username"
+              autoComplete="username"
               variant="outlined"
               size="small"
               {...register('userName', { required: 'Username is required' })}
@@ -54,6 +81,8 @@ export default function LoginPage() {
               <OutlinedInput
                 {...register('password', { required: 'Password is required' })}
                 id="password"
+                name="password"
+                autoComplete="current-password"
                 type={isPasswordVisible ? 'text' : 'password'}
                 label="Password"
                 placeholder="Enter your password"

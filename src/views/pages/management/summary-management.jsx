@@ -22,6 +22,7 @@ import MainBackButton from 'components/buttons/BackButton';
 // services
 import { billsRequests } from 'services/billsService';
 import { useApiQuery } from 'hooks/useApi';
+import { useHotelState } from 'hooks/useAuth';
 
 const months = Array.from({ length: 12 }, (_, i) => i + 1);
 const currentYear = new Date().getFullYear();
@@ -29,7 +30,7 @@ const currentYear = new Date().getFullYear();
 export default function SummaryManagement() {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(currentYear);
-  const hotelId = '68a6b81c9924e1f3880ce291';
+  const { hotelId } = useHotelState();
 
   const { data: billsData, isLoading } = useApiQuery(
     ['bills', month, year, hotelId],
@@ -40,6 +41,15 @@ export default function SummaryManagement() {
     ['bills-monthly', month, year, hotelId],
     billsRequests.monthly({ month, year, hotelId })
   );
+
+  // helper to read monthly totals from different API response shapes
+  const getMonthlyField = (field) => {
+    if (!monthlyData) return null;
+    // common shapes: { data: { totalUtilities: X } } or { totalUtilities: X } or { data: { data: { totalUtilities: X } } }
+    return (
+      monthlyData?.data?.[field] ?? monthlyData?.[field] ?? monthlyData?.data?.data?.[field] ?? null
+    );
+  };
 
   return (
     <MainCard>
@@ -115,9 +125,9 @@ export default function SummaryManagement() {
             </TableRow>
             <TableRow>
               <TableCell sx={{ fontWeight: 700, fontSize: '1.25rem' }}>DOANH THU</TableCell>
-              <TableCell sx={{ fontSize: '1.25rem' }}>{monthlyLoading ? '...' : formatCurrency(monthlyData?.data?.totalUtilities ?? null)}</TableCell>
-              <TableCell sx={{ fontSize: '1.25rem' }}>{monthlyLoading ? '...' : formatCurrency(monthlyData?.data?.totalRoom ?? null)}</TableCell>
-              <TableCell sx={{ fontSize: '1.25rem' }}>{monthlyLoading ? '...' : formatCurrency(monthlyData?.data?.total ?? null)}</TableCell>
+              <TableCell sx={{ fontSize: '1.25rem' }}>{monthlyLoading ? '...' : formatCurrency(getMonthlyField('totalUtilities'))}</TableCell>
+              <TableCell sx={{ fontSize: '1.25rem' }}>{monthlyLoading ? '...' : formatCurrency(getMonthlyField('totalRoom'))}</TableCell>
+              <TableCell sx={{ fontSize: '1.25rem' }}>{monthlyLoading ? '...' : formatCurrency(getMonthlyField('total'))}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -127,32 +137,50 @@ export default function SummaryManagement() {
   <TableContainer component={Paper} sx={{ mt: 2 }}>
         <Table>
           <TableHead>
-            <TableRow>
-      <TableCell sx={{ fontWeight: 700, fontSize: '1.2rem' }}>Thời điểm</TableCell>
-      <TableCell sx={{ fontWeight: 700, textAlign: 'right', fontSize: '1.15rem' }}>Tiền nước</TableCell>
-      <TableCell sx={{ fontWeight: 700, textAlign: 'right', fontSize: '1.15rem' }}>Doanh thu</TableCell>
-            </TableRow>
-          </TableHead>
+                <TableRow>
+          <TableCell sx={{ fontWeight: 700, fontSize: '1.2rem' }}>Thời điểm</TableCell>
+          <TableCell sx={{ fontWeight: 700, textAlign: 'right', fontSize: '1.15rem' }}>Tiền nước</TableCell>
+          <TableCell sx={{ fontWeight: 700, textAlign: 'right', fontSize: '1.15rem' }}>Tiền phòng</TableCell>
+          <TableCell sx={{ fontWeight: 700, textAlign: 'right', fontSize: '1.15rem' }}>Doanh thu</TableCell>
+                </TableRow>
+              </TableHead>
           <TableBody>
-            {isLoading && (
-              <TableRow>
-                <TableCell colSpan={3} sx={{ textAlign: 'center' }}>Loading...</TableCell>
-              </TableRow>
-            )}
+                {isLoading && (
+                  <TableRow>
+                    <TableCell colSpan={4} sx={{ textAlign: 'center' }}>Loading...</TableCell>
+                  </TableRow>
+                )}
 
             {!isLoading && billsData && Array.isArray(billsData.data) && billsData.data.length === 0 && (
               <TableRow>
-                <TableCell colSpan={3} sx={{ textAlign: 'center' }}>Không có dữ liệu</TableCell>
+                <TableCell colSpan={4} sx={{ textAlign: 'center' }}>Không có dữ liệu</TableCell>
               </TableRow>
             )}
 
-            {!isLoading && billsData && Array.isArray(billsData.data) && billsData.data.map((r) => (
-              <TableRow key={r.day}>
-                <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{`${r.weekday} (${String(r.day).padStart(2, '0')}/${String(month).padStart(2, '0')})`}</TableCell>
-                <TableCell sx={{ textAlign: 'right', fontSize: '1.1rem' }}>{formatCurrency(r.totalUtilities)}</TableCell>
-                <TableCell sx={{ textAlign: 'right', fontSize: '1.1rem' }}>{formatCurrency(r.total)}</TableCell>
-              </TableRow>
-            ))}
+            {!isLoading && billsData && Array.isArray(billsData.data) && billsData.data.map((r) => {
+              // safe weekday: use API weekday if available, otherwise compute from year/month/day
+              const getWeekdayName = (y, m, d) => {
+                try {
+                  if (d == null) return '';
+                  const date = new Date(Number(y), Number(m) - 1, Number(d));
+                  return date.toLocaleDateString('vi-VN', { weekday: 'long' });
+                } catch (e) {
+                  return '';
+                }
+              };
+
+              const weekday = r.weekday ?? getWeekdayName(year, month, r.day);
+              const label = weekday ? `${weekday} (${String(r.day).padStart(2, '0')}/${String(month).padStart(2, '0')})` : `(${String(r.day).padStart(2, '0')}/${String(month).padStart(2, '0')})`;
+
+              return (
+                <TableRow key={r.day}>
+                  <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem' }}>{label}</TableCell>
+                    <TableCell sx={{ textAlign: 'right', fontSize: '1.1rem' }}>{formatCurrency(r.totalUtilities)}</TableCell>
+                    <TableCell sx={{ textAlign: 'right', fontSize: '1.1rem' }}>{formatCurrency(r.totalRoom ?? r.totalRoomAmount ?? null)}</TableCell>
+                    <TableCell sx={{ textAlign: 'right', fontSize: '1.1rem' }}>{formatCurrency(r.total)}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

@@ -1,6 +1,7 @@
 export const endpoints = {
   auth: {
     login: () => '/auth/login',
+  loginAdmin: () => '/auth/login-admin',
     refresh: () => '/auth/refresh',
     me: () => '/auth/me',
     register: () => '/auth/register'
@@ -22,8 +23,7 @@ export const endpoints = {
     add: () => '/rooms',
     update: (id) => `/rooms/${id}`,
     updateStauts: (id) => `/rooms/status/${id}`,
-    delete: (id) => `/rooms/${id}`,
-    getRoomAvailable: (roomId, hotelId) => `/rooms/available?roomId=${roomId}&hotelId=${hotelId}`
+    delete: (id) => `/rooms/${id}`
   },
   utilities: {
     root: () => '/utilities',
@@ -31,10 +31,10 @@ export const endpoints = {
     detail: (id) => `/utilities/${id}`
   },
   bills: {
-    getBills: () => '/bills',
-    getBillById: (id) => `/bills/${id}`,
-    daily: () => '/bills/daily',
-    monthly: () => '/bills/monthly'
+  getBills: () => '/bills',
+  getBillById: (id) => `/bills/${id}`,
+  daily: () => '/bills/daily',
+  monthly: () => '/bills/monthly'
   },
   booking: {
     getRooms: (id) => `/booking/${id}`,
@@ -44,9 +44,6 @@ export const endpoints = {
     addUtility: () => '/booking/add-utility',
     removeUtility: () => '/booking/remove-utility',
     removeBooking: (id) => `/booking/remove-booking/${id}`,
-    getBooking: (id) => `/booking/booking-info/${id}`,
-    getBookingById: (id) => `/booking/booking-by-id/${id}`,
-    getNote: (id) => `/booking/get-note/${id}`,
-    moveRoom: () => `/booking/move-room`
+    getBooking: (id) => `/booking/booking-info/${id}`
   }
 };

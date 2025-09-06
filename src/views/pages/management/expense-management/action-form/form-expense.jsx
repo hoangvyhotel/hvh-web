@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { createPortal } from 'react-dom';
 import { http } from 'lib/http/axios';
 import { expenseRequests } from 'services/expenseService';
+import { useHotelState } from 'hooks/useAuth';
 
 const ExpenseModal = ({ isOpen, onClose, onSave, mode = 'add', initialData = null }) => {
   const [date, setDate] = useState('');
@@ -41,6 +42,8 @@ const ExpenseModal = ({ isOpen, onClose, onSave, mode = 'add', initialData = nul
 
   if (!isOpen) return null;
 
+  const { hotelId } = useHotelState();
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -50,7 +53,7 @@ const ExpenseModal = ({ isOpen, onClose, onSave, mode = 'add', initialData = nul
       reason,
       note,
       amount: Number(amount),
-      hotelId: initialData?.hotelId || '68a6b81c9924e1f3880ce291'
+      hotelId: initialData?.hotelId || hotelId
     };
 
     if (onSave) {

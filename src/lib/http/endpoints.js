@@ -44,6 +44,10 @@ export const endpoints = {
     addUtility: () => '/booking/add-utility',
     removeUtility: () => '/booking/remove-utility',
     removeBooking: (id) => `/booking/remove-booking/${id}`,
-    getBooking: (id) => `/booking/booking-info/${id}`
+    getBooking: (id) => `/booking/booking-info/${id}`,
+    getBookingById: (id) => `/booking/booking-by-id/${id}`,
+    getNote: (id) => `/booking/get-note/${id}`,
+    moveRoom: () => `/booking/move-room`,
+    changeTypeBooking: () => `/booking/change-type`
   }
 };

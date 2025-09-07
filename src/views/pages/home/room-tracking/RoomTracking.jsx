@@ -4,6 +4,7 @@ import { http } from 'lib/http/axios';
 import { resolveIcon } from 'utils/iconResolver';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useHotelState } from 'hooks/useAuth';
 
 const getCardColor = (status, typeBooking) => {
   if (status === 'FREE') return 'bg-[#ADDDC0]';
@@ -116,6 +117,7 @@ const RoomTracking = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { hotelId } = useHotelState();
 
   const navigate = useNavigate(); // ✅ đặt ở đây
 
@@ -124,7 +126,7 @@ const RoomTracking = () => {
     setError(null);
     try {
       const res = await http(
-        bookingRequests.getRooms('68a6b81c9924e1f3880ce291')
+        bookingRequests.getRooms(hotelId)
       );
       setBookings(res.data.data);
     } catch (err) {

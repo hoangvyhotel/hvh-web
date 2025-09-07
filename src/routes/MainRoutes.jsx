@@ -16,6 +16,7 @@ import AddUserPage from 'views/pages/management/create-user/create-user-page';
 import { ProtectedRoute, AdminProtectedRoute } from 'hooks/useAuth';
 import RoomTrackingDemo from 'views/pages/home/room-tracking/RoomTracking';
 import CheckinPage from 'views/pages/management/checkin-zone/checkin-page';
+import RoomTracking from 'views/pages/home/room-tracking/RoomTracking';
 
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
@@ -34,15 +35,15 @@ const MainRoutes = {
       index: true,
       element: (
         <ProtectedRoute>
-          <DashboardDefault />
+          <RoomTracking />
         </ProtectedRoute>
       )
     },
     {
-      path: 'pages/home',
+      path: 'pages/home/room-tracking',
       element: (
         <ProtectedRoute>
-          <DashboardDefault />
+          <RoomTracking />
         </ProtectedRoute>
       )
     },

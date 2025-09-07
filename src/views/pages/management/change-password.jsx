@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Header from '../../../layouts/HotelManagementLayout/Header';
 import { Eye, EyeClosed } from 'lucide-react';
+import { changeStaffPassword } from 'services/authService';
+import { toast } from 'react-toastify';
 
 const ChangePassword = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -9,6 +11,7 @@ const ChangePassword = () => {
   const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
+    username: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
@@ -85,8 +88,20 @@ const ChangePassword = () => {
       return;
     }
 
+    const username = localStorage.getItem('username') || '';
+    formData.username = username;
+
     // All validations passed
-    console.log('Password change submitted:', formData);
+    const doChangePassword = async () => {
+      const pwdResponse = await changeStaffPassword(formData);
+      if (pwdResponse && pwdResponse.status === 200) {
+        toast('Đổi mật khẩu thành công!');
+      } else {
+        toast.error('Đổi mật khẩu thất bại. Vui lòng thử lại!');
+      }
+    };
+
+    doChangePassword();
     // Handle password change logic here
   };
 
@@ -130,6 +145,7 @@ const ChangePassword = () => {
                   className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-400 hover:text-gray-600"
                   style={{ top: 'calc(50% + 14px)' }}
                   aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
+                  tabIndex={-1}
                 >
                   {showCurrentPassword ? <EyeClosed className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -158,6 +174,7 @@ const ChangePassword = () => {
                   className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-400 hover:text-gray-600"
                   style={{ top: 'calc(50% + 14px)' }}
                   aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                  tabIndex={-1}
                 >
                   {showNewPassword ? <EyeClosed className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -186,6 +203,7 @@ const ChangePassword = () => {
                   className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-400 hover:text-gray-600"
                   style={{ top: 'calc(50% + 14px)' }}
                   aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  tabIndex={-1}
                 >
                   {showConfirmPassword ? <EyeClosed className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>

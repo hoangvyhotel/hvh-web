@@ -60,9 +60,10 @@ const CheckinPage = () => {
   }, [roomId]);
   useEffect(() => {
     const fetchUtilities = async () => {
+      console.log('id', hotelId);
       if (!hotelId) return;
       try {
-        const res = await http(utilitiesRequests.list(hotelId));
+        const res = await http(utilitiesRequests.list({ hotelId }));
         setUtilities(res.data.data || []);
       } catch (err) {
         console.error(err);

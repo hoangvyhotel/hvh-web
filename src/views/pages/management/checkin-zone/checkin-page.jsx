@@ -1,10 +1,17 @@
 import { http } from 'lib/http/axios';
 import { Home, Car, FileText } from 'lucide-react';
+import { resolveIcon } from 'utils/iconResolver';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { bookingRequests } from 'services/bookingService';
 import SurchargeModal from './modal-actions/surcharge-modal';
 import NoteModal from './modal-actions/note-modal';
+import DocumentModal from './modal-actions/document-modal';
+import VehicleModal from './modal-actions/vehicle-modal';
+import DocumentViewer from './modal-actions/document-viewer';
+import VehicleViewer from './modal-actions/vehicle-viewer';
+import DocumentEditor from './modal-actions/document-editor';
+import VehicleEditor from './modal-actions/vehicle-editor';
 import { toast } from 'react-toastify';
 import { utilitiesRequests } from 'services/utilitiesService';
 import { roomRequests } from 'services/roomService';
@@ -39,6 +46,12 @@ const CheckinPage = () => {
   const [isMoveRoomOpen, setIsMoveRoomOpen] = useState(false);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [isChangeTypeOpen, setIsChangeTypeOpen] = useState(false);
+  const [isDocumentOpen, setIsDocumentOpen] = useState(false);
+  const [isVehicleOpen, setIsVehicleOpen] = useState(false);
+  const [isDocumentViewerOpen, setIsDocumentViewerOpen] = useState(false);
+  const [isVehicleViewerOpen, setIsVehicleViewerOpen] = useState(false);
+  const [isDocumentEditorOpen, setIsDocumentEditorOpen] = useState(false);
+  const [isVehicleEditorOpen, setIsVehicleEditorOpen] = useState(false);
   const fetchBooking = async () => {
     if (!roomId) return;
     try {
@@ -91,6 +104,69 @@ const CheckinPage = () => {
     } catch (err) {
       console.error(err);
       toast.error('Không thể tải danh sách phòng');
+    }
+  };
+
+  const handleSaveDocument = async (doc) => {
+    try {
+      if (!booking?.BookingId) {
+        toast.error('Không có booking để lưu giấy tờ');
+        return;
+      }
+
+      const dto = {
+        bookingId: booking.BookingId,
+        ID: doc.ID,
+        TypeID: doc.TypeID,
+        FullName: doc.FullName,
+        Address: doc.Address,
+        BirthDay: doc.BirthDay,
+        Gender: doc.Gender,
+        EthnicGroup: doc.EthnicGroup
+      };
+
+      const res = await http(bookingRequests.addDocument(dto));
+      if (res.data?.succeeded === false) {
+        toast.error(res.data?.message || 'Lưu giấy tờ thất bại');
+        return;
+      }
+
+      // reload booking to get persisted documents
+      const updated = await http(bookingRequests.getBooking(roomId));
+      setBooking(updated.data.data);
+      toast.success(res.data?.message || 'Lưu giấy tờ thành công');
+    } catch (err) {
+      console.error(err);
+      toast.error('Lưu giấy tờ thất bại');
+    }
+  };
+
+  const handleSaveVehicle = async (vehicle) => {
+    try {
+      if (!booking?.BookingId) {
+        toast.error('Không có booking để lưu thông tin xe');
+        return;
+      }
+
+      const dto = {
+        bookingId: booking.BookingId,
+        LicensePlate: vehicle.LicensePlate,
+        Color: vehicle.Color,
+        VehicleType: vehicle.Type || vehicle.VehicleType
+      };
+
+      const res = await http(bookingRequests.addCar(dto));
+      if (res.data?.succeeded === false) {
+        toast.error(res.data?.message || 'Lưu thông tin xe thất bại');
+        return;
+      }
+
+      const updated = await http(bookingRequests.getBooking(roomId));
+      setBooking(updated.data.data);
+      toast.success(res.data?.message || 'Lưu thông tin xe thành công');
+    } catch (err) {
+      console.error(err);
+      toast.error('Lưu thông tin xe thất bại');
     }
   };
 
@@ -162,14 +238,22 @@ const CheckinPage = () => {
               {/* Hàng 2 - Giấy tờ & Xe */}
               <div className="grid grid-cols-2 sm:grid-cols-5 border-b border-green-500 p-2 sm:p-4">
                 <div className="flex flex-col items-center p-2">
-                  <div className="text-3xl sm:text-5xl text-green-600">
+                  {/* display-only left icon (no click) */}
+                  <div className="relative text-3xl sm:text-5xl text-green-600 cursor-pointer" onClick={() => setIsDocumentEditorOpen(true)}>
                     <FileText />
+                    <span className="absolute -top-0 -right-1 bg-yellow-400 text-white rounded-full h-5 w-5 text-xs flex items-center justify-center font-bold">
+                      {booking.Documents?.length || 0}
+                    </span>
                   </div>
                   <span className="mt-1 font-bold text-sm sm:text-base">Giấy tờ</span>
                 </div>
                 <div className="flex flex-col items-center p-2">
-                  <div className="text-3xl sm:text-5xl text-green-600">
+                  {/* display-only left icon (no click) */}
+                  <div className="relative text-3xl sm:text-5xl text-green-600 cursor-pointer" onClick={() => setIsVehicleEditorOpen(true)}>
                     <Car />
+                    <span className="absolute -top-0 -right-1 bg-yellow-400 text-white rounded-full h-5 w-5 text-xs flex items-center justify-center font-bold">
+                      {booking.CarInfos?.length || 0}
+                    </span>
                   </div>
                   <span className="mt-1 font-bold text-sm sm:text-base">Xe</span>
                 </div>
@@ -178,14 +262,20 @@ const CheckinPage = () => {
               {/* Hàng 3 - Các tiện ích khác */}
               <div className="flex flex-wrap justify-start border-b border-green-500 p-2 sm:p-4">
                 {booking.Utilities?.map((u, index) => {
-                  // icon từ lucide-react
-                  let IconComp;
-                  try {
-                    const { [u.Icon]: LucideIcon } = require('lucide-react');
-                    IconComp = LucideIcon || Car;
-                  } catch {
-                    IconComp = Car;
-                  }
+                  const parseIconVal = (val) => {
+                    if (val == null) return '';
+                    if (typeof val === 'object') return val;
+                    if (typeof val === 'string') {
+                      try {
+                        return JSON.parse(val);
+                      } catch (e) {
+                        return val;
+                      }
+                    }
+                    return '';
+                  };
+
+                  const iconVal = parseIconVal(u.Icon ?? u.icon ?? u.IconName ?? u.IconKey);
 
                   return (
                     <div
@@ -220,7 +310,7 @@ const CheckinPage = () => {
                       </div>
 
                       {/* Icon */}
-                      <div className="text-2xl sm:text-4xl text-green-600">{IconComp ? <IconComp /> : <Car />}</div>
+                      <div className="text-2xl sm:text-4xl text-green-600">{resolveIcon(iconVal, { size: 28, color: '#16a34a' })}</div>
 
                       {/* Tên tiện ích */}
                       <span className="mt-1 text-xs sm:text-sm">{u.Name}</span>
@@ -278,16 +368,16 @@ const CheckinPage = () => {
               {/* Nhóm trên: Giấy tờ & Xe */}
               <div className="grid grid-cols-2 sm:grid-cols-5 border border-green-500 rounded-md p-1 sm:p-2">
                 <div className="flex flex-col items-center p-1 sm:p-2">
-                  <div className="text-xl sm:text-2xl text-green-600 cursor-pointer">
+                  <button onClick={() => setIsDocumentOpen(true)} className="text-xl sm:text-2xl text-green-600 cursor-pointer">
                     <FileText />
-                  </div>
+                  </button>
                   <span className="text-xs sm:text-sm mt-1">Giấy tờ</span>
                 </div>
                 <div className="flex flex-col items-center p-1 sm:p-2">
-                  <div className="text-xl sm:text-2xl text-green-600">
+                  <button onClick={() => setIsVehicleOpen(true)} className="text-xl sm:text-2xl text-green-600 cursor-pointer">
                     <Car />
-                  </div>
-                  <span className="text-xs sm:text-sm mt-1 cursor-pointer">Xe</span>
+                  </button>
+                  <span className="text-xs sm:text-sm mt-1">Xe</span>
                 </div>
                 {/* 3 ô trống trên điện thoại */}
                 <div className="hidden sm:block col-span-3"></div>
@@ -296,14 +386,20 @@ const CheckinPage = () => {
               {/* Nhóm dưới: Nước & Đồ ăn */}
               <div className="grid grid-cols-2 sm:grid-cols-4 border border-green-500 rounded-md p-1 sm:p-2">
                 {utilities.map((u) => {
-                  // icon động
-                  let IconComp;
-                  try {
-                    const { [u.icon]: LucideIcon } = require('lucide-react');
-                    IconComp = LucideIcon || Car; // fallback Car
-                  } catch {
-                    IconComp = Car;
-                  }
+                  const parseIconVal = (val) => {
+                    if (val == null) return '';
+                    if (typeof val === 'object') return val;
+                    if (typeof val === 'string') {
+                      try {
+                        return JSON.parse(val);
+                      } catch (e) {
+                        return val;
+                      }
+                    }
+                    return '';
+                  };
+
+                  const iconVal = parseIconVal(u.icon ?? u.Icon ?? u.IconName ?? u.IconKey);
 
                   return (
                     <div
@@ -330,8 +426,10 @@ const CheckinPage = () => {
                         }
                       }}
                     >
-                      <div className="text-xl sm:text-2xl text-green-600 cursor-pointer">{IconComp ? <IconComp /> : <Car />}</div>
-                      <span className="text-xs sm:text-sm mt-1">{u.name}</span>
+                      <div className="text-xl sm:text-2xl text-green-600 cursor-pointer">
+                        {resolveIcon(iconVal, { size: 22, color: '#16a34a' })}
+                      </div>
+                      <span className="text-xs sm:text-sm mt-1">{u.name || u.Name}</span>
                     </div>
                   );
                 })}
@@ -570,6 +668,37 @@ const CheckinPage = () => {
           }
         }}
       />
+  <DocumentModal isOpen={isDocumentOpen} onClose={() => setIsDocumentOpen(false)} onSave={handleSaveDocument} />
+  <VehicleModal isOpen={isVehicleOpen} onClose={() => setIsVehicleOpen(false)} onSave={handleSaveVehicle} />
+  <DocumentViewer isOpen={isDocumentViewerOpen} onClose={() => setIsDocumentViewerOpen(false)} bookingId={booking?.BookingId} />
+  <VehicleViewer isOpen={isVehicleViewerOpen} onClose={() => setIsVehicleViewerOpen(false)} bookingId={booking?.BookingId} />
+  <DocumentEditor
+    isOpen={isDocumentEditorOpen}
+    onClose={() => setIsDocumentEditorOpen(false)}
+    bookingId={booking?.BookingId}
+    onSave={async () => {
+      // refresh booking after an update
+      try {
+        const updated = await http(bookingRequests.getBooking(roomId));
+        setBooking(updated.data.data);
+      } catch (err) {
+        console.error(err);
+      }
+    }}
+  />
+  <VehicleEditor
+    isOpen={isVehicleEditorOpen}
+    onClose={() => setIsVehicleEditorOpen(false)}
+    bookingId={booking?.BookingId}
+    onSave={async () => {
+      try {
+        const updated = await http(bookingRequests.getBooking(roomId));
+        setBooking(updated.data.data);
+      } catch (err) {
+        console.error(err);
+      }
+    }}
+  />
     </>
   );
 };

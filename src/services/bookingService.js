@@ -55,4 +55,35 @@ export const bookingRequests = {
     method: 'GET',
     url: endpoints.booking.getBookingById(id)
   })
+  ,
+  addDocument: (dto) => ({
+    method: 'POST',
+    url: endpoints.booking.addDocument(),
+    data: dto
+  }),
+  addCar: (dto) => ({
+    method: 'POST',
+    url: endpoints.booking.addCar(),
+    data: dto
+  })
+  ,
+  getDocuments: (id) => ({
+    method: 'GET',
+    url: endpoints.booking.getDocuments(id)
+  }),
+  getCars: (id) => ({
+    method: 'GET',
+    url: endpoints.booking.getCars(id)
+  })
+  ,
+  updateDocument: (dto) => ({
+    method: 'PUT',
+    url: endpoints.booking.updateDocument(),
+    data: dto
+  }),
+  updateCar: (dto) => ({
+    method: 'PUT',
+    url: endpoints.booking.updateCar(),
+    data: dto
+  })
 };

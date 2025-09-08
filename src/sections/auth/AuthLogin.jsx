@@ -34,7 +34,6 @@ export default function LoginPage() {
       if (res?.succeeded) {
         // mark logged in and store hotelId
         setAuth(true);
-  // store username for potential admin login
   try { localStorage.setItem('username', res?.data?.user?.username || ''); } catch (e) {}
         const hotelId = res?.data?.user?.hotelId;
         if (hotelId) setHotelId(hotelId);

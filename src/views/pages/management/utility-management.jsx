@@ -31,8 +31,31 @@ import { useHotelState } from 'hooks/useAuth';
 import MainBackButton from 'components/buttons/BackButton';
 import Header from 'layouts/HotelManagementLayout/Header';
 import { Tag } from 'lucide-react';
+import IconPicker from 'components/IconPicker';
+import { resolveIcon } from 'utils/iconResolver';
 
-// no local sample data: table will be populated from API
+// curated small set of lucide icon names used by IconPicker in utilities
+const ALLOWED_ICONS = [
+  'Milk',
+  'Apple',
+  'Pizza',
+  'Bottle',
+  'SmartphoneCharging',
+  'CupSoda',
+  'Hamburger',
+  'Cookie',
+  'EggFried',
+  'Wifi',
+  'Wine',
+  'Fridge',
+  'Car',
+  'Phone',
+  'Droplet',
+  'Shower',
+  'Shirt',
+  'Drum',
+  'Gift'
+];
 
 export default function UtilitiesPage() {
   const [rows, setRows] = useState([]);
@@ -81,22 +104,41 @@ export default function UtilitiesPage() {
     console.log('utilities listQuery', { isLoading: listQuery.isLoading, isError: listQuery.isError, data: d, error: listQuery.error });
     if (!d) return;
     const items = Array.isArray(d) ? d : Array.isArray(d?.data) ? d.data : [];
+    const parseIcon = (v) => {
+      if (v == null) return '';
+      if (typeof v === 'object') return v;
+      if (typeof v === 'string') {
+        try {
+          const parsed = JSON.parse(v);
+          return parsed;
+        } catch (e) {
+          return v; // plain URL or name
+        }
+      }
+      return '';
+    };
+
     const mapped = items.map((it) => ({
       id: it._id ?? it.id,
       name: it.name,
       price: formatPrice(it.price),
       status: it.status ? 'Đang bán' : 'Không hoạt động',
-      icon: it.icon
+      icon: parseIcon(it.icon)
     }));
-    setRows(mapped);
+  // debug: log parsed icons to verify shape at runtime
+  // eslint-disable-next-line no-console
+  console.debug('utilities.parsedIcons', mapped.map((m) => ({ id: m.id, icon: m.icon })));
+  setRows(mapped);
   }, [listQuery.data, listQuery.isLoading, listQuery.isError, listQuery.error]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const iconValue = typeof form.icon === 'object' && form.icon !== null ? JSON.stringify(form.icon) : (form.icon || '');
+
     const payload = {
       name: form.name || '—',
       price: Number(String(form.price).replace(/[^0-9.-]+/g, '')) || 0,
-      icon: form.icon || '',
+      icon: iconValue,
       status: !!form.status,
       hotelId
     };
@@ -108,12 +150,19 @@ export default function UtilitiesPage() {
           onSuccess: (res) => {
             // res may be wrapper or object
             const item = res?.data ?? res;
+            const parsedIcon = (() => {
+              try {
+                if (typeof item.icon === 'string') return JSON.parse(item.icon);
+              } catch (e) {}
+              return item.icon;
+            })();
+
             const mapped = {
               id: item._id ?? item.id,
               name: item.name,
               price: formatPrice(item.price),
               status: item.status ? 'Đang bán' : 'Không hoạt động',
-              icon: item.icon
+              icon: parsedIcon
             };
             setRows((prev) => prev.map((r) => (r.id === editId ? mapped : r)));
             handleClose();
@@ -124,12 +173,19 @@ export default function UtilitiesPage() {
       createMutation.mutate(payload, {
         onSuccess: (res) => {
           const item = res?.data ?? res;
+          const parsedIcon = (() => {
+            try {
+              if (typeof item.icon === 'string') return JSON.parse(item.icon);
+            } catch (e) {}
+            return item.icon;
+          })();
+
           const mapped = {
             id: item._id ?? item.id,
             name: item.name,
             price: formatPrice(item.price),
             status: item.status ? 'Đang bán' : 'Không hoạt động',
-            icon: item.icon
+            icon: parsedIcon
           };
           setRows((r) => [mapped, ...r]);
           handleClose();
@@ -171,79 +227,52 @@ export default function UtilitiesPage() {
         </Grid>
       </div>
 
-      <TableContainer component={Paper} sx={{ mt: 2, boxShadow: 'none' }}>
-        {listQuery.isLoading && <Typography sx={{ p: 3 }}>Đang tải dữ liệu...</Typography>}
-        {listQuery.isError && (
-          <Typography color="error" sx={{ p: 3 }}>
-            Lỗi khi tải: {listQuery.error?.message ?? 'Không xác định'}
-          </Typography>
-        )}
-        {!listQuery.isLoading && !listQuery.isError && rows.length === 0 && <Typography sx={{ p: 3 }}>Chưa có dịch vụ nào.</Typography>}
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ width: 360, minWidth: 240, fontWeight: 700, color: 'success.dark', fontSize: '1.1rem' }}>Tên</TableCell>
-              <TableCell sx={{ fontSize: '1.05rem', fontWeight: 600 }}>Giá</TableCell>
-              <TableCell sx={{ fontSize: '1.05rem', fontWeight: 600 }}>Tình Trạng</TableCell>
-              <TableCell align="right" sx={{ fontSize: '1.05rem', fontWeight: 600 }}>
-                Hành động
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      <div className="p-6">
+        {listQuery.isLoading && <div className="p-3">Đang tải dữ liệu...</div>}
+        {listQuery.isError && <div className="p-3 text-red-600">Lỗi khi tải: {listQuery.error?.message ?? 'Không xác định'}</div>}
+        {!listQuery.isLoading && !listQuery.isError && rows.length === 0 && <div className="p-3">Chưa có dịch vụ nào.</div>}
+
+        <div className="mt-4">
+          <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
+            <div className="col-span-6">Tên</div>
+            <div className="col-span-2">Giá</div>
+            <div className="col-span-2">Tình Trạng</div>
+            <div className="col-span-2 text-right">Hành động</div>
+          </div>
+
+          <div className="bg-white">
             {rows.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2, width: 360, minWidth: 240 }}>
+              <div key={row.id} className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center">
+                <div className="col-span-6 flex items-center gap-3">
                   {row.icon ? (
-                    <Avatar src={row.icon} alt={row.name} sx={{ width: 44, height: 44 }} />
+                    // icon may be a URL string or metadata object
+                    typeof row.icon === 'string' ? (
+                      <Avatar src={row.icon} alt={row.name} sx={{ width: 44, height: 44 }} />
+                    ) : (
+                      <Avatar sx={{ width: 44, height: 44, bgcolor: 'transparent' }}>
+                        {resolveIcon(row.icon, { size: 28, color: '#1f2937' })}
+                      </Avatar>
+                    )
                   ) : (
                     <Battery80Icon color="success" sx={{ fontSize: 36 }} />
                   )}
-                  <Typography sx={{ fontWeight: 700, color: 'success.main', fontSize: '1.125rem' }}>{row.name}</Typography>
-                </TableCell>
-                <TableCell sx={{ py: 2 }}>
-                  <div>
-                    <Typography sx={{ color: 'success.main', fontWeight: 700, fontSize: '1.05rem' }}>{row.price}</Typography>
-                  </div>
-                </TableCell>
-                <TableCell sx={{ py: 2 }}>
-                  <Chip
-                    label={row.status}
-                    variant="outlined"
-                    sx={{
-                      color: row.status === 'Đang bán' ? 'success.main' : 'warning.main',
-                      borderColor: 'transparent',
-                      fontSize: '1.05rem',
-                      fontWeight: 600,
-                      paddingY: 0.5,
-                      paddingX: 1.25
-                    }}
-                  />
-                </TableCell>
-                <TableCell align="right" sx={{ py: 2 }}>
-                  <Button
-                    onClick={() => handleEdit(row)}
-                    variant="outlined"
-                    size="small"
-                    sx={{ fontSize: '0.95rem', textTransform: 'none', mr: 1, paddingY: 0.5, paddingX: 1.25 }}
-                  >
+                  <div className="font-semibold text-success-main text-lg">{row.name}</div>
+                </div>
+                <div className="col-span-2">{row.price}</div>
+                <div className="col-span-2">{row.status}</div>
+                <div className="col-span-2 text-right">
+                  <Button onClick={() => handleEdit(row)} variant="outlined" size="small" sx={{ fontSize: '0.95rem', textTransform: 'none', mr: 1, paddingY: 0.5, paddingX: 1.25 }}>
                     Cập nhật
                   </Button>
-                  <Button
-                    onClick={() => handleDelete(row.id)}
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    sx={{ fontSize: '0.95rem', textTransform: 'none', paddingY: 0.5, paddingX: 1.25 }}
-                  >
+                  <Button onClick={() => handleDelete(row.id)} variant="outlined" color="error" size="small" sx={{ fontSize: '0.95rem', textTransform: 'none', paddingY: 0.5, paddingX: 1.25 }}>
                     Xóa
                   </Button>
-                </TableCell>
-              </TableRow>
+                </div>
+              </div>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </div>
+        </div>
+      </div>
 
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle>Thêm dịch vụ mới</DialogTitle>
@@ -252,14 +281,15 @@ export default function UtilitiesPage() {
             <Stack spacing={2} sx={{ mt: 1 }}>
               <TextField label="Tên dịch vụ" name="name" value={form.name} onChange={handleChange} fullWidth />
               <TextField label="Giá (số)" name="price" value={form.price} onChange={handleChange} fullWidth />
-              <TextField
-                label="Icon (URL hoặc path)"
-                name="icon"
-                value={form.icon}
-                onChange={handleChange}
-                helperText="Ví dụ: /assets/images/water.svg hoặc https://..."
-                fullWidth
-              />
+              <div>
+                <IconPicker
+                  value={form.icon}
+                  onChange={(v) => setForm((s) => ({ ...s, icon: v }))}
+                  size={28}
+                  allowedIcons={ALLOWED_ICONS}
+                />
+                <div style={{ marginTop: 6, color: '#6b7280', fontSize: '0.85rem' }}>Bạn có thể nhập tên lucide (ví dụ: Droplet) hoặc dán URL ảnh.</div>
+              </div>
               <FormControlLabel control={<Switch checked={form.status} onChange={handleChange} name="status" />} label="Hoạt động" />
             </Stack>
           </DialogContent>

@@ -22,18 +22,22 @@ export const expenseRequests = {
     method: 'DELETE',
     url: endpoints.expense.delete(id),
   }),
+  monthly: (payload) => ({
+  method: 'POST',
+  url: '/expenses/monthly',
+  params: payload,
+  data: payload
+  })
 };
-async function fetchExpenses(id) {
+
+export const fetchMonthlyExpenses = async (payload) => {
   try {
-    const res = await http({
-      method: 'GET',
-      url: endpoints.expense.getAlls(id)
-    });
-    return res.data;
+  const res = await http(expenseRequests.monthly(payload));
+  return res.data.data;
   } catch (err) {
-    console.error('Lỗi khi gọi API:', err);
+    console.error('Lỗi khi gọi API monthly expenses:', err);
     throw err;
   }
-}
+};
 
 

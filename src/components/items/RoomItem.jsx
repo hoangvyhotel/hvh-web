@@ -1,3 +1,6 @@
+import { resolveIcon } from 'utils/iconResolver';
+import IconErrorBoundary from 'components/IconErrorBoundary';
+
 const RoomItem = ({ room, onEdit, onUpdateStatus, index }) => {
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price) + ' vnđ';
@@ -44,6 +47,46 @@ const RoomItem = ({ room, onEdit, onUpdateStatus, index }) => {
         <div className="text-green-500">
           <span className="font-medium">{formatPrice(room.dayPrice)} / Ngày</span>
         </div>
+      </div>
+
+      {/* Utilities (icons + name) */}
+      <div className="col-span-2 flex items-center gap-2">
+        {room.utilities && room.utilities.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {room.utilities.map((u, i) => {
+              const parseIconVal = (val) => {
+                if (val == null) return '';
+                if (typeof val === 'object') return val;
+                if (typeof val === 'string') {
+                  try {
+                    return JSON.parse(val);
+                  } catch (e) {
+                    try {
+                      return JSON.parse(val.replace(/'/g, '"'));
+                    } catch (e2) {
+                      return val;
+                    }
+                  }
+                }
+                return '';
+              };
+
+              const iconVal = parseIconVal(u.icon ?? u.Icon ?? u.iconValue ?? u);
+
+              return (
+                <div key={i} className="flex items-center gap-1 text-xs bg-gray-100 px-2 py-1 rounded">
+                  <IconErrorBoundary fallback={<span style={{ width: 16, display: 'inline-block' }} />}>
+                    {resolveIcon(iconVal || u.icon || u, { size: 16, className: 'text-gray-600' })}
+                  </IconErrorBoundary>
+                  <span className="text-xs text-gray-700">{u.name || u.Name || u.title || ''}</span>
+                  <span className="text-xs text-gray-500">{u.Quantity ? `x${u.Quantity}` : ''}</span>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-xs text-gray-400">-</div>
+        )}
       </div>
 
       {/* Tình trạng */}

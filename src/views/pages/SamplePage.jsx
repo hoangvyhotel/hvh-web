@@ -12,7 +12,6 @@ export default function SamplePage() {
     { title: 'Nước', link: '/pages/management/utility-management' },
     { title: 'Danh sách thuê', link: '/pages/management/rental-management' },
     { title: 'Chi phí', link: '/pages/management/expense-management' },
-    { title: 'Danh sách', link: '/pages/management/profit-management' },
     { title: 'Tổng kết', link: '/pages/management/summary-management' },
     { title: 'Đổi mật khẩu', link: '/pages/management/change-password' },
     { title: 'Đổi mật khẩu quản trị', link: '/pages/management/change-password-manager' },
@@ -25,7 +24,6 @@ export default function SamplePage() {
     { title: 'Nước', link: '/pages/management/utility-management' },
     { title: 'Danh sách thuê', link: '/pages/management/rental-management' },
     { title: 'Chi phí', link: '/pages/management/expense-management' },
-    { title: 'Danh sách', link: '/pages/management/profit-management' },
     { title: 'Tổng kết', link: '/pages/management/summary-management' },
     { title: 'Đổi mật khẩu', link: '/pages/management/change-password' },
     { title: 'Đổi mật khẩu quản trị', link: '/pages/management/change-password-manager' }

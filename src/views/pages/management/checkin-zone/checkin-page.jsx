@@ -99,7 +99,7 @@ const CheckinPage = () => {
   const fetchAvailableRooms = async () => {
     if (!hotelId) return;
     try {
-      const res = await http(roomRequests.getRoomAvailable(roomId, hotelId)); // giả sử API này trả về danh sách phòng
+      const res = await http(roomRequests.getRoomAvailable(roomId, hotelId));
       setAvailableRooms(res.data.data || []);
     } catch (err) {
       console.error(err);

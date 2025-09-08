@@ -23,7 +23,8 @@ export const endpoints = {
     add: () => '/rooms',
     update: (id) => `/rooms/${id}`,
     updateStauts: (id) => `/rooms/status/${id}`,
-    delete: (id) => `/rooms/${id}`
+    delete: (id) => `/rooms/${id}`,
+    getRoomAvailable: (roomId, hotelId) => `/rooms/available?roomId=${roomId}&hotelId=${hotelId}`
   },
   utilities: {
     root: () => '/utilities',

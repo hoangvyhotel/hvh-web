@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { bookingRequests } from 'services/bookingService';
 import { http } from 'lib/http/axios';
 import { resolveIcon } from 'utils/iconResolver';
+import IconErrorBoundary from 'components/IconErrorBoundary';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useHotelState } from 'hooks/useAuth';
@@ -97,14 +98,39 @@ const RoomCard = ({ room, handleAddBooking, handleRouteToCheckinZone, fetchData 
 
       <div className="flex gap-2 flex-wrap justify-center overflow-auto max-h-[36px]">
         {room.Utilities && room.Utilities.length > 0 ? (
-          room.Utilities.map((u, idx) => (
-            <span
-              key={idx}
-              className="flex items-center gap-1 text-xs bg-gray-100 px-2 py-1 rounded"
-            >
-              {resolveIcon(u.icon, { size: 16, className: 'text-gray-600' })} x{u.Quantity}
-            </span>
-          ))
+          room.Utilities.map((u, idx) => {
+            const parseIconVal = (val) => {
+              if (val == null) return '';
+              if (typeof val === 'object') return val;
+              if (typeof val === 'string') {
+                try {
+                  return JSON.parse(val);
+                } catch (e) {
+                  try {
+                    return JSON.parse(val.replace(/'/g, '"'));
+                  } catch (e2) {
+                    return val;
+                  }
+                }
+              }
+              return '';
+            };
+
+            const iconVal = parseIconVal(u.icon ?? u.Icon ?? u.IconName ?? u.IconKey);
+            const displayName = u.name || u.Name || u.title || u.NameEn || '';
+            return (
+              <span
+                key={idx}
+                className="flex items-center gap-2 text-xs bg-gray-100 px-2 py-1 rounded"
+              >
+                <IconErrorBoundary fallback={<span style={{ width: 16, display: 'inline-block' }} />}>
+                  {resolveIcon(iconVal || u.icon, { size: 16, className: 'text-gray-600' })}
+                </IconErrorBoundary>
+                <span className="text-xs text-gray-700">{displayName}</span>
+                <span className="text-xs text-gray-500">x{u.Quantity}</span>
+              </span>
+            );
+          })
         ) : (
           <span className="text-xs text-gray-400"></span>
         )}

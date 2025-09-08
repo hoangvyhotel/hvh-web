@@ -3,25 +3,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 
 const IS_AUTH_KEY = 'is_logged_in';
+const USER_ROLE_KEY = 'user_role'; // 'admin' hoặc 'staff'
 const HOTEL_ID_KEY = 'hotel_id';
-const AUTH_EXPIRY_KEY = 'auth_expiry';
-const AUTH_EXPIRY_MS = 5 * 60 * 60 * 1000; // 5 hours
+// admin-specific expiry (3 hours)
+const ADMIN_AUTH_EXPIRY_KEY = 'admin_auth_expiry';
+const ADMIN_AUTH_EXPIRY_MS = 3 * 60 * 60 * 1000; // 3 hours
 
 export function useAuthState() {
   const getInitial = () => {
     try {
-      // if expiry set and passed, clear auth/hotel and return false
-      const expiry = parseInt(localStorage.getItem(AUTH_EXPIRY_KEY) || '0', 10) || 0;
-      if (expiry && Date.now() > expiry) {
-        try {
-          localStorage.setItem(IS_AUTH_KEY, 'false');
-          localStorage.removeItem(HOTEL_ID_KEY);
-          localStorage.removeItem('username');
-          localStorage.removeItem('is_admin_logged_in');
-          localStorage.removeItem(AUTH_EXPIRY_KEY);
-        } catch (e) {}
-        return false;
-      }
       const v = localStorage.getItem(IS_AUTH_KEY);
       return v === 'true';
     } catch (e) {
@@ -29,81 +19,94 @@ export function useAuthState() {
     }
   };
 
+  const getRole = () => {
+    try {
+      return localStorage.getItem(USER_ROLE_KEY) || '';
+    } catch (e) {
+      return '';
+    }
+  };
+
   const [isAuthenticated, setIsAuthenticated] = useState(getInitial);
+  const [role, setRole] = useState(getRole);
 
   useEffect(() => {
     const onStorage = (e) => {
       if (e.key === IS_AUTH_KEY) setIsAuthenticated(e.newValue === 'true');
+      if (e.key === USER_ROLE_KEY) setRole(e.newValue || '');
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  // schedule automatic logout when auth expiry is reached
+  // schedule automatic admin logout when admin expiry is reached
   useEffect(() => {
-    let timer = null;
-    if (isAuthenticated) {
-      try {
-        const expiry = parseInt(localStorage.getItem(AUTH_EXPIRY_KEY) || '0', 10) || 0;
-        const msLeft = expiry - Date.now();
-        if (msLeft > 0) {
-          timer = setTimeout(() => {
-            try {
-              localStorage.setItem(IS_AUTH_KEY, 'false');
-              localStorage.removeItem(HOTEL_ID_KEY);
-              localStorage.removeItem('username');
-              localStorage.removeItem('is_admin_logged_in');
-              localStorage.removeItem(AUTH_EXPIRY_KEY);
-            } catch (e) {}
-            setIsAuthenticated(false);
-          }, msLeft);
-        } else {
-          // already expired
+    let adminTimer = null;
+    try {
+      const adminExpiry = parseInt(localStorage.getItem(ADMIN_AUTH_EXPIRY_KEY) || '0', 10) || 0;
+      const msLeft = adminExpiry - Date.now();
+      if (msLeft > 0) {
+        adminTimer = setTimeout(() => {
           try {
-            localStorage.setItem(IS_AUTH_KEY, 'false');
-            localStorage.removeItem(HOTEL_ID_KEY);
-            localStorage.removeItem('username');
             localStorage.removeItem('is_admin_logged_in');
-            localStorage.removeItem(AUTH_EXPIRY_KEY);
+            localStorage.removeItem(ADMIN_AUTH_EXPIRY_KEY);
+            // redirect to admin login with expired flag
+            try {
+              window.location.replace('/hoangvy/admin-login?expired=1');
+            } catch (err) {}
           } catch (e) {}
-          setIsAuthenticated(false);
-        }
-      } catch (e) {
-        // ignore
+        }, msLeft);
+      } else if (adminExpiry) {
+        // already expired
+        try {
+          localStorage.removeItem('is_admin_logged_in');
+          localStorage.removeItem(ADMIN_AUTH_EXPIRY_KEY);
+          try {
+            window.location.replace('/hoangvy/admin-login');
+          } catch (err) {}
+        } catch (e) {}
       }
+    } catch (e) {
+      // ignore
     }
     return () => {
-      if (timer) clearTimeout(timer);
+      if (adminTimer) clearTimeout(adminTimer);
     };
-  }, [isAuthenticated]);
+  }, []);
 
   const setAuth = useCallback((isLoggedIn) => {
     try {
       if (isLoggedIn) {
         localStorage.setItem(IS_AUTH_KEY, 'true');
-        // set expiry
-        localStorage.setItem(AUTH_EXPIRY_KEY, String(Date.now() + AUTH_EXPIRY_MS));
       } else {
         localStorage.setItem(IS_AUTH_KEY, 'false');
-        localStorage.removeItem(AUTH_EXPIRY_KEY);
       }
     } catch (e) {}
     setIsAuthenticated(!!isLoggedIn);
   }, []);
 
-  const logout = useCallback(() => {
+  const setUserRole = useCallback((userRole) => {
     try {
-  // clear auth and related keys
-  localStorage.setItem(IS_AUTH_KEY, 'false');
-  localStorage.removeItem(HOTEL_ID_KEY);
-  localStorage.removeItem('username');
-  localStorage.removeItem('is_admin_logged_in');
-  localStorage.removeItem(AUTH_EXPIRY_KEY);
+      localStorage.setItem(USER_ROLE_KEY, userRole);
     } catch (e) {}
-    setIsAuthenticated(false);
+    setRole(userRole);
   }, []);
 
-  return { isAuthenticated, setAuth, logout };
+  const logout = useCallback(() => {
+    try {
+      // clear auth and related keys
+      localStorage.setItem(IS_AUTH_KEY, 'false');
+      localStorage.removeItem(HOTEL_ID_KEY);
+      localStorage.removeItem('username');
+      localStorage.removeItem('is_admin_logged_in');
+      localStorage.removeItem(ADMIN_AUTH_EXPIRY_KEY);
+      localStorage.removeItem(USER_ROLE_KEY);
+    } catch (e) {}
+    setIsAuthenticated(false);
+    setRole('');
+  }, []);
+
+  return { isAuthenticated, setAuth, logout, role, setUserRole };
 }
 
 export function useHotelState() {
@@ -146,6 +149,14 @@ export function ProtectedRoute({ children }) {
 
 export function AdminProtectedRoute({ children }) {
   const isAdmin = typeof window !== 'undefined' && localStorage.getItem('is_admin_logged_in') === 'true';
-  if (!isAdmin) return React.createElement(Navigate, { to: '/admin-login', replace: true });
+  const role = typeof window !== 'undefined' ? localStorage.getItem(USER_ROLE_KEY) : '';
+  if (!isAdmin || role !== 'admin') return React.createElement(Navigate, { to: '/admin-login', replace: true });
+  return children;
+}
+
+export function StaffProtectedRoute({ children }) {
+  const isAuthenticated = typeof window !== 'undefined' && localStorage.getItem(IS_AUTH_KEY) === 'true';
+  const role = typeof window !== 'undefined' ? localStorage.getItem(USER_ROLE_KEY) : '';
+  if (!isAuthenticated || role !== 'staff') return React.createElement(Navigate, { to: '/login', replace: true });
   return children;
 }

@@ -30,8 +30,7 @@ export default function NavItem({ item, level = 0 }) {
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
 
   const location = useLocation();
-    // handled navigation for protected menu items in the click handler below
-
+  // handled navigation for protected menu items in the click handler below
 
   const navigate = useNavigate();
 
@@ -41,7 +40,7 @@ export default function NavItem({ item, level = 0 }) {
     if (!isProtected) return true; // allow
 
     // check admin flag
-    const isAdmin = localStorage.getItem('is_admin_logged_in') === 'true';
+    const isAdmin = typeof window !== 'undefined' && localStorage.getItem('is_admin_logged_in') === 'true';
     if (isAdmin) return true;
 
     // not admin => redirect to admin-login page (handled by AdminLogin component)
@@ -94,14 +93,14 @@ export default function NavItem({ item, level = 0 }) {
   return (
     <ListItemButton
       id={`${item.id}-btn`}
-  {...(item.target && { target: item.target })}
+      {...(item.target && { target: item.target })}
       selected={openItem === item.id}
       disabled={item.disabled}
       onClick={itemHandler}
       sx={{
         color: 'text.primary',
         mb: 0.625,
-  mt: level === 0 && item.id === 'home' ? 1 : 0,
+        mt: level === 0 && item.id === 'home' ? 1 : 0,
         borderRadius: 1,
         pl: `${level * 16}px`,
         ...(level === 0 && { '&.Mui-selected': { color: 'primary.main' } }),

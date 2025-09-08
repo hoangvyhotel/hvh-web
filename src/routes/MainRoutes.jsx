@@ -27,6 +27,16 @@ const UtilsTypography = Loadable(lazy(() => import('views/components/Typography'
 
 // ==============================|| MAIN ROUTES ||============================== //
 
+function AdminClearWrapper({ children }) {
+  try {
+    if (typeof window !== 'undefined') {
+      // clear admin logged flag when entering management
+      localStorage.setItem('is_admin_logged_in', 'false');
+    }
+  } catch (e) {}
+  return children;
+}
+
 const MainRoutes = {
   path: '/',
   element: <MainLayout />,
@@ -55,9 +65,9 @@ const MainRoutes = {
       path: 'pages/management',
       element: (
         <ProtectedRoute>
-          <AdminProtectedRoute>
+          <AdminClearWrapper>
             <HotelManagementLayout />
-          </AdminProtectedRoute>
+          </AdminClearWrapper>
         </ProtectedRoute>
       ),
       children: [
@@ -79,7 +89,11 @@ const MainRoutes = {
         },
         {
           path: 'change-password',
-          element: <ChangePassword />
+          element: (
+            <AdminProtectedRoute>
+              <ChangePassword />
+            </AdminProtectedRoute>
+          )
         },
         {
           path: 'expense-management',
@@ -99,7 +113,11 @@ const MainRoutes = {
         },
         {
           path: 'create-user',
-          element: <AddUserPage />
+          element: (
+            <AdminProtectedRoute>
+              <AddUserPage />
+            </AdminProtectedRoute>
+          )
         }
       ]
     },

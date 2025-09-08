@@ -1,7 +1,7 @@
 export const endpoints = {
   auth: {
     login: () => '/auth/login',
-  loginAdmin: () => '/auth/login-admin',
+    loginAdmin: () => '/auth/login-admin',
     refresh: () => '/auth/refresh',
     me: () => '/auth/me',
     register: () => '/auth/register'
@@ -31,10 +31,10 @@ export const endpoints = {
     detail: (id) => `/utilities/${id}`
   },
   bills: {
-  getBills: () => '/bills',
-  getBillById: (id) => `/bills/${id}`,
-  daily: () => '/bills/daily',
-  monthly: () => '/bills/monthly'
+    getBills: () => '/bills',
+    getBillById: (id) => `/bills/${id}`,
+    daily: () => '/bills/daily',
+    monthly: () => '/bills/monthly'
   },
   booking: {
     getRooms: (id) => `/booking/${id}`,
@@ -48,6 +48,12 @@ export const endpoints = {
     getBookingById: (id) => `/booking/booking-by-id/${id}`,
     getNote: (id) => `/booking/get-note/${id}`,
     moveRoom: () => `/booking/move-room`,
-    changeTypeBooking: () => `/booking/change-type`
+    changeTypeBooking: () => `/booking/change-type`,
+    addDocument: () => `/booking/add-document`,
+    addCar: () => `/booking/add-car`,
+    getDocuments: (id) => `/booking/document/${id}`,
+    getCars: (id) => `/booking/car/${id}`,
+    updateDocument: () => `/booking/document`,
+    updateCar: () => `/booking/car`
   }
 };

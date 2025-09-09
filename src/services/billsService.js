@@ -1,8 +1,8 @@
 import { http } from "lib/http/axios";
 
 export const billsRequests = {
-  fetchAllBills: () => ({
-    url: '/bills',
+  fetchAllBills: (hotelId) => ({
+    url: `/bills/${hotelId}`,
     method: 'get'
   }),
   fetchBillById: (id) => ({
@@ -25,8 +25,8 @@ export const billsRequests = {
 };
 
 
-export const fetchAllBills = async () => {
-  const response = await http(billsRequests.fetchAllBills());
+export const fetchAllBills = async (hotelId) => {
+  const response = await http(billsRequests.fetchAllBills(hotelId));
   return response.data.data;
 };
 
@@ -44,3 +44,12 @@ export const fetchMonthlyBills = async (payload) => {
   const response = await http(billsRequests.monthly(payload));
   return response.data.data;
 };
+
+export const createBill = async (roomId) => {
+  if (!roomId) throw new Error('Room ID is required to create a bill');
+  const response = await http({
+    url: `/bills/${roomId}`,
+    method: 'post',
+  });
+  return response.data.data;
+}

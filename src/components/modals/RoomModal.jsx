@@ -5,7 +5,7 @@ import { floorData } from '../../views/pages/home/data/room-data';
 
 import { useHotelState } from 'hooks/useAuth';
 
-const RoomModal = ({ isOpen, onClose, room, onSave }) => {
+const RoomModal = ({ isOpen, onClose, room, onCreate, onUpdate }) => {
   const { hotelId } = useHotelState();
   // Handle keyboard events
   useEffect(() => {
@@ -41,7 +41,7 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
       nightPrice: parseFloat(formData.get('nightPrice')) || 0,
       typeHire: 1, // 1: Theo giờ, 2: Theo ngày, 3: Theo đêm. Mặc định load là 1
       status: true,
-  hotelId: hotelId || ''
+      hotelId: hotelId || ''
     };
     if (room) {
       roomData.id = room.id;
@@ -92,7 +92,6 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
               </select>
             </div>
           </div>
-
           {/* Tên phòng */}
           <div className="grid grid-cols-12 gap-4 items-center">
             <label className="col-span-3 text-gray-700 font-medium pt-2">Tên phòng</label>
@@ -106,7 +105,6 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
               />
             </div>
           </div>
-
           {/* Mô tả */}
           <div className="grid grid-cols-12 gap-4 items-start">
             <label className="col-span-3 text-gray-700 font-medium pt-2">Mô tả</label>
@@ -120,7 +118,6 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
               />
             </div>
           </div>
-
           {/* Giá theo giờ */}
           <div className="grid grid-cols-12 gap-4 items-center">
             <label className="col-span-3 text-gray-700 font-medium">Giá theo giờ</label>
@@ -136,7 +133,6 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
               <span className="text-gray-600 font-medium">/ Giờ</span>
             </div>
           </div>
-
           {/* Giá giờ tiếp theo */}
           <div className="grid grid-cols-12 gap-4 items-center">
             <label className="col-span-3 text-gray-700 font-medium"></label>
@@ -152,7 +148,6 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
               <span className="text-gray-600 font-medium">/ Giờ tiếp theo</span>
             </div>
           </div>
-
           {/* Giá theo đêm */}
           <div className="grid grid-cols-12 gap-4 items-center">
             <label className="col-span-3 text-gray-700 font-medium">Giá theo đêm</label>
@@ -168,7 +163,6 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
               <span className="text-gray-600 font-medium">/ Đêm</span>
             </div>
           </div>
-
           {/* Giá theo ngày */}
           <div className="grid grid-cols-12 gap-4 items-center">
             <label className="col-span-3 text-gray-700 font-medium">Giá theo ngày</label>
@@ -184,7 +178,6 @@ const RoomModal = ({ isOpen, onClose, room, onSave }) => {
               <span className="text-gray-600 font-medium">/ Ngày</span>
             </div>
           </div>
-
           {/* Buttons */}
           <div className="flex justify-end space-x-3 border-t border-gray-200 bg-gray-50 -mx-6 px-6 py-2 rounded-b-lg">
             <button

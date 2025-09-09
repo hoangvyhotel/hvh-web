@@ -5,6 +5,7 @@ import RentalItem from '../../../components/items/RentalItem';
 import { useEffect, useState } from 'react';
 import { fetchAllBills } from 'services/billsService';
 import { toast } from 'react-toastify';
+import { useHotelState } from 'hooks/useAuth';
 
 const formatCurrency = (amount) => {
   if (!amount) return '-';
@@ -17,11 +18,12 @@ const formatCurrency = (amount) => {
 const RetalManagement = () => {
   const [bills, setBills] = useState([]);
   const [billSelected, setBillSelected] = useState(null);
+  const hotelId = useHotelState().hotelId;
 
   useEffect(() => {
     const fetchBills = async () => {
       try {
-        const billsResponse = await fetchAllBills();
+        const billsResponse = await fetchAllBills(hotelId);
         setBills(billsResponse);
         toast.success('Đã tải dữ liệu hóa đơn thành công!');
       } catch (error) {

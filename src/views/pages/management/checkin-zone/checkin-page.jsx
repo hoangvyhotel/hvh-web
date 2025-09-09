@@ -17,6 +17,7 @@ import { utilitiesRequests } from 'services/utilitiesService';
 import { roomRequests } from 'services/roomService';
 import MoveRoomModal from './modal-actions/move-room-modal';
 import ChangeBookingTypeModal from './modal-actions/change-booking-type';
+import { createBill } from 'services/billsService';
 function translateBookingType(type) {
   switch (type.toLowerCase()) {
     case 'day':
@@ -170,6 +171,29 @@ const CheckinPage = () => {
     }
   };
 
+  const handleCheckout = async () => {
+    try {
+      if (!booking?.BookingId) {
+        toast.error('Không có booking để trả phòng');
+        return;
+      }
+      // confirm window
+      if (!window.confirm('Bạn có chắc muốn trả phòng không?')) return;
+
+      // Call API to create bill
+      const res = await createBill(roomId);
+      toast.success(res.data?.message || 'Trả phòng thành công');
+
+      // Delay để hiển thị toast trước khi redirect
+      setTimeout(() => {
+        navigate('/pages/home/room-tracking');
+      }, 1500);
+    } catch (err) {
+      console.error(err);
+      toast.error('Trả phòng thất bại');
+    }
+  };
+
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
   if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
   if (!booking) return <div className="p-4 text-center">Không có dữ liệu</div>;
@@ -239,7 +263,10 @@ const CheckinPage = () => {
               <div className="grid grid-cols-2 sm:grid-cols-5 border-b border-green-500 p-2 sm:p-4">
                 <div className="flex flex-col items-center p-2">
                   {/* display-only left icon (no click) */}
-                  <div className="relative text-3xl sm:text-5xl text-green-600 cursor-pointer" onClick={() => setIsDocumentEditorOpen(true)}>
+                  <div
+                    className="relative text-3xl sm:text-5xl text-green-600 cursor-pointer"
+                    onClick={() => setIsDocumentEditorOpen(true)}
+                  >
                     <FileText />
                     <span className="absolute -top-0 -right-1 bg-yellow-400 text-white rounded-full h-5 w-5 text-xs flex items-center justify-center font-bold">
                       {booking.Documents?.length || 0}
@@ -332,10 +359,14 @@ const CheckinPage = () => {
                       // gọi API xóa booking
                       const res = await http(bookingRequests.removeBooking(booking.BookingId));
                       toast.success(res.data.message || 'Hủy phòng thành công');
-                      navigate('/pages/home/room-tracking');
 
                       // cập nhật UI: xóa booking khỏi state
                       setBooking(null);
+
+                      // Delay để hiển thị toast trước khi redirect
+                      setTimeout(() => {
+                        navigate('/pages/home/room-tracking');
+                      }, 1500);
                     } catch (err) {
                       console.error(err);
                       toast.error('Hủy phòng thất bại');
@@ -355,7 +386,10 @@ const CheckinPage = () => {
                   ĐỔI PHÒNG
                 </button>
               </div>
-              <button className="cursor-pointer bg-blue-600 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto">
+              <button
+                className="cursor-pointer bg-blue-600 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
+                onClick={handleCheckout}
+              >
                 TRẢ PHÒNG
               </button>
             </div>{' '}
@@ -668,37 +702,37 @@ const CheckinPage = () => {
           }
         }}
       />
-  <DocumentModal isOpen={isDocumentOpen} onClose={() => setIsDocumentOpen(false)} onSave={handleSaveDocument} />
-  <VehicleModal isOpen={isVehicleOpen} onClose={() => setIsVehicleOpen(false)} onSave={handleSaveVehicle} />
-  <DocumentViewer isOpen={isDocumentViewerOpen} onClose={() => setIsDocumentViewerOpen(false)} bookingId={booking?.BookingId} />
-  <VehicleViewer isOpen={isVehicleViewerOpen} onClose={() => setIsVehicleViewerOpen(false)} bookingId={booking?.BookingId} />
-  <DocumentEditor
-    isOpen={isDocumentEditorOpen}
-    onClose={() => setIsDocumentEditorOpen(false)}
-    bookingId={booking?.BookingId}
-    onSave={async () => {
-      // refresh booking after an update
-      try {
-        const updated = await http(bookingRequests.getBooking(roomId));
-        setBooking(updated.data.data);
-      } catch (err) {
-        console.error(err);
-      }
-    }}
-  />
-  <VehicleEditor
-    isOpen={isVehicleEditorOpen}
-    onClose={() => setIsVehicleEditorOpen(false)}
-    bookingId={booking?.BookingId}
-    onSave={async () => {
-      try {
-        const updated = await http(bookingRequests.getBooking(roomId));
-        setBooking(updated.data.data);
-      } catch (err) {
-        console.error(err);
-      }
-    }}
-  />
+      <DocumentModal isOpen={isDocumentOpen} onClose={() => setIsDocumentOpen(false)} onSave={handleSaveDocument} />
+      <VehicleModal isOpen={isVehicleOpen} onClose={() => setIsVehicleOpen(false)} onSave={handleSaveVehicle} />
+      <DocumentViewer isOpen={isDocumentViewerOpen} onClose={() => setIsDocumentViewerOpen(false)} bookingId={booking?.BookingId} />
+      <VehicleViewer isOpen={isVehicleViewerOpen} onClose={() => setIsVehicleViewerOpen(false)} bookingId={booking?.BookingId} />
+      <DocumentEditor
+        isOpen={isDocumentEditorOpen}
+        onClose={() => setIsDocumentEditorOpen(false)}
+        bookingId={booking?.BookingId}
+        onSave={async () => {
+          // refresh booking after an update
+          try {
+            const updated = await http(bookingRequests.getBooking(roomId));
+            setBooking(updated.data.data);
+          } catch (err) {
+            console.error(err);
+          }
+        }}
+      />
+      <VehicleEditor
+        isOpen={isVehicleEditorOpen}
+        onClose={() => setIsVehicleEditorOpen(false)}
+        bookingId={booking?.BookingId}
+        onSave={async () => {
+          try {
+            const updated = await http(bookingRequests.getBooking(roomId));
+            setBooking(updated.data.data);
+          } catch (err) {
+            console.error(err);
+          }
+        }}
+      />
     </>
   );
 };

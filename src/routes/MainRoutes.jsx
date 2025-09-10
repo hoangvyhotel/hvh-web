@@ -3,7 +3,6 @@ import { lazy } from 'react';
 // project imports
 import Loadable from 'components/Loadable';
 import MainLayout from 'layouts/MainLayout';
-import Login from 'views/auth/Login';
 import RoomManagement from '../views/pages/management/room-management';
 import ExpenseManagement from '../views/pages/management/expense-management/expense-page';
 import HotelManagementLayout from '../layouts/HotelManagementLayout';
@@ -14,9 +13,9 @@ import UtilitiesPage from 'views/pages/management/utility-management';
 import SummaryManagement from 'views/pages/management/summary-management';
 import AddUserPage from 'views/pages/management/create-user/create-user-page';
 import { ProtectedRoute, AdminProtectedRoute } from 'hooks/useAuth';
-import RoomTrackingDemo from 'views/pages/home/room-tracking/RoomTracking';
 import CheckinPage from 'views/pages/management/checkin-zone/checkin-page';
 import RoomTracking from 'views/pages/home/room-tracking/RoomTracking';
+import ChangePasswordManager from 'views/pages/management/change-password-manager';
 
 // pages
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/default')));
@@ -92,6 +91,10 @@ const MainRoutes = {
           element: (
               <ChangePassword />
           )
+        },
+        {
+          path: 'change-password-manager',
+          element: <ChangePasswordManager />
         },
         {
           path: 'expense-management',

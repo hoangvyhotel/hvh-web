@@ -18,18 +18,18 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-// ==============================|| RESPONSIVE DRAWER - COLLAPSE ||============================== //
+// ==============================|| RESPONSIVE DRAWER - COLLAPSE LOOP ||============================== //
 
 function NavCollapseLoop({ item, level }) {
-  return item.children?.map((item) => {
-    switch (item.type) {
+  return item.children?.map((child) => {
+    switch (child.type) {
       case 'collapse':
-        return <NavCollapse key={item.id} item={item} level={level + 1} />;
+        return <NavCollapse key={child.id} item={child} level={level + 1} />;
       case 'item':
-        return <NavItem key={item.id} item={item} level={level + 1} />;
+        return <NavItem key={child.id} item={child} level={level + 1} />;
       default:
         return (
-          <Typography key={item.id} variant="h6" color="error" align="center">
+          <Typography key={child.id} variant="h6" color="error" align="center">
             Fix - Collapse or Item
           </Typography>
         );
@@ -40,42 +40,43 @@ function NavCollapseLoop({ item, level }) {
 // ==============================|| RESPONSIVE DRAWER - COLLAPSE ||============================== //
 
 export default function NavCollapse({ item, level }) {
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
-
-  // Active item collapse on page load with sub-levels
+  const [open, setOpen] = useState(false); // Menu mặc định đóng
+  const [selected, setSelected] = useState(null); // Để highlight item đang active
   const { pathname } = useLocation();
 
-  const checkOpenForParent = (child, id) => {
-    child.forEach((list) => {
-      if (list.url === pathname) {
-        setOpen(true);
-        setSelected(id);
+  // Kiểm tra xem item hoặc sub-item có khớp với pathname không
+  const checkActiveForParent = (children, id) => {
+    return children.some((child) => {
+      if (child.children?.length) {
+        return checkActiveForParent(child.children, id); // Đệ quy kiểm tra sub-level
       }
+      return child.url === pathname;
     });
   };
 
   useEffect(() => {
-    setOpen(false);
-    setSelected(null);
+    // Reset trạng thái khi chuyển trang
+    setOpen(false); // Đóng menu khi pathname thay đổi
+    setSelected(null); // Reset selected
+
     if (item.children) {
-      item.children.forEach((list) => {
-        if (list.children?.length) {
-          checkOpenForParent(list.children, item.id);
+      // Kiểm tra xem item hoặc sub-item có active không
+      const isActive = item.children.some((child) => {
+        if (child.children?.length) {
+          return checkActiveForParent(child.children, item.id);
         }
-
-        if (list.url === pathname) {
-          setSelected(item.id);
-          setOpen(true);
-        }
+        return child.url === pathname;
       });
-    }
 
+      if (isActive) {
+        setSelected(item.id); // Highlight item nếu active
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, item.children]);
 
   const handleClick = () => {
-    setOpen(!open);
+    setOpen((prev) => !prev); // Toggle menu chỉ khi người dùng click
   };
 
   const Icon = item.icon;
@@ -85,16 +86,16 @@ export default function NavCollapse({ item, level }) {
     <>
       <ListItemButton
         id={`${item.id}-btn`}
-        selected={open || selected === item.id}
+        selected={selected === item.id} // Highlight nếu item active
         sx={{
           mb: 0.625,
           pl: `${level * 16}px`,
           borderRadius: 1,
-          ...(level > 1 && { bgcolor: 'transparent !important', py: 1 })
+          ...(level > 1 && { bgcolor: 'transparent !important', py: 1 }),
         }}
         onClick={handleClick}
       >
-        {<ListItemIcon sx={{ minWidth: !item.icon ? 25 : 'unset' }}>{menuIcon}</ListItemIcon>}
+        <ListItemIcon sx={{ minWidth: !item.icon ? 25 : 'unset' }}>{menuIcon}</ListItemIcon>
         <ListItemText
           primary={
             <Typography variant={selected === item.id ? 'subtitle1' : 'body1'} color="inherit" sx={{ pl: 1.9 }}>
@@ -121,5 +122,4 @@ export default function NavCollapse({ item, level }) {
 }
 
 NavCollapseLoop.propTypes = { item: PropTypes.any, level: PropTypes.number };
-
 NavCollapse.propTypes = { item: PropTypes.any, level: PropTypes.number };

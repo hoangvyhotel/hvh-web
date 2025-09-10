@@ -90,9 +90,7 @@ const MainRoutes = {
         {
           path: 'change-password',
           element: (
-            <AdminProtectedRoute>
               <ChangePassword />
-            </AdminProtectedRoute>
           )
         },
         {

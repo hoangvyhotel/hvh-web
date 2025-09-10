@@ -8,7 +8,6 @@ import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 
-
 // project
 import MainCard from 'components/cards/MainCard';
 import Header from 'layouts/HotelManagementLayout/Header';
@@ -29,10 +28,7 @@ export default function SummaryManagement() {
   const [year, setYear] = useState(currentYear);
   const { hotelId } = useHotelState();
 
-  const { data: billsData, isLoading } = useApiQuery(
-    ['bills', month, year, hotelId],
-    billsRequests.daily({ month, year, hotelId })
-  );
+  const { data: billsData, isLoading } = useApiQuery(['bills', month, year, hotelId], billsRequests.daily({ month, year, hotelId }));
 
   const { data: monthlyData, isLoading: monthlyLoading } = useApiQuery(
     ['bills-monthly', month, year, hotelId],
@@ -50,9 +46,7 @@ export default function SummaryManagement() {
   const getMonthlyField = (field) => {
     if (!monthlyData) return null;
     // common shapes: { data: { totalUtilities: X } } or { totalUtilities: X } or { data: { data: { totalUtilities: X } } }
-    return (
-      monthlyData?.data?.[field] ?? monthlyData?.[field] ?? monthlyData?.data?.data?.[field] ?? null
-    );
+    return monthlyData?.data?.[field] ?? monthlyData?.[field] ?? monthlyData?.data?.data?.[field] ?? null;
   };
 
   const getExpenseTotal = () => {
@@ -75,7 +69,9 @@ export default function SummaryManagement() {
         <Grid item>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
             <FormControl size="small" sx={{ minWidth: 110 }}>
-              <InputLabel id="month-label" sx={{ fontSize: '0.95rem' }}>Tháng</InputLabel>
+              <InputLabel id="month-label" sx={{ fontSize: '0.95rem' }}>
+                Tháng
+              </InputLabel>
               <Select
                 labelId="month-label"
                 value={month}
@@ -85,13 +81,17 @@ export default function SummaryManagement() {
                 MenuProps={{ PaperProps: { sx: { fontSize: '1rem' } } }}
               >
                 {months.map((m) => (
-                  <MenuItem key={m} value={m} sx={{ fontSize: '1rem' }}>{m}</MenuItem>
+                  <MenuItem key={m} value={m} sx={{ fontSize: '1rem' }}>
+                    {m}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
 
             <FormControl size="small" sx={{ minWidth: 140 }}>
-              <InputLabel id="year-label" sx={{ fontSize: '0.95rem' }}>Năm</InputLabel>
+              <InputLabel id="year-label" sx={{ fontSize: '0.95rem' }}>
+                Năm
+              </InputLabel>
               <Select
                 labelId="year-label"
                 value={year}
@@ -101,7 +101,9 @@ export default function SummaryManagement() {
                 MenuProps={{ PaperProps: { sx: { fontSize: '1rem' } } }}
               >
                 {[year - 1, year, year + 1].map((y) => (
-                  <MenuItem key={y} value={y} sx={{ fontSize: '1rem' }}>{y}</MenuItem>
+                  <MenuItem key={y} value={y} sx={{ fontSize: '1rem' }}>
+                    {y}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -124,61 +126,66 @@ export default function SummaryManagement() {
           <div className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center">
             <div className="col-span-6 font-semibold">TỔNG CHI PHÍ</div>
             <div className="col-span-3 text-right">{expensesLoading ? '...' : '-'}</div>
-            <div className="col-span-3 text-right">{expensesLoading ? '...' : formatCurrency(expenseTotal)}</div>
+            <div className="col-span-3 text-right">{expensesLoading ? '...' : formatCurrency(-1 * expenseTotal)}</div>
           </div>
 
           <div className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center">
             <div className="col-span-6 font-semibold">DOANH THU</div>
-            <div className="col-span-3 text-right">{(monthlyLoading || expensesLoading) ? '...' : formatCurrency(monthlyUtilities)}</div>
-            <div className="col-span-3 text-right">{(monthlyLoading || expensesLoading) ? '...' : formatCurrency(monthlyTotal)}</div>
+            <div className="col-span-3 text-right">{monthlyLoading || expensesLoading ? '...' : formatCurrency(monthlyUtilities)}</div>
+            <div className="col-span-3 text-right">{monthlyLoading || expensesLoading ? '...' : formatCurrency(monthlyTotal)}</div>
           </div>
 
-          <div className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center bg-gray-50">
-            <div className="col-span-6 font-semibold">TỔNG SAU CHI PHÍ</div>
-            <div className="col-span-3 text-right">{(monthlyLoading || expensesLoading) ? '...' : formatCurrency(expenseTotal)}</div>
-            <div className="col-span-3 text-right">{(monthlyLoading || expensesLoading) ? '...' : formatCurrency(netTotal)}</div>
+          <div className="flex items-center justify-between py-4 px-4 border-b border-gray-100 bg-gray-50">
+            <div className="font-semibold">TỔNG SAU CHI PHÍ</div>
+            <div className="text-right">{monthlyLoading || expensesLoading ? '...' : formatCurrency(netTotal)}</div>
           </div>
         </div>
       </div>
 
       {/* Daily breakdown - data from API */}
-  <div className="p-6">
-    {isLoading && <div className="p-3">Đang tải dữ liệu...</div>}
-    {!isLoading && billsData && Array.isArray(billsData.data) && billsData.data.length === 0 && <div className="p-3">Không có dữ liệu</div>}
+      <div className="p-6">
+        {isLoading && <div className="p-3">Đang tải dữ liệu...</div>}
+        {!isLoading && billsData && Array.isArray(billsData.data) && billsData.data.length === 0 && (
+          <div className="p-3">Không có dữ liệu</div>
+        )}
 
-    <div className="mt-4">
-      <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
-        <div className="col-span-6">Thời điểm</div>
-        <div className="col-span-3 text-right">Tiền nước</div>
-        <div className="col-span-3 text-right">Doanh thu</div>
+        <div className="mt-4">
+          <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
+            <div className="col-span-6">Thời điểm</div>
+            <div className="col-span-3 text-right">Tiền nước</div>
+            <div className="col-span-3 text-right">Doanh thu</div>
+          </div>
+
+          <div className="bg-white">
+            {billsData &&
+              Array.isArray(billsData.data) &&
+              billsData.data.map((r) => {
+                const getWeekdayName = (y, m, d) => {
+                  try {
+                    if (d == null) return '';
+                    const date = new Date(Number(y), Number(m) - 1, Number(d));
+                    return date.toLocaleDateString('vi-VN', { weekday: 'long' });
+                  } catch (e) {
+                    return '';
+                  }
+                };
+
+                const weekday = r.weekday ?? getWeekdayName(year, month, r.day);
+                const label = weekday
+                  ? `${weekday} (${String(r.day).padStart(2, '0')}/${String(month).padStart(2, '0')})`
+                  : `(${String(r.day).padStart(2, '0')}/${String(month).padStart(2, '0')})`;
+
+                return (
+                  <div key={r.day} className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center">
+                    <div className="col-span-6 font-semibold">{label}</div>
+                    <div className="col-span-3 text-right">{formatCurrency(r.totalUtilities)}</div>
+                    <div className="col-span-3 text-right">{formatCurrency(r.total ?? null)}</div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
       </div>
-
-      <div className="bg-white">
-        {billsData && Array.isArray(billsData.data) && billsData.data.map((r) => {
-          const getWeekdayName = (y, m, d) => {
-            try {
-              if (d == null) return '';
-              const date = new Date(Number(y), Number(m) - 1, Number(d));
-              return date.toLocaleDateString('vi-VN', { weekday: 'long' });
-            } catch (e) {
-              return '';
-            }
-          };
-
-          const weekday = r.weekday ?? getWeekdayName(year, month, r.day);
-          const label = weekday ? `${weekday} (${String(r.day).padStart(2, '0')}/${String(month).padStart(2, '0')})` : `(${String(r.day).padStart(2, '0')}/${String(month).padStart(2, '0')})`;
-
-          return (
-            <div key={r.day} className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center">
-              <div className="col-span-6 font-semibold">{label}</div>
-              <div className="col-span-3 text-right">{formatCurrency(r.totalUtilities)}</div>
-              <div className="col-span-3 text-right">{formatCurrency(r.total ?? null)}</div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  </div>
     </MainCard>
   );
 }

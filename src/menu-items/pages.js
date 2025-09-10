@@ -44,20 +44,6 @@ const pages = {
       icon: icons.ChromeReaderModeOutlinedIcon
     },
     {
-      id: 'utilities',
-      title: 'Dịch vụ',
-      type: 'item',
-      url: '/pages/management/utilities',
-      icon: icons.ChromeReaderModeOutlinedIcon
-    },
-     {
-      id: 'lodging-report',
-      title: 'Báo lưu trú',
-      type: 'item',
-      url: '/pages/lodging-report',
-      icon: icons.ChromeReaderModeOutlinedIcon
-    },
-    {
       id: 'instruction',
       title: 'Hướng dẫn',
       type: 'item',
@@ -72,41 +58,6 @@ const pages = {
       url: '/login',
       icon: MeetingRoomTwoToneIcon
     }
-    // {
-    //   id: 'auth',
-    //   title: 'Authentication',
-    //   type: 'collapse',
-    //   icon: icons.SecurityOutlinedIcon,
-    //   children: [
-    //     {
-    //       id: 'login-1',
-    //       title: 'login',
-    //       type: 'item',
-    //       url: '/pages/auth/login',
-    //       target: '_blank'
-    //     },
-    //     {
-    //       id: 'register',
-    //       title: 'register',
-    //       type: 'item',
-    //       url: '/pages/auth/register',
-    //       target: '_blank'
-    //     }
-    //   ]
-    // },
-    // {
-    //   id: 'documentation',
-    //   title: 'Documentation',
-    //   type: 'item',
-    //   url: 'https://codedthemes.gitbook.io/materially-react-material-documentation/',
-    //   icon: icons.HelpOutlineOutlinedIcon,
-    //   chip: {
-    //     label: 'Help?',
-    //     color: 'primary'
-    //   },
-    //   external: true,
-    //   target: '_blank'
-    // }
   ]
 };
 

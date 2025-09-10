@@ -17,13 +17,13 @@ const formatCurrency = (amount) => {
 
 const RetalManagement = () => {
   const [bills, setBills] = useState([]);
-  const [billSelected, setBillSelected] = useState(null);
   const hotelId = useHotelState().hotelId;
 
   useEffect(() => {
     const fetchBills = async () => {
       try {
         const billsResponse = await fetchAllBills(hotelId);
+        console.log('ok');
         setBills(billsResponse);
         toast.success('Đã tải dữ liệu hóa đơn thành công!');
       } catch (error) {
@@ -32,7 +32,8 @@ const RetalManagement = () => {
     };
 
     fetchBills();
-  }, []);
+  }, hotelId);
+  const totalRoomPrice = bills.reduce((sum, bill) => sum + (bill.totalRoomPrice || 0), 0);
 
   return (
     <>
@@ -61,7 +62,7 @@ const RetalManagement = () => {
       <div className="border-t border-gray-500 mt-4">
         <div className="flex justify-between items-start mt-6">
           <span className="font-bold text-2xl">Tổng cộng</span>
-          <span className="font-semibold text-xl">{formatCurrency(1220000)}</span>
+          <span className="font-semibold text-xl">{formatCurrency(totalRoomPrice)}</span>
         </div>
       </div>
     </>

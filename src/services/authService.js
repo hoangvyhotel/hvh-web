@@ -22,3 +22,12 @@ export const changeStaffPassword = async (dto) => {
   }
 };
 
+export const changeManagerPassword = (dto) => {
+  const response = http.request({
+    method: 'POST',
+    url: 'auth/change-admin-password',
+    data: dto
+  });
+
+  return response;
+}

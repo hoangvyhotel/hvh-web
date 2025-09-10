@@ -52,7 +52,7 @@ export function useAuthState() {
             localStorage.removeItem(ADMIN_AUTH_EXPIRY_KEY);
             // redirect to admin login with expired flag
             try {
-              window.location.replace('/hoangvy/admin-login?expired=1');
+              window.location.replace('/admin-login?expired=1');
             } catch (err) {}
           } catch (e) {}
         }, msLeft);
@@ -62,7 +62,7 @@ export function useAuthState() {
           localStorage.removeItem('is_admin_logged_in');
           localStorage.removeItem(ADMIN_AUTH_EXPIRY_KEY);
           try {
-            window.location.replace('/hoangvy/admin-login');
+            window.location.replace('/admin-login');
           } catch (err) {}
         } catch (e) {}
       }

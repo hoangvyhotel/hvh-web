@@ -140,7 +140,7 @@ const RoomManagement = () => {
         <div className="flex items-center justify-between">
           <div></div>
           <button
-            className="px-4 py-2 bg-green-600 rounded text-white hover:bg-green-700 transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-green-600 rounded text-white hover:bg-green-700 transition-colors disabled:opacity-50 cursor-pointer"
             onClick={handleAddRoom}
             disabled={loading}
           >
@@ -153,8 +153,8 @@ const RoomManagement = () => {
           <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
             <div className="col-span-1">Phòng</div>
             <div className="col-span-2 flex">Tầng</div>
-            <div className="col-span-5 flex justify-center">Giá</div>
-            <div className="col-span-4 flex justify-center">Tình trạng</div>
+            <div className="col-span-2 flex justify-center">Giá</div>
+            <div className="col-span-6 flex justify-center">Tình trạng</div>
           </div>
 
           {/* Room List */}

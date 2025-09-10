@@ -8,12 +8,17 @@ export const authRequests = {
   register: (dto) => ({ method: 'POST', url: endpoints.auth.register(), data: dto })
 };
 
-export const changeStaffPassword = (dto) => {
-  const response = http.request({
-    method: 'POST',
-    url: 'auth/change-password',
-    data: dto
-  });
+export const changeStaffPassword = async (dto) => {
+  try {
+    const response = await http.request({
+      method: 'POST',
+      url: '/auth/change-password', // thêm "/" để chắc chắn
+      data: dto,
+    });
+    return response;
+  } catch (error) {
+    // Trả lỗi về cho UI xử lý
+    throw error.response?.data || error;
+  }
+};
 
-  return response;
-}

@@ -36,7 +36,7 @@ const RoomItem = ({ room, onEdit, onUpdateStatus, index }) => {
       </div>
 
       {/* Giá */}
-      <div className="col-span-5 space-y-1">
+      <div className="col-span-5 space-y-1 flex flex-col pl-20">
         <div className="text-green-600">
           <span className="font-medium">{formatPrice(room.originalPrice)} / Giờ</span>
           <span className="text-gray-500 ml-2">(Giờ tiếp theo {formatPrice(room.afterHoursPrice)} / Giờ)</span>
@@ -49,7 +49,7 @@ const RoomItem = ({ room, onEdit, onUpdateStatus, index }) => {
         </div>
       </div>
 
-      {/* Utilities (icons + name) */}
+      {/* Utilities (icons + name)
       <div className="col-span-2 flex items-center gap-2">
         {room.utilities && room.utilities.length > 0 ? (
           <div className="flex flex-wrap gap-2">
@@ -87,7 +87,7 @@ const RoomItem = ({ room, onEdit, onUpdateStatus, index }) => {
         ) : (
           <div className="text-xs text-gray-400">-</div>
         )}
-      </div>
+      </div> */}
 
       {/* Tình trạng */}
       <div className="col-span-2 flex justify-center">
@@ -100,14 +100,14 @@ const RoomItem = ({ room, onEdit, onUpdateStatus, index }) => {
 
       {/* Actions */}
       <div className="col-span-3 flex items-center justify-center space-x-1">
-        <button onClick={handleEdit} className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors">
+        <button onClick={handleEdit} className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors cursor-pointer">
           CẬP NHẬT
         </button>
         <span className="text-gray-400 text-sm">|</span>
         <button
           onClick={handleUpdateStatus}
           className={`px-2 py-1 text-xs ${
-            room.status === true ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-gray-100 text-green-600 hover:bg-gray-200'
+            room.status === true ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-gray-100 text-green-600 hover:bg-gray-200 cursor-pointer'
           }`}
         >
           {room.status === true ? 'Bảo trì' : 'Hoạt động'}

@@ -29,14 +29,14 @@ const RentalItem = ({ bill, onEdit, onDelete }) => {
       </div>
 
       {/* Giờ (Check-in và Check-out) */}
-      <div className="col-span-4 space-y-1 flex flex-col justify-center">
+      <div className="col-span-5 space-y-1 flex flex-col pl-25">
         <div className="text-sm">
-          <span className="font-medium text-gray-700">Check-in: {new Date(bill.createdAt).toLocaleString()}</span>
+          <span className="font-medium text-gray-700">Check-in: {new Date(bill.checkin).toLocaleString()}</span>
         </div>
         <div className="text-sm">
           <span className="font-medium text-gray-700">
             Check-out:
-            {bill.updatedAt ? new Date(bill.updatedAt).toLocaleString() : ' - '}
+            {bill.checkout ? new Date(bill.checkout).toLocaleString() : ' - '}
           </span>
         </div>
       </div>
@@ -52,7 +52,7 @@ const RentalItem = ({ bill, onEdit, onDelete }) => {
       </div>
 
       {/* Actions */}
-      <div className="col-span-3 flex items-center justify-center space-x-1">
+      {/* <div className="col-span-3 flex items-center justify-center space-x-1">
         <button onClick={handleEdit} className="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors">
           CẬP NHẬT
         </button>
@@ -63,7 +63,7 @@ const RentalItem = ({ bill, onEdit, onDelete }) => {
         >
           XEM CHI TIẾT
         </button>
-      </div>
+      </div> */}
       <BillModal isOpen={isModelOpen} onClose={() => setIsModalOpen(false)} bill={bill} />
     </div>
   );

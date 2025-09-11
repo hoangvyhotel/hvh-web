@@ -1,8 +1,8 @@
 import { http } from "lib/http/axios";
 
 export const billsRequests = {
-  fetchAllBills: (hotelId) => ({
-    url: `/bills/${hotelId}`,
+  fetchAllBills: (hotelId, date) => ({
+    url: `/bills/${hotelId}/${date}`,
     method: 'get'
   }),
   fetchBillById: (id) => ({
@@ -25,8 +25,8 @@ export const billsRequests = {
 };
 
 
-export const fetchAllBills = async (hotelId) => {
-  const response = await http(billsRequests.fetchAllBills(hotelId));
+export const fetchAllBills = async (hotelId, date) => {
+  const response = await http(billsRequests.fetchAllBills(hotelId, date));
   return response.data.data;
 };
 

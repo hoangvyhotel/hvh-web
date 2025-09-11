@@ -31,12 +31,12 @@ const RentalItem = ({ bill, onEdit, onDelete }) => {
       {/* Giờ (Check-in và Check-out) */}
       <div className="col-span-4 space-y-1 flex flex-col justify-center">
         <div className="text-sm">
-          <span className="font-medium text-gray-700">Check-in: {new Date(bill.createdAt).toLocaleString()}</span>
+          <span className="font-medium text-gray-700">Check-in: {new Date(bill.checkinTime).toLocaleString()}</span>
         </div>
         <div className="text-sm">
           <span className="font-medium text-gray-700">
             Check-out:
-            {bill.updatedAt ? new Date(bill.updatedAt).toLocaleString() : ' - '}
+            {bill.checkoutTime ? new Date(bill.checkoutTime).toLocaleString() : ' - '}
           </span>
         </div>
       </div>

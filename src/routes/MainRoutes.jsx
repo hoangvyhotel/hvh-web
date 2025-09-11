@@ -88,9 +88,7 @@ const MainRoutes = {
         },
         {
           path: 'change-password',
-          element: (
-              <ChangePassword />
-          )
+          element: <ChangePassword />
         },
         {
           path: 'change-password-manager',
@@ -114,11 +112,7 @@ const MainRoutes = {
         },
         {
           path: 'create-user',
-          element: (
-            <AdminProtectedRoute>
-              <AddUserPage />
-            </AdminProtectedRoute>
-          )
+          element: <AddUserPage />
         }
       ]
     },

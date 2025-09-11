@@ -29,7 +29,7 @@ export default function SamplePage() {
     { title: 'Đổi mật khẩu quản trị', link: '/pages/management/change-password-manager' }
   ];
 
-  const cards = role === 'admin' ? adminCards : staffCards;
+  const cards = role === 'ADMIN' ? adminCards : staffCards;
 
   return (
     <MainCard>

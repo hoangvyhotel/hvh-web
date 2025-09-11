@@ -93,12 +93,45 @@ const ChangePasswordManager = () => {
 
     // All validations passed
     const doChangePassword = async () => {
-      console.log('Changing password with data:', formData);
-      const pwdResponse = await changeManagerPassword(formData);
-      if (pwdResponse && pwdResponse.status === 200) {
-        toast('Đổi mật khẩu thành công!');
-      } else {
-        toast.error('Đổi mật khẩu thất bại. Vui lòng thử lại!');
+      try {
+        console.log('Changing password with data:', formData);
+        const pwdResponse = await changeManagerPassword(formData);
+
+        if (pwdResponse && pwdResponse.status === 200) {
+          toast.success('Đổi mật khẩu thành công!');
+        } else {
+          const message = (pwdResponse && pwdResponse.data && pwdResponse.data.message) || 'Đổi mật khẩu thất bại. Vui lòng thử lại!';
+          toast.error(message);
+        }
+      } catch (error) {
+        console.error('Error changing password:', error);
+
+        if (error.response) {
+          const status = error.response.status;
+          let message = 'Đã xảy ra lỗi.';
+
+          switch (status) {
+            case 400:
+              message = (error.response.data && error.response.data.message) || 'Dữ liệu không hợp lệ.';
+              break;
+            case 401:
+              message = 'Mật khẩu cũ không đúng.';
+              break;
+            case 403:
+              message = 'Bạn không có quyền đổi mật khẩu.';
+              break;
+            case 500:
+              message = 'Lỗi hệ thống. Vui lòng thử lại sau.';
+              break;
+            default:
+              message = (error.response.data && error.response.data.message) || 'Có lỗi xảy ra.';
+          }
+
+          toast.error(message);
+        } else {
+          // Lỗi mạng, không kết nối được server
+          toast.error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng!');
+        }
       }
     };
 

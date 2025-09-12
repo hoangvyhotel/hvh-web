@@ -5,8 +5,14 @@ import { Navigate } from 'react-router-dom';
 const IS_AUTH_KEY = 'is_logged_in';
 const USER_ROLE_KEY = 'user_role'; // 'admin' hoặc 'staff'
 const HOTEL_ID_KEY = 'hotel_id';
+
+// username storage with optional expiry
+const USERNAME_KEY = 'username';
+const USERNAME_EXPIRY_KEY = 'username_expiry';
+
 // admin-specific expiry (3 hours)
 const ADMIN_AUTH_EXPIRY_KEY = 'admin_auth_expiry';
+const ADMIN_AUTH_FLAG = 'is_admin_logged_in';
 const ADMIN_AUTH_EXPIRY_MS = 3 * 60 * 60 * 1000; // 3 hours
 
 export function useAuthState() {
@@ -34,43 +40,68 @@ export function useAuthState() {
     const onStorage = (e) => {
       if (e.key === IS_AUTH_KEY) setIsAuthenticated(e.newValue === 'true');
       if (e.key === USER_ROLE_KEY) setRole(e.newValue || '');
+      if (e.key === ADMIN_AUTH_EXPIRY_KEY || e.key === ADMIN_AUTH_FLAG) {
+        // force re-evaluate admin expiry effect by updating a dummy state via setRole (no-op if same)
+        setRole((r) => r);
+      }
+      if (e.key === USERNAME_KEY || e.key === USERNAME_EXPIRY_KEY) {
+        // nothing immediate to do here, other consumers should call getUsername()
+      }
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  // schedule automatic admin logout when admin expiry is reached
+  // manage automatic admin logout when admin expiry is reached
   useEffect(() => {
     let adminTimer = null;
-    try {
-      const adminExpiry = parseInt(localStorage.getItem(ADMIN_AUTH_EXPIRY_KEY) || '0', 10) || 0;
-      const msLeft = adminExpiry - Date.now();
-      if (msLeft > 0) {
-        adminTimer = setTimeout(() => {
-          try {
-            localStorage.removeItem('is_admin_logged_in');
-            localStorage.removeItem(ADMIN_AUTH_EXPIRY_KEY);
-            // redirect to admin login with expired flag
+    const schedule = () => {
+      try {
+        const adminExpiry = parseInt(localStorage.getItem(ADMIN_AUTH_EXPIRY_KEY) || '0', 10) || 0;
+        // clear any existing
+        if (adminTimer) {
+          clearTimeout(adminTimer);
+          adminTimer = null;
+        }
+        const msLeft = adminExpiry - Date.now();
+        if (msLeft > 0) {
+          adminTimer = setTimeout(() => {
             try {
-              window.location.replace('/admin-login?expired=1');
+              localStorage.removeItem(ADMIN_AUTH_FLAG);
+              localStorage.removeItem(ADMIN_AUTH_EXPIRY_KEY);
+              // redirect to admin login with expired flag
+              try {
+                window.location.replace('/admin-login?expired=1');
+              } catch (err) {}
+            } catch (e) {}
+          }, msLeft);
+        } else if (adminExpiry) {
+          // already expired
+          try {
+            localStorage.removeItem(ADMIN_AUTH_FLAG);
+            localStorage.removeItem(ADMIN_AUTH_EXPIRY_KEY);
+            try {
+              window.location.replace('/admin-login');
             } catch (err) {}
           } catch (e) {}
-        }, msLeft);
-      } else if (adminExpiry) {
-        // already expired
-        try {
-          localStorage.removeItem('is_admin_logged_in');
-          localStorage.removeItem(ADMIN_AUTH_EXPIRY_KEY);
-          try {
-            window.location.replace('/admin-login');
-          } catch (err) {}
-        } catch (e) {}
+        }
+      } catch (e) {
+        // ignore
       }
-    } catch (e) {
-      // ignore
-    }
+    };
+
+    // schedule on mount
+    schedule();
+
+    // also listen for changes to admin expiry in other tabs
+    const onStorage = (e) => {
+      if (e.key === ADMIN_AUTH_EXPIRY_KEY || e.key === ADMIN_AUTH_FLAG) schedule();
+    };
+    window.addEventListener('storage', onStorage);
+
     return () => {
       if (adminTimer) clearTimeout(adminTimer);
+      window.removeEventListener('storage', onStorage);
     };
   }, []);
 
@@ -85,6 +116,55 @@ export function useAuthState() {
     setIsAuthenticated(!!isLoggedIn);
   }, []);
 
+  // helper to set username with optional TTL (ms). If ttlMs not provided, no expiry stored.
+  const setUsername = useCallback((username, ttlMs) => {
+    try {
+      if (username === null || typeof username === 'undefined') {
+        localStorage.removeItem(USERNAME_KEY);
+        localStorage.removeItem(USERNAME_EXPIRY_KEY);
+      } else {
+        localStorage.setItem(USERNAME_KEY, String(username));
+        if (typeof ttlMs === 'number' && ttlMs > 0) {
+          localStorage.setItem(USERNAME_EXPIRY_KEY, String(Date.now() + ttlMs));
+        } else {
+          localStorage.removeItem(USERNAME_EXPIRY_KEY);
+        }
+      }
+    } catch (e) {}
+  }, []);
+
+  const getUsername = useCallback(() => {
+    try {
+      const expiry = parseInt(localStorage.getItem(USERNAME_EXPIRY_KEY) || '0', 10) || 0;
+      if (expiry && expiry <= Date.now()) {
+        // expired
+        try {
+          localStorage.removeItem(USERNAME_KEY);
+          localStorage.removeItem(USERNAME_EXPIRY_KEY);
+        } catch (err) {}
+        return null;
+      }
+      return localStorage.getItem(USERNAME_KEY) || null;
+    } catch (e) {
+      return null;
+    }
+  }, []);
+
+  // helper to set admin logged state and expiry
+  const setAdminLoggedIn = useCallback((flag) => {
+    try {
+      if (flag) {
+        localStorage.setItem(ADMIN_AUTH_FLAG, 'true');
+        localStorage.setItem(ADMIN_AUTH_EXPIRY_KEY, String(Date.now() + ADMIN_AUTH_EXPIRY_MS));
+      } else {
+        localStorage.removeItem(ADMIN_AUTH_FLAG);
+        localStorage.removeItem(ADMIN_AUTH_EXPIRY_KEY);
+      }
+      // trigger storage listeners
+      setRole((r) => r);
+    } catch (e) {}
+  }, []);
+
   const setUserRole = useCallback((userRole) => {
     try {
       localStorage.setItem(USER_ROLE_KEY, userRole);
@@ -97,8 +177,9 @@ export function useAuthState() {
       // clear auth and related keys
       localStorage.setItem(IS_AUTH_KEY, 'false');
       localStorage.removeItem(HOTEL_ID_KEY);
-      localStorage.removeItem('username');
-      localStorage.removeItem('is_admin_logged_in');
+      localStorage.removeItem(USERNAME_KEY);
+      localStorage.removeItem(USERNAME_EXPIRY_KEY);
+      localStorage.removeItem(ADMIN_AUTH_FLAG);
       localStorage.removeItem(ADMIN_AUTH_EXPIRY_KEY);
       localStorage.removeItem(USER_ROLE_KEY);
     } catch (e) {}

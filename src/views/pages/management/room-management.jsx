@@ -22,7 +22,7 @@ const RoomManagement = () => {
         try {
           setLoading(true);
           console.log('Fetching rooms...');
-          const roomData = await fetchRoomsByHotelId(hotelId);
+          const roomData = await fetchRoomsByHotelId(hotelId, 'true');
           console.log('Room data fetched:', roomData);
           if (roomData) {
             setRooms(roomData);
@@ -42,7 +42,7 @@ const RoomManagement = () => {
   // Hàm tiện ích để refresh danh sách phòng
   const refreshRooms = async () => {
     try {
-      const updatedRoomData = await fetchRoomsByHotelId(hotelId);
+      const updatedRoomData = await fetchRoomsByHotelId(hotelId, 'true');
       if (updatedRoomData) {
         setRooms(updatedRoomData);
       }

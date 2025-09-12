@@ -1,3 +1,4 @@
+import { useHotelState } from 'hooks/useAuth';
 import Header from '../../../../layouts/HotelManagementLayout/Header';
 import { http } from 'lib/http/axios';
 import { Tag } from 'lucide-react';
@@ -13,6 +14,7 @@ const RoomPriceUpdate = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { hotelId } = useHotelState();
 
   const getFloorName = (floorNumber) => {
     return floorNumber === 0 ? 'Tầng trệt' : `Tầng ${floorNumber}`;
@@ -22,7 +24,7 @@ const RoomPriceUpdate = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await http(roomRequests.getAll('68a6b81c9924e1f3880ce291', 'true'));
+      const res = await http(roomRequests.getAll(hotelId, 'true'));
       if (res.data.succeeded) {
         setRoomsData(res.data.data);
       } else {

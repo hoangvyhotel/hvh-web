@@ -74,7 +74,6 @@ const CheckinPage = () => {
   }, [roomId]);
   useEffect(() => {
     const fetchUtilities = async () => {
-      console.log('id', hotelId);
       if (!hotelId) return;
       try {
         const res = await http(utilitiesRequests.list({ hotelId }));
@@ -605,6 +604,12 @@ const CheckinPage = () => {
                         </div>
                       )}
                     </div>
+                  </div>
+                )}
+                {booking.TotalAmountUtilities > 0 && (
+                  <div className="flex justify-between items-center p-2 sm:p-4">
+                    <span className="text-gray-600 font-semibold text-xs sm:text-base">Tổng dịch vụ:</span>
+                    <span className="font-bold text-blue-600">{booking.TotalAmountUtilities.toLocaleString('vi-VN')} đ</span>
                   </div>
                 )}
 

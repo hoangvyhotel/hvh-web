@@ -10,9 +10,9 @@ import { useHotelState } from 'hooks/useAuth';
 const getCardColor = (status, typeBooking) => {
   if (status === 'FREE') return 'bg-[#ADDDC0]';
   if (status === 'CHECKIN') {
-    if (typeBooking === 'Day') return 'bg-red-400';
-    if (typeBooking === 'Night') return 'bg-lime-300';
-    if (typeBooking === 'Hours') return 'bg-pink-300';
+    if (typeBooking === 'DAY') return 'bg-red-400';
+    if (typeBooking === 'NIGHT') return 'bg-lime-300';
+    if (typeBooking === 'HOUR') return 'bg-pink-300';
   }
   return 'bg-gray-100';
 };

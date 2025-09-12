@@ -23,11 +23,10 @@ export default function AdminLogin() {
     onSuccess: (res) => {
       if (res?.succeeded && res?.data?.user) {
         try {
+          // mark admin session active and set expiry only; do NOT overwrite existing
+          // `username`, `user_role` or `hotel_id` so the original login (staff) remains available.
           localStorage.setItem('is_admin_logged_in', 'true');
           localStorage.setItem('admin_auth_expiry', String(Date.now() + 3 * 60 * 60 * 1000));
-          localStorage.setItem('user_role', res.data.user.role || 'admin');
-          localStorage.setItem('username', res.data.user.username || '');
-          localStorage.setItem('hotel_id', res.data.user.hotelId || '');
         } catch (e) {}
         navigate(redirectTo);
       } else {

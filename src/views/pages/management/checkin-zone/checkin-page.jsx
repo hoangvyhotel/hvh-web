@@ -171,26 +171,7 @@ const CheckinPage = () => {
   };
 
   const handleCheckout = async () => {
-    try {
-      if (!booking?.BookingId) {
-        toast.error('Không có booking để trả phòng');
-        return;
-      }
-      // confirm window
-      if (!window.confirm('Bạn có chắc muốn trả phòng không?')) return;
-
-      // Call API to create bill
-      const res = await createBill(roomId);
-      toast.success(res.data?.message || 'Trả phòng thành công');
-
-      // Delay để hiển thị toast trước khi redirect
-      setTimeout(() => {
-        navigate('/pages/home/room-tracking');
-      }, 1500);
-    } catch (err) {
-      console.error(err);
-      toast.error('Trả phòng thất bại');
-    }
+    navigate(`/pages/management/checkin-zone/checkout-confirm?bookingId=${booking.BookingId}&roomId=${roomId}`);
   };
 
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;

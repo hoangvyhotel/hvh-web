@@ -39,7 +39,7 @@ const RoomModal = ({ isOpen, onClose, room, onCreate, onUpdate }) => {
       afterHoursPrice: parseFloat(formData.get('afterHoursPrice')) || 0,
       dayPrice: parseFloat(formData.get('dayPrice')) || 0,
       nightPrice: parseFloat(formData.get('nightPrice')) || 0,
-      typeHire: 1, // 1: Theo giờ, 2: Theo ngày, 3: Theo đêm. Mặc định load là 1
+      typeHire: 0, 
       status: true,
       hotelId: hotelId || ''
     };

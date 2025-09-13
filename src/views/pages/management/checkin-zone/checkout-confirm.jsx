@@ -78,8 +78,8 @@ const CheckoutConfirm = () => {
 
     // Utilities total
     const utilitiesTotal =
-      data.Utilities?.reduce((sum, utility) => {
-        return sum + utility.Price * utility.Quantity;
+      data.Utilities?.filter((u) => u?.status === true || u?.Status === true).reduce((sum, utility) => {
+        return sum + (utility.Price || utility.Price === 0 ? utility.Price : 0) * (utility.Quantity || 0);
       }, 0) || 0;
 
     // Surcharge total
@@ -410,11 +410,11 @@ const CheckoutConfirm = () => {
             )}
 
             {/* Services Used */}
-            {data.Utilities && data.Utilities.length > 0 && (
+                {data.Utilities && data.Utilities.filter((u) => u?.status === true || u?.Status === true).length > 0 && (
               <div className="bg-white rounded-lg shadow-md border border-green-400 p-6">
                 <h3 className="font-semibold text-gray-700 mb-4">Dịch vụ đã sử dụng</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {data.Utilities.map((utility, index) => {
+                  {data.Utilities.filter((u) => u?.status === true || u?.Status === true).map((utility, index) => {
                     const parseIconVal = (val) => {
                       if (val == null) return '';
                       if (typeof val === 'object') return val;

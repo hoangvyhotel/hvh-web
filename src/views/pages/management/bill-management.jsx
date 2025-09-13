@@ -47,7 +47,7 @@ const RetalManagement = () => {
     const newDate = event.target.value;
     setSelectedDate(newDate);
   };
-  const totalRoomPrice = bills.reduce((sum, bill) => sum + (bill.totalRoomPrice || 0), 0);
+      const totalRoomPrice = bills.reduce((sum, bill) => sum + Number(bill.totalRoomPrice || 0), 0);
 
   return (
     <>
@@ -56,18 +56,17 @@ const RetalManagement = () => {
       </div>
 
       <div className="p-6">
-        {/* Date Filter */}
-        <div className="mb-6 flex items-center gap-4">
+        {/* Date Filter (moved to right, label removed) */}
+        <div className="mb-6 flex items-center gap-4 justify-end">
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-gray-600" />
-            <label className="font-medium text-gray-700">Chọn ngày:</label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={handleDateChange}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+            />
           </div>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-          />
           <button
             onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -81,7 +80,7 @@ const RetalManagement = () => {
           <div className="col-span-1">Phòng</div>
           <div className="col-span-5 flex justify-center">Giờ</div>
           <div className="col-span-2 flex justify-center">Tiền dịch vụ</div>
-          <div className="col-span-2 flex justify-center">Tiền phòng</div>
+              <div className="col-span-2 flex justify-center">Tổng tiền</div>
           {/* <div className="col-span-3 text-center">Chức năng</div> */}
         </div>
 

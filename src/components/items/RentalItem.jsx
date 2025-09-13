@@ -7,7 +7,8 @@ const RentalItem = ({ bill, onEdit, onDelete }) => {
   const [selectedBill, setSelectedBill] = useState(null);
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN').format(price) + ' vnđ';
+    const n = Number(price || 0);
+    return new Intl.NumberFormat('vi-VN').format(n) + ' vnđ';
   };
 
   const handleEdit = () => {
@@ -46,7 +47,7 @@ const RentalItem = ({ bill, onEdit, onDelete }) => {
         <span className="text-gray-600">{formatPrice(bill.totalUtilitiesPrice)}</span>
       </div>
 
-      {/* Số Tiền */}
+      {/* Tổng Tiền (hiển thị tiền phòng) */}
       <div className="col-span-2 flex justify-center">
         <span className="text-green-600 font-semibold">{formatPrice(bill.totalRoomPrice)}</span>
       </div>

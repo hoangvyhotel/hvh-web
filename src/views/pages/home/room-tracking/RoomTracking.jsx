@@ -98,7 +98,7 @@ const RoomCard = ({ room, handleAddBooking, handleRouteToCheckinZone, fetchData 
 
       <div className="flex gap-2 flex-wrap justify-center overflow-auto max-h-[36px]">
         {room.Utilities && room.Utilities.length > 0 ? (
-          room.Utilities.map((u, idx) => {
+          room.Utilities.filter((u) => u?.status === true || u?.Status === true).map((u, idx) => {
             const parseIconVal = (val) => {
               if (val == null) return '';
               if (typeof val === 'object') return val;

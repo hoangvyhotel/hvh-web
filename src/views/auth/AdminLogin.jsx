@@ -23,10 +23,17 @@ export default function AdminLogin() {
     onSuccess: (res) => {
       if (res?.succeeded && res?.data?.user) {
         try {
-          // mark admin session active and set expiry only; do NOT overwrite existing
+          // mark admin session active briefly and set expiry only; do NOT overwrite existing
           // `username`, `user_role` or `hotel_id` so the original login (staff) remains available.
           localStorage.setItem('is_admin_logged_in', 'true');
           localStorage.setItem('admin_auth_expiry', String(Date.now() + 3 * 60 * 60 * 1000));
+          // Immediately reset the admin flag to false while preserving username. Some consumers
+          // may read the flag during navigation; keep a tiny timeout to allow that.
+          setTimeout(() => {
+            try {
+              localStorage.setItem('is_admin_logged_in', 'false');
+            } catch (e) {}
+          }, 100);
         } catch (e) {}
         navigate(redirectTo);
       } else {

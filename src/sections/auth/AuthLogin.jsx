@@ -64,10 +64,10 @@ export default function LoginPage() {
               autoComplete="username"
               variant="outlined"
               size="small"
-              {...register('userName', { required: 'Username is required' })}
-              placeholder="your username"
+              {...register('userName', { required: 'Tên đăng nhập là bắt buộc' })}
+              placeholder="tên đăng nhập"
               fullWidth
-              label="Username"
+              label="Tên đăng nhập"
               error={Boolean(errors.userName)}
               sx={{ '& .MuiInputBase-root': { borderRadius: 1 }, '& .MuiInputBase-input': { fontSize: '1rem' } }}
             />
@@ -76,15 +76,15 @@ export default function LoginPage() {
 
           <Box>
             <FormControl fullWidth error={Boolean(errors.password)} variant="outlined" size="small">
-              <InputLabel htmlFor="password">Password</InputLabel>
+              <InputLabel htmlFor="password">Mật khẩu</InputLabel>
               <OutlinedInput
-                {...register('password', { required: 'Password is required' })}
+                {...register('password', { required: 'Mật khẩu là bắt buộc' })}
                 id="password"
                 name="password"
                 autoComplete="current-password"
                 type={isPasswordVisible ? 'text' : 'password'}
                 label="Password"
-                placeholder="Enter your password"
+                placeholder="mật khẩu"
                 endAdornment={
                   <InputAdornment
                     position="end"
@@ -107,7 +107,7 @@ export default function LoginPage() {
             sx={{ minWidth: 140, mt: 2, py: 1.5, fontSize: '1rem' }}
             disabled={loginMutation.isLoading}
           >
-            {loginMutation.isLoading ? 'Signing in…' : 'Sign In'}
+            {loginMutation.isLoading ? 'Đang đăng nhập…' : 'Đăng nhập'}
           </Button>
         </Stack>
       </Box>

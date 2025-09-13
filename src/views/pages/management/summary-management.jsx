@@ -205,5 +205,5 @@ function formatCurrency(value) {
   const n = Number(value);
   if (isNaN(n)) return '-';
   const rounded = Math.round(n);
-  return rounded.toLocaleString('vi-VN') + 'đ';
+  return rounded.toLocaleString('vi-VN') + ' vnđ';
 }

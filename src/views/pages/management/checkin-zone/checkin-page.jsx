@@ -268,7 +268,7 @@ const CheckinPage = () => {
 
               {/* Hàng 3 - Các tiện ích khác */}
               <div className="flex flex-wrap justify-start border-b border-green-500 p-2 sm:p-4">
-                {booking.Utilities?.map((u, index) => {
+                {booking.Utilities?.filter((u) => u?.status === true || u?.Status === true).map((u, index) => {
                   const parseIconVal = (val) => {
                     if (val == null) return '';
                     if (typeof val === 'object') return val;
@@ -399,7 +399,7 @@ const CheckinPage = () => {
 
               {/* Nhóm dưới: Nước & Đồ ăn */}
               <div className="grid grid-cols-2 sm:grid-cols-4 border border-green-500 rounded-md p-1 sm:p-2">
-                {utilities.map((u) => {
+                {utilities.filter((u) => u?.status === true || u?.Status === true).map((u) => {
                   const parseIconVal = (val) => {
                     if (val == null) return '';
                     if (typeof val === 'object') return val;

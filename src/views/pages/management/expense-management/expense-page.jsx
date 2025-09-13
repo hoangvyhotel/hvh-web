@@ -7,7 +7,7 @@ import { useHotelState } from 'hooks/useAuth';
 import ExpenseItem from '../../../../components/items/ExpenseItem';
 import ExpenseModal from './action-form/form-expense';
 import ConfirmModal from 'components/ui/modal/confirm-modal';
-import { FileText } from 'lucide-react';
+import { FileText, Calendar } from 'lucide-react';
 
 const ExpenseManagement = () => {
   // ---------------- STATE ----------------
@@ -24,19 +24,16 @@ const ExpenseManagement = () => {
 
   const today = new Date();
   const currentYear = today.getFullYear();
-  const currentMonth = today.getMonth() + 1;
-
-  const [year, setYear] = useState(currentYear);
-  const [month, setMonth] = useState(currentMonth);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   // ---------------- FETCH DATA ----------------
   const { hotelId } = useHotelState();
 
-  const fetchData = async (y, m) => {
+  const fetchData = async (dateStr) => {
     setLoading(true);
     setError(null);
     try {
-      const monthStr = `${y}-${String(m).padStart(2, '0')}`;
+      const monthStr = (dateStr || selectedDate).slice(0, 7); // YYYY-MM
       const res = await http(expenseRequests.getAll(hotelId, monthStr));
       setExpenses(res.data.data);
     } catch (err) {
@@ -48,8 +45,8 @@ const ExpenseManagement = () => {
   };
 
   useEffect(() => {
-    fetchData(year, month);
-  }, [year, month]);
+    fetchData(selectedDate);
+  }, [selectedDate, hotelId]);
 
   // ---------------- HANDLERS ----------------
   const openAddModal = () => {
@@ -73,7 +70,7 @@ const ExpenseManagement = () => {
         await http(expenseRequests.update(expense._id, expense));
         toast.success('Cập nhật chi phí thành công!');
       }
-      fetchData(year, month);
+      fetchData(selectedDate);
     } catch (err) {
       console.error(err);
       toast.error('Thao tác thất bại!');
@@ -90,7 +87,7 @@ const ExpenseManagement = () => {
     try {
       await http(expenseRequests.delete(deleteId));
       toast.success('Xóa chi phí thành công!');
-      fetchData(year, month);
+      fetchData(selectedDate);
     } catch (err) {
       console.error(err);
       toast.error('Xóa chi phí thất bại!');
@@ -113,33 +110,16 @@ const ExpenseManagement = () => {
 
       {/* FILTER & ADD BUTTON */}
       <div className="p-2 sm:p-4 md:p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <select
-              value={month}
-              onChange={(e) => setMonth(Number(e.target.value))}
-              className="border border-gray-300 rounded px-2 py-1 w-full sm:w-auto"
-            >
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                <option key={m} value={m}>
-                  Tháng {m}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
-              className="border border-gray-300 rounded px-2 py-1 w-full sm:w-auto"
-            >
-              {Array.from({ length: 5 }, (_, i) => currentYear - 2 + i).map((y) => (
-                <option key={y} value={y}>
-                  Năm {y}
-                </option>
-              ))}
-            </select>
+        <div className="flex items-center justify-end mb-4 gap-2">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-gray-600" />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+            />
           </div>
-
           <button
             className="px-4 py-2 bg-green-500 text-white font-semibold rounded hover:bg-green-600 transition-colors cursor-pointer w-full sm:w-auto"
             onClick={openAddModal}

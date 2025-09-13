@@ -99,6 +99,10 @@ const ChangePasswordManager = () => {
 
         if (pwdResponse && pwdResponse.status === 200) {
           toast.success('Đổi mật khẩu thành công!');
+          // reset form
+          setFormData({ username: '', currentPassword: '', newPassword: '', confirmPassword: '' });
+          setPasswordValidation({ length: false, match: false });
+          setErrors({});
         } else {
           const message = (pwdResponse && pwdResponse.data && pwdResponse.data.message) || 'Đổi mật khẩu thất bại. Vui lòng thử lại!';
           toast.error(message);

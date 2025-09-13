@@ -74,7 +74,6 @@ const CheckinPage = () => {
   }, [roomId]);
   useEffect(() => {
     const fetchUtilities = async () => {
-      console.log('id', hotelId);
       if (!hotelId) return;
       try {
         const res = await http(utilitiesRequests.list({ hotelId }));
@@ -172,26 +171,7 @@ const CheckinPage = () => {
   };
 
   const handleCheckout = async () => {
-    try {
-      if (!booking?.BookingId) {
-        toast.error('Không có booking để trả phòng');
-        return;
-      }
-      // confirm window
-      if (!window.confirm('Bạn có chắc muốn trả phòng không?')) return;
-
-      // Call API to create bill
-      const res = await createBill(roomId);
-      toast.success(res.data?.message || 'Trả phòng thành công');
-
-      // Delay để hiển thị toast trước khi redirect
-      setTimeout(() => {
-        navigate('/pages/home/room-tracking');
-      }, 1500);
-    } catch (err) {
-      console.error(err);
-      toast.error('Trả phòng thất bại');
-    }
+    navigate(`/pages/management/checkin-zone/checkout-confirm?bookingId=${booking.BookingId}&roomId=${roomId}`);
   };
 
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
@@ -605,6 +585,12 @@ const CheckinPage = () => {
                         </div>
                       )}
                     </div>
+                  </div>
+                )}
+                {booking.TotalAmountUtilities > 0 && (
+                  <div className="flex justify-between items-center p-2 sm:p-4">
+                    <span className="text-gray-600 font-semibold text-xs sm:text-base">Tổng dịch vụ:</span>
+                    <span className="font-bold text-blue-600">{booking.TotalAmountUtilities.toLocaleString('vi-VN')} đ</span>
                   </div>
                 )}
 

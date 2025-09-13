@@ -14,6 +14,7 @@ import SummaryManagement from 'views/pages/management/summary-management';
 import AddUserPage from 'views/pages/management/create-user/create-user-page';
 import { ProtectedRoute, AdminProtectedRoute } from 'hooks/useAuth';
 import CheckinPage from 'views/pages/management/checkin-zone/checkin-page';
+import CheckoutConfirm from 'views/pages/management/checkin-zone/checkout-confirm';
 import RoomTracking from 'views/pages/home/room-tracking/RoomTracking';
 import ChangePasswordManager from 'views/pages/management/change-password-manager';
 
@@ -27,12 +28,10 @@ const UtilsTypography = Loadable(lazy(() => import('views/components/Typography'
 // ==============================|| MAIN ROUTES ||============================== //
 
 function AdminClearWrapper({ children }) {
-  try {
-    if (typeof window !== 'undefined') {
-      // clear admin logged flag when entering management
-      localStorage.setItem('is_admin_logged_in', 'false');
-    }
-  } catch (e) {}
+  // previously this wrapper cleared the admin flag when entering management,
+  // which caused the freshly set admin login to be revoked immediately and
+  // triggered logout-like behavior that removed `username` from storage.
+  // Keep this wrapper as a no-op to avoid those side-effects.
   return children;
 }
 
@@ -73,6 +72,10 @@ const MainRoutes = {
         {
           path: 'checkin-zone',
           element: <CheckinPage />
+        },
+        {
+          path: 'checkin-zone/checkout-confirm',
+          element: <CheckoutConfirm />
         },
         {
           path: '',

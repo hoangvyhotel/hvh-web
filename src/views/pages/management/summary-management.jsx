@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
@@ -11,7 +10,6 @@ import InputLabel from '@mui/material/InputLabel';
 // project
 import MainCard from 'components/cards/MainCard';
 import Header from 'layouts/HotelManagementLayout/Header';
-import Button from '@mui/material/Button';
 import { BarChart } from 'lucide-react';
 
 // services
@@ -56,11 +54,11 @@ export default function SummaryManagement() {
   };
 
   // derived numbers
-  const expenseTotal = getExpenseTotal() || 0;
-  const monthlyUtilities = getMonthlyField('totalUtilities') || 0;
-  const monthlyTotal = getMonthlyField('total') || 0;
-  const netUtilities = monthlyUtilities - expenseTotal;
-  const netTotal = monthlyTotal - expenseTotal;
+  const expenseTotal = Number(getExpenseTotal() ?? 0) || 0;
+  const monthlyUtilities = Number(getMonthlyField('totalUtilities') ?? 0) || 0;
+  const monthlyTotal = Number(getMonthlyField('total') ?? 0) || 0;
+  const netUtilities = Number(monthlyUtilities) - Number(expenseTotal) || 0;
+  const netTotal = Number(monthlyTotal) - Number(expenseTotal) || 0;
 
   return (
     <MainCard>
@@ -119,14 +117,20 @@ export default function SummaryManagement() {
         <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
           <div className="col-span-6">Mục</div>
           <div className="col-span-3 text-right">Tiền nước</div>
-          <div className="col-span-3 text-right">Doanh thu</div>
+          <div className="col-span-3 text-right">Tổng cộng</div>
         </div>
 
         <div className="bg-white">
           <div className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center">
-            <div className="col-span-6 font-semibold">TỔNG CHI PHÍ</div>
+            <div className="col-span-6 font-semibold">CHI PHÍ</div>
             <div className="col-span-3 text-right">{expensesLoading ? '...' : '-'}</div>
-            <div className="col-span-3 text-right">{expensesLoading ? '...' : formatCurrency(-1 * expenseTotal)}</div>
+            <div className="col-span-3 text-right">
+              {expensesLoading ? (
+                '...'
+              ) : (
+                <span className="text-red-600 font-bold">{formatCurrency(-1 * expenseTotal)}</span>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-100 items-center">
@@ -137,12 +141,17 @@ export default function SummaryManagement() {
 
           <div className="flex items-center justify-between py-4 px-4 border-b border-gray-100 bg-gray-50">
             <div className="font-semibold">TỔNG SAU CHI PHÍ</div>
-            <div className="text-right">{monthlyLoading || expensesLoading ? '...' : formatCurrency(netTotal)}</div>
+            <div className="text-right">
+              {monthlyLoading || expensesLoading ? (
+                '...'
+              ) : (
+                <span className="text-green-700 font-bold">{formatCurrency(netTotal)}</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Daily breakdown - data from API */}
       <div className="p-6">
         {isLoading && <div className="p-3">Đang tải dữ liệu...</div>}
         {!isLoading && billsData && Array.isArray(billsData.data) && billsData.data.length === 0 && (
@@ -193,5 +202,8 @@ export default function SummaryManagement() {
 // helpers
 function formatCurrency(value) {
   if (value == null) return '-';
-  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + 'đ';
+  const n = Number(value);
+  if (isNaN(n)) return '-';
+  const rounded = Math.round(n);
+  return rounded.toLocaleString('vi-VN') + 'đ';
 }

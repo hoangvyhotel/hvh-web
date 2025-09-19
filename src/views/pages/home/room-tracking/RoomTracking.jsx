@@ -51,26 +51,29 @@ const RoomCard = ({ room, handleAddBooking, handleRouteToCheckinZone, fetchData 
           </div>
         ) : (
           <div className="flex flex-col gap-1">
-            <div
-              className={`text-xs font-semibold ${
-                room.TypeBooking === 'DAY'
-                  ? 'text-red-700'
-                  : room.TypeBooking === 'NIGHT'
-                  ? 'text-green-700'
-                  : 'text-yellow-700'
-              } min-h-[24px]`}
-            > 
-              Giờ vào từ:{' '}
-              {room.Checkin
-                ? new Date(room.Checkin).toLocaleString('vi-VN', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                : '-'}
-            </div>
+<div className="min-h-[24px]">
+  <span className="text-sm font-semibold">Giờ vào từ:</span>{' '}
+  <span
+    className={`text-lg font-bold ${
+      room.TypeBooking === 'DAY'
+        ? 'text-red-700'
+        : room.TypeBooking === 'NIGHT'
+        ? 'text-green-700'
+        : 'text-yellow-700'
+    }`}
+  >
+    {room.Checkin
+      ? new Date(room.Checkin).toLocaleString('vi-VN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : '-'}
+  </span>
+</div>
+
 
             <button
               className={`px-2 py-1 bg-white border rounded font-semibold mt-1 cursor-pointer ${

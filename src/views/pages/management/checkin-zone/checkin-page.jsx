@@ -171,7 +171,7 @@ const CheckinPage = () => {
   };
 
   const handleCheckout = async () => {
-    navigate(`/pages/management/checkin-zone/checkout-confirm?bookingId=${booking.BookingId}&roomId=${roomId}`);
+    navigate(`/pages/management/checkin-zone/checkout-confirm?bookingId=${booking.BookingId}&roomId=${roomId}&hotelId=${hotelId}`);
   };
 
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
@@ -268,7 +268,7 @@ const CheckinPage = () => {
 
               {/* Hàng 3 - Các tiện ích khác */}
               <div className="flex flex-wrap justify-start border-b border-green-500 p-2 sm:p-4">
-                {booking.Utilities?.filter((u) => u?.status === true || u?.Status === true).map((u, index) => {
+                {booking.Utilities?.map((u, index) => {
                   const parseIconVal = (val) => {
                     if (val == null) return '';
                     if (typeof val === 'object') return val;
@@ -399,54 +399,56 @@ const CheckinPage = () => {
 
               {/* Nhóm dưới: Nước & Đồ ăn */}
               <div className="grid grid-cols-2 sm:grid-cols-4 border border-green-500 rounded-md p-1 sm:p-2">
-                {utilities.filter((u) => u?.status === true || u?.Status === true).map((u) => {
-                  const parseIconVal = (val) => {
-                    if (val == null) return '';
-                    if (typeof val === 'object') return val;
-                    if (typeof val === 'string') {
-                      try {
-                        return JSON.parse(val);
-                      } catch (e) {
-                        return val;
-                      }
-                    }
-                    return '';
-                  };
-
-                  const iconVal = parseIconVal(u.icon ?? u.Icon ?? u.IconName ?? u.IconKey);
-
-                  return (
-                    <div
-                      key={u._id}
-                      className="flex flex-col items-center p-1 sm:p-2"
-                      onClick={async () => {
+                {utilities
+                  .filter((u) => u?.status === true || u?.Status === true)
+                  .map((u) => {
+                    const parseIconVal = (val) => {
+                      if (val == null) return '';
+                      if (typeof val === 'object') return val;
+                      if (typeof val === 'string') {
                         try {
-                          if (!booking.BookingId) return;
-
-                          const dto = {
-                            bookingId: booking.BookingId, // id booking
-                            utilityId: u._id, // id utility
-                            quantity: 1 // mặc định 1, có thể tùy chỉnh
-                          };
-
-                          const res = await http(bookingRequests.addUtility(dto));
-                          // reload lại booking để cập nhật UI
-                          const updated = await http(bookingRequests.getBooking(roomId));
-                          setBooking(updated.data.data);
-                          toast.success(res.data.message || 'Thêm tiện ích thành công');
-                        } catch (err) {
-                          console.error(err);
-                          toast.error('Thêm tiện ích thất bại');
+                          return JSON.parse(val);
+                        } catch (e) {
+                          return val;
                         }
-                      }}
-                    >
-                      <div className="text-xl sm:text-2xl text-green-600 cursor-pointer">
-                        {resolveIcon(iconVal, { size: 22, color: '#16a34a' })}
+                      }
+                      return '';
+                    };
+
+                    const iconVal = parseIconVal(u.icon ?? u.Icon ?? u.IconName ?? u.IconKey);
+
+                    return (
+                      <div
+                        key={u._id}
+                        className="flex flex-col items-center p-1 sm:p-2"
+                        onClick={async () => {
+                          try {
+                            if (!booking.BookingId) return;
+
+                            const dto = {
+                              bookingId: booking.BookingId, // id booking
+                              utilityId: u._id, // id utility
+                              quantity: 1 // mặc định 1, có thể tùy chỉnh
+                            };
+
+                            const res = await http(bookingRequests.addUtility(dto));
+                            // reload lại booking để cập nhật UI
+                            const updated = await http(bookingRequests.getBooking(roomId));
+                            setBooking(updated.data.data);
+                            toast.success(res.data.message || 'Thêm tiện ích thành công');
+                          } catch (err) {
+                            console.error(err);
+                            toast.error('Thêm tiện ích thất bại');
+                          }
+                        }}
+                      >
+                        <div className="text-xl sm:text-2xl text-green-600 cursor-pointer">
+                          {resolveIcon(iconVal, { size: 22, color: '#16a34a' })}
+                        </div>
+                        <span className="text-xs sm:text-sm mt-1">{u.name || u.Name}</span>
                       </div>
-                      <span className="text-xs sm:text-sm mt-1">{u.name || u.Name}</span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </div>
 

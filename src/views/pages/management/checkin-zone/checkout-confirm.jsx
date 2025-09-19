@@ -33,7 +33,7 @@ const CheckoutConfirm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState(false);
-  
+
   const formatCurrency = (value) => {
     const numValue = Number(value);
     if (isNaN(numValue) || numValue === null || numValue === undefined) return '0 đ';
@@ -215,10 +215,8 @@ const CheckoutConfirm = () => {
       {/* Main Content - Optimized Layout */}
       <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
           {/* Left Column - Booking Details (2/3 width) */}
           <div className="lg:col-span-2 space-y-6">
-            
             {/* Basic Info Card */}
             <div className="bg-white rounded-lg shadow-md border border-green-400 p-6">
               <h2 className="text-xl font-bold text-green-700 mb-4 flex items-center">
@@ -275,22 +273,26 @@ const CheckoutConfirm = () => {
                         {data.Documents.map((doc, index) => (
                           <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                             <div className="flex items-center justify-between mb-3">
-                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                doc.TypeID === 'CCCD' 
-                                  ? 'bg-blue-100 text-blue-800' 
-                                  : doc.TypeID === 'CMND'
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-purple-100 text-purple-800'
-                              }`}>
+                              <span
+                                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                  doc.TypeID === 'CCCD'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : doc.TypeID === 'CMND'
+                                      ? 'bg-green-100 text-green-800'
+                                      : 'bg-purple-100 text-purple-800'
+                                }`}
+                              >
                                 {doc.TypeID}
                               </span>
-                              <span className={`px-2 py-1 rounded text-xs ${
-                                doc.Gender ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800'
-                              }`}>
+                              <span
+                                className={`px-2 py-1 rounded text-xs ${
+                                  doc.Gender ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800'
+                                }`}
+                              >
                                 {doc.Gender ? 'Nam' : 'Nữ'}
                               </span>
                             </div>
-                            
+
                             <div className="space-y-2">
                               {doc.FullName && (
                                 <div>
@@ -307,9 +309,7 @@ const CheckoutConfirm = () => {
                               {doc.BirthDay && (
                                 <div>
                                   <span className="text-sm font-medium text-gray-600">Ngày sinh: </span>
-                                  <span className="text-sm text-gray-800">
-                                    {new Date(doc.BirthDay).toLocaleDateString('vi-VN')}
-                                  </span>
+                                  <span className="text-sm text-gray-800">{new Date(doc.BirthDay).toLocaleDateString('vi-VN')}</span>
                                 </div>
                               )}
                               {doc.Address && (
@@ -369,25 +369,21 @@ const CheckoutConfirm = () => {
                     <div key={index} className="bg-gray-50 border border-gray-200 rounded p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-3">
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            historyItem.Action === 'CREATE' 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : 'bg-orange-100 text-orange-800'
-                          }`}>
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              historyItem.Action === 'CREATE' ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'
+                            }`}
+                          >
                             {historyItem.Action === 'CREATE' ? 'Tạo mới' : 'Đổi loại'}
                           </span>
                           <span className="px-2 py-1 bg-green-600 text-white rounded text-sm">
                             {translateBookingType(historyItem.PriceType)}
                           </span>
-                          <span className="text-sm text-gray-600">
-                            {historyItem.Times} giờ
-                          </span>
+                          <span className="text-sm text-gray-600">{historyItem.Times} giờ</span>
                         </div>
-                        <div className="text-lg font-bold text-green-700">
-                          {formatCurrency(historyItem.Amount)}
-                        </div>
+                        <div className="text-lg font-bold text-green-700">{formatCurrency(historyItem.Amount)}</div>
                       </div>
-                      
+
                       {/* Time Information */}
                       <div className="text-sm text-gray-600 border-t border-gray-200 pt-2">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -410,11 +406,11 @@ const CheckoutConfirm = () => {
             )}
 
             {/* Services Used */}
-                {data.Utilities && data.Utilities.filter((u) => u?.status === true || u?.Status === true).length > 0 && (
+            {data.Utilities && data.Utilities.length > 0 && (
               <div className="bg-white rounded-lg shadow-md border border-green-400 p-6">
                 <h3 className="font-semibold text-gray-700 mb-4">Dịch vụ đã sử dụng</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {data.Utilities.filter((u) => u?.status === true || u?.Status === true).map((utility, index) => {
+                  {data.Utilities.map((utility, index) => {
                     const parseIconVal = (val) => {
                       if (val == null) return '';
                       if (typeof val === 'object') return val;
@@ -439,9 +435,7 @@ const CheckoutConfirm = () => {
                           </span>
                         </div>
                         <div className="text-sm font-medium">{utility.Name}</div>
-                        <div className="text-sm text-green-600 font-semibold">
-                          {formatCurrency(utility.Price * utility.Quantity)}
-                        </div>
+                        <div className="text-sm text-green-600 font-semibold">{formatCurrency(utility.Price * utility.Quantity)}</div>
                       </div>
                     );
                   })}
@@ -466,10 +460,10 @@ const CheckoutConfirm = () => {
                 </div>
 
                 {/* Utilities charges */}
-                {totals.utilitiesTotal > 0 && (
+                {data.TotalAmountUtilities > 0 && (
                   <div className="flex justify-between items-center py-3 border-b border-gray-200">
                     <span className="text-gray-700">Dịch vụ</span>
-                    <span className="font-semibold text-gray-900">{formatCurrency(totals.utilitiesTotal)}</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(data.TotalAmountUtilities)}</span>
                   </div>
                 )}
 

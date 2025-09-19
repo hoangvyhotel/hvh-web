@@ -21,7 +21,7 @@ const RoomCard = ({ room, handleAddBooking, handleRouteToCheckinZone, fetchData 
   const color = getCardColor(room.Status, room.TypeBooking);
   return (
     <div
-      className={`rounded-xl shadow-lg p-6 h-[260px] w-full flex flex-col justify-between text-center ${color}`}
+      className={`rounded-xl shadow-lg p-6 min-h-[260px] w-full flex flex-col justify-between text-center ${color}`}
     >
       <div className="flex flex-col gap-1">
         <div className="font-extrabold text-2xl min-h-[32px]">{room.RoomName}</div>
@@ -59,8 +59,8 @@ const RoomCard = ({ room, handleAddBooking, handleRouteToCheckinZone, fetchData 
                   ? 'text-green-700'
                   : 'text-yellow-700'
               } min-h-[24px]`}
-            >
-              Giờ vào:{' '}
+            > 
+              Giờ vào từ:{' '}
               {room.Checkin
                 ? new Date(room.Checkin).toLocaleString('vi-VN', {
                     day: '2-digit',
@@ -96,9 +96,9 @@ const RoomCard = ({ room, handleAddBooking, handleRouteToCheckinZone, fetchData 
         {room.Description || '-'}
       </div>
 
-      <div className="flex gap-2 flex-wrap justify-center overflow-auto max-h-[36px]">
+      <div className="flex gap-1 flex-wrap justify-center overflow-auto min-h-[28px]">
         {room.Utilities && room.Utilities.length > 0 ? (
-          room.Utilities.filter((u) => u?.status === true || u?.Status === true).map((u, idx) => {
+          room.Utilities.map((u, idx) => {
             const parseIconVal = (val) => {
               if (val == null) return '';
               if (typeof val === 'object') return val;
@@ -121,13 +121,13 @@ const RoomCard = ({ room, handleAddBooking, handleRouteToCheckinZone, fetchData 
             return (
               <span
                 key={idx}
-                className="flex items-center gap-2 text-xs bg-gray-100 px-2 py-1 rounded"
+                className="flex items-center gap-1 text-xs bg-gray-100 px-1 py-0.5 rounded text-[10px]"
               >
-                <IconErrorBoundary fallback={<span style={{ width: 16, display: 'inline-block' }} />}>
-                  {resolveIcon(iconVal || u.icon, { size: 16, className: 'text-gray-600' })}
+                <IconErrorBoundary fallback={<span style={{ width: 12, display: 'inline-block' }} />}>
+                  {resolveIcon(iconVal || u.icon, { size: 12, className: 'text-gray-600' })}
                 </IconErrorBoundary>
-                <span className="text-xs text-gray-700">{displayName}</span>
-                <span className="text-xs text-gray-500">x{u.Quantity}</span>
+                <span className="text-[10px] text-gray-700">{displayName}</span>
+                <span className="text-[10px] text-gray-500">x{u.Quantity}</span>
               </span>
             );
           })

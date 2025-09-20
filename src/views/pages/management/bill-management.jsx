@@ -3,7 +3,7 @@ import Header from '../../../layouts/HotelManagementLayout/Header';
 
 import RentalItem from '../../../components/items/RentalItem';
 import { useEffect, useState } from 'react';
-import { fetchAllBills } from 'services/billsService';
+import { fetchAllBills, updateBill } from 'services/billsService';
 import { toast } from 'react-toastify';
 import { useHotelState } from 'hooks/useAuth';
 
@@ -23,7 +23,7 @@ const RetalManagement = () => {
 
   const fetchBills = async (date) => {
     if (!hotelId) return;
-    
+
     setLoading(true);
     try {
       const billsResponse = await fetchAllBills(hotelId, date);
@@ -47,7 +47,22 @@ const RetalManagement = () => {
     const newDate = event.target.value;
     setSelectedDate(newDate);
   };
-      const totalRoomPrice = bills.reduce((sum, bill) => sum + Number(bill.totalRoomPrice || 0), 0);
+  const handleEditBill = async (updatedBill) => {
+    try {
+      const dto = { totalRoomPrice: updatedBill.totalRoomPrice };
+      await updateBill(updatedBill._id, dto);  // Không cần lưu updated nữa vì sẽ reload
+
+      toast.success(`Cập nhật hóa đơn phòng ${updatedBill.roomName} thành công!`);
+
+      // Reload toàn bộ danh sách từ API
+      fetchBills(selectedDate);
+    } catch (error) {
+      console.error('Update bill error:', error);
+      toast.error('Lỗi khi cập nhật hóa đơn');
+    }
+  };
+
+  const totalRoomPrice = bills.reduce((sum, bill) => sum + (bill.totalRoomPrice || 0), 0);
 
   return (
     <>
@@ -56,17 +71,18 @@ const RetalManagement = () => {
       </div>
 
       <div className="p-6">
-        {/* Date Filter (moved to right, label removed) */}
-        <div className="mb-6 flex items-center gap-4 justify-end">
+        {/* Date Filter */}
+        <div className="mb-6 flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-gray-600" />
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-            />
+            <label className="font-medium text-gray-700">Chọn ngày:</label>
           </div>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={handleDateChange}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+          />
           <button
             onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -78,9 +94,11 @@ const RetalManagement = () => {
         {/* Header Table */}
         <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
           <div className="col-span-1">Phòng</div>
-          <div className="col-span-5 flex justify-center">Giờ</div>
+          <div className="col-span-4 flex justify-center">Giờ</div>
           <div className="col-span-2 flex justify-center">Tiền dịch vụ</div>
-              <div className="col-span-2 flex justify-center">Tổng tiền</div>
+          <div className="col-span-2 flex justify-center">Tiền phòng</div>
+          <div className="col-span-2 flex justify-center"></div>
+
           {/* <div className="col-span-3 text-center">Chức năng</div> */}
         </div>
 
@@ -92,9 +110,7 @@ const RetalManagement = () => {
               <span className="ml-2 text-gray-600">Đang tải...</span>
             </div>
           ) : bills.length > 0 ? (
-            bills.map((bill) => (
-              <RentalItem key={bill._id.toString()} bill={bill} />
-            ))
+            bills.map((bill) => <RentalItem key={bill._id.toString()} bill={bill} onEdit={(b) => handleEditBill(b)} />)
           ) : (
             <div className="text-center py-8 text-gray-500">
               Không có hóa đơn nào cho ngày {new Date(selectedDate).toLocaleDateString('vi-VN')}

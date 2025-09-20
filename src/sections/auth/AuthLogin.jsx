@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApiMutation } from '../../hooks/useApi';
 import { authRequests } from '../../services/authService';
@@ -28,6 +28,12 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { setAuth } = useAuthState();
   const { setHotelId, setHotelName } = useHotelState();
+  useEffect(() => {
+    const savedHotelName = localStorage.getItem('hotel_name');
+    if (savedHotelName) {
+      setHotelName(savedHotelName);
+    }
+  }, [setHotelName]);
 
   const loginMutation = useApiMutation((dto) => authRequests.login(dto), {
     onSuccess: (res) => {
@@ -40,7 +46,11 @@ export default function LoginPage() {
         const hotelId = res?.data?.user?.hotelId;
         const hotelName = res?.data?.user?.hotelName;
         if (hotelId) setHotelId(hotelId);
-        if (hotelName) setHotelName(hotelName);
+        if (hotelName) {
+          setHotelName(hotelName);
+          localStorage.setItem('hotel_name', hotelName);
+        }
+
         navigate('/');
       } else {
         // show server message

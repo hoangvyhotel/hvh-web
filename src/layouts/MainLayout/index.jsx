@@ -49,7 +49,6 @@ export default function MainLayout() {
           ml: { xs: 0, lg: 'auto' }
         }}
       >
-        <Toolbar sx={{ minHeight: 48 }} />
         <Breadcrumbs />
         <Outlet />
       </Box>

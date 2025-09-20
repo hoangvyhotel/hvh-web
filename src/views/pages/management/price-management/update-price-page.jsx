@@ -111,8 +111,8 @@ const RoomPriceUpdate = () => {
           if (priceType === 'hours') {
             return {
               roomId: roomId,
-              newPrice: parseInt(newPrice),
-              newNextHourPrice: parseInt(newNextHourPrice)
+              newNextHourPrice: parseInt(newNextHourPrice),
+              newPrice: parseInt(newPrice)
             };
           } else {
             return {
@@ -201,20 +201,19 @@ const RoomPriceUpdate = () => {
                   <input
                     type="number"
                     className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    value={newPrice}
-                    onChange={(e) => setNewPrice(e.target.value)}
+                    value={newNextHourPrice}
+                    onChange={(e) => setNewNextHourPrice(e.target.value)}
                     placeholder="Nhập giá giờ đầu"
                     min="0"
                   />
                 </div>
-
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2 text-gray-700">Giá giờ sau (VND)</label>
                   <input
                     type="number"
                     className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    value={newNextHourPrice}
-                    onChange={(e) => setNewNextHourPrice(e.target.value)}
+                    value={newPrice}
+                    onChange={(e) => setNewPrice(e.target.value)}
                     placeholder="Nhập giá giờ sau"
                     min="0"
                   />

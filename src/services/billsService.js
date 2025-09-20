@@ -21,6 +21,11 @@ export const billsRequests = {
     method: 'post',
     params: payload,
     data: payload
+  }),
+  updateBill: (id, dto) => ({
+    url: `/bills/${id}`,
+    method: 'put',
+    data: dto
   })
 };
 
@@ -51,5 +56,9 @@ export const createBill = async (roomId) => {
     url: `/bills/${roomId}`,
     method: 'post',
   });
+  return response.data.data;
+}
+export const updateBill = async (id, dto) => {
+  const response = await http(billsRequests.updateBill(id, dto));
   return response.data.data;
 }

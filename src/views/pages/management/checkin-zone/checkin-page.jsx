@@ -461,7 +461,7 @@ const CheckinPage = () => {
                   <div key={index} className="p-2 sm:p-4">
                     <div className="text-gray-500 text-sm mt-1">
                       Giờ vào:{' '}
-                      {new Date(bp.StartDate).toLocaleString('vi-VN', {
+                      {new Date(booking.CheckinDate).toLocaleString('vi-VN', {
                         hour: '2-digit',
                         minute: '2-digit',
                         day: '2-digit',

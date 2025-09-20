@@ -28,9 +28,7 @@ const RoomItem = ({ room, onEdit, onUpdateStatus, index }) => {
       </div>
 
       {/* Tầng */}
-      <div className="col-span-1 flex justify-center">
-        <span className="text-green-600 font-semibold">{room.floor}</span>
-      </div>
+      <span className="text-green-600 font-semibold">{Number(room.floor) === 0 ? 'Tầng trệt' : `Tầng ${room.floor}`}</span>
 
       {/* Giá */}
       <div className="col-span-5 space-y-1 flex flex-col pl-20">

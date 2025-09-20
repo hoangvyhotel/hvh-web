@@ -27,16 +27,20 @@ export default function LoginPage() {
   } = useForm();
   const navigate = useNavigate();
   const { setAuth } = useAuthState();
-  const { setHotelId } = useHotelState();
+  const { setHotelId, setHotelName } = useHotelState();
 
   const loginMutation = useApiMutation((dto) => authRequests.login(dto), {
     onSuccess: (res) => {
       if (res?.succeeded) {
         // mark logged in and store hotelId
         setAuth(true);
-  try { localStorage.setItem('username', res?.data?.user?.username || ''); } catch (e) {}
+        try {
+          localStorage.setItem('username', res?.data?.user?.username || '');
+        } catch (e) {}
         const hotelId = res?.data?.user?.hotelId;
+        const hotelName = res?.data?.user?.hotelName;
         if (hotelId) setHotelId(hotelId);
+        if (hotelName) setHotelName(hotelName);
         navigate('/');
       } else {
         // show server message
@@ -86,11 +90,7 @@ export default function LoginPage() {
                 label="Password"
                 placeholder="mật khẩu"
                 endAdornment={
-                  <InputAdornment
-                    position="end"
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                  >
+                  <InputAdornment position="end" sx={{ cursor: 'pointer' }} onClick={() => setIsPasswordVisible(!isPasswordVisible)}>
                     {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
                   </InputAdornment>
                 }

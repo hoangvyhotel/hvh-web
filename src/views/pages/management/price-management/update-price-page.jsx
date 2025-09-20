@@ -9,6 +9,7 @@ import { roomRequests } from 'services/roomService';
 const RoomPriceUpdate = () => {
   const [priceType, setPriceType] = useState('');
   const [newPrice, setNewPrice] = useState('');
+  const [newNextHourPrice, setNewNextHourPrice] = useState('');
   const [selectedRooms, setSelectedRooms] = useState([]);
   const [roomsData, setRoomsData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -104,16 +105,23 @@ const RoomPriceUpdate = () => {
 
     setIsSubmitting(true);
     try {
-      // Chuẩn bị dữ liệu để gửi API
       const updateData = {
         typePrice: priceType,
-        data: selectedRooms.map((roomId) => ({
-          roomId: roomId,
-          newPrice: parseInt(newPrice)
-        }))
+        data: selectedRooms.map((roomId) => {
+          if (priceType === 'hours') {
+            return {
+              roomId: roomId,
+              newPrice: parseInt(newPrice),
+              newNextHourPrice: parseInt(newNextHourPrice)
+            };
+          } else {
+            return {
+              roomId: roomId,
+              newPrice: parseInt(newPrice)
+            };
+          }
+        })
       };
-
-      console.log('Dữ liệu gửi đi:', updateData);
 
       // Gọi API update giá
       const response = await http(roomRequests.updateRangePrice(updateData));
@@ -167,7 +175,6 @@ const RoomPriceUpdate = () => {
         <Header title="Quản lý giá phòng" icon={<Tag className="w-6 h-6 mr-2 text-blue-600" />} />
       </div>
       <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg w-full">
-        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h2 className="text-lg font-semibold text-gray-700 mb-4">Thông tin giá</h2>
@@ -186,17 +193,48 @@ const RoomPriceUpdate = () => {
               </select>
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2 text-gray-700">Giá mới (VND)</label>
-              <input
-                type="number"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                value={newPrice}
-                onChange={(e) => setNewPrice(e.target.value)}
-                placeholder="Nhập giá mới"
-                min="0"
-              />
-            </div>
+            {/* Nếu là giá giờ thì hiện 2 input */}
+            {priceType === 'hours' ? (
+              <>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2 text-gray-700">Giá giờ đầu (VND)</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    value={newPrice}
+                    onChange={(e) => setNewPrice(e.target.value)}
+                    placeholder="Nhập giá giờ đầu"
+                    min="0"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2 text-gray-700">Giá giờ sau (VND)</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    value={newNextHourPrice}
+                    onChange={(e) => setNewNextHourPrice(e.target.value)}
+                    placeholder="Nhập giá giờ sau"
+                    min="0"
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2 text-gray-700">
+                  {priceType === 'day' ? 'Giá ngày (VND)' : priceType === 'night' ? 'Giá đêm (VND)' : 'Giá mới (VND)'}
+                </label>
+                <input
+                  type="number"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  value={newPrice}
+                  onChange={(e) => setNewPrice(e.target.value)}
+                  placeholder="Nhập giá mới"
+                  min="0"
+                />
+              </div>
+            )}
           </div>
 
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">

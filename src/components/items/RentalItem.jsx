@@ -12,7 +12,8 @@ const RentalItem = ({ bill, onEdit, onDelete }) => {
   };
 
   const handleOpenEditModal = async () => {
-    const billData = await fetchBillById(bill._id.toString()); // Giữ nếu cần refresh data
+    console.log('Opening edit modal for bill:', bill);
+    const billData = await fetchBillById(bill.id.toString()); // Giữ nếu cần refresh data
     setSelectedBill(billData);
     setEditedTotalRoomPrice(billData.totalRoomPrice); // Set giá trị ban đầu
     setIsModalOpen(true);
@@ -39,12 +40,12 @@ const RentalItem = ({ bill, onEdit, onDelete }) => {
       {/* Giờ (Check-in và Check-out) */}
       <div className="col-span-4 space-y-1 flex flex-col pl-25">
         <div className="text-sm">
-          <span className="font-medium text-gray-700">Check-in: {new Date(bill.checkin).toLocaleString()}</span>
+          <span className="font-medium text-gray-700">Check-in: {new Date(bill.checkIn).toLocaleString()}</span>
         </div>
         <div className="text-sm">
           <span className="font-medium text-gray-700">
             Check-out:
-            {bill.checkout ? new Date(bill.checkout).toLocaleString() : ' - '}
+            {bill.checkOut ? new Date(bill.checkOut).toLocaleString() : ' - '}
           </span>
         </div>
       </div>

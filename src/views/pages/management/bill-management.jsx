@@ -50,7 +50,7 @@ const RetalManagement = () => {
   const handleEditBill = async (updatedBill) => {
     try {
       const dto = { totalRoomPrice: updatedBill.totalRoomPrice };
-      await updateBill(updatedBill._id, dto);  // Không cần lưu updated nữa vì sẽ reload
+      await updateBill(updatedBill.id, dto);
 
       toast.success(`Cập nhật hóa đơn phòng ${updatedBill.roomName} thành công!`);
 
@@ -110,7 +110,7 @@ const RetalManagement = () => {
               <span className="ml-2 text-gray-600">Đang tải...</span>
             </div>
           ) : bills.length > 0 ? (
-            bills.map((bill) => <RentalItem key={bill._id.toString()} bill={bill} onEdit={(b) => handleEditBill(b)} />)
+            bills.map((bill) => <RentalItem key={bill.id.toString()} bill={bill} onEdit={(b) => handleEditBill(b)} />)
           ) : (
             <div className="text-center py-8 text-gray-500">
               Không có hóa đơn nào cho ngày {new Date(selectedDate).toLocaleDateString('vi-VN')}

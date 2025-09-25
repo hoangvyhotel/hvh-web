@@ -17,8 +17,8 @@ import { utilitiesRequests } from 'services/utilitiesService';
 import { roomRequests } from 'services/roomService';
 import MoveRoomModal from './modal-actions/move-room-modal';
 import ChangeBookingTypeModal from './modal-actions/change-booking-type';
-import { createBill } from 'services/billsService';
 function translateBookingType(type) {
+  if (!type) return 'Không xác định'
   switch (type.toLowerCase()) {
     case 'day':
       return 'Ngày';
@@ -61,6 +61,8 @@ const CheckinPage = () => {
 
       const res = await http(bookingRequests.getBooking(roomId));
       setBooking(res.data.data);
+            console.log("res", booking);
+
     } catch (err) {
       console.error(err);
       setError('Không thể tải thông tin booking');
@@ -177,6 +179,7 @@ const CheckinPage = () => {
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
   if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
   if (!booking) return <div className="p-4 text-center">Không có dữ liệu</div>;
+  console.log("booking", booking);
   return (
     <>
       <div className="bg-gray-100 min-h-screen font-sans">
@@ -210,7 +213,7 @@ const CheckinPage = () => {
                     className="bg-green-600 text-white px-2 sm:px-3 py-1 rounded-md font-bold cursor-pointer"
                     onClick={() => setIsChangeTypeOpen(true)}
                   >
-                    {translateBookingType(booking.TypeBooking) || ''}
+                    {translateBookingType(booking?.TypeBooking) || ''}
                   </button>
                   <span className="text-lg font-bold">LÚC:</span>
                   <span className="font-semibold">
@@ -427,7 +430,7 @@ const CheckinPage = () => {
 
                             const dto = {
                               bookingId: booking.BookingId, // id booking
-                              utilityId: u._id, // id utility
+                              utilityId: u.id, // id utility
                               quantity: 1 // mặc định 1, có thể tùy chỉnh
                             };
 
@@ -486,18 +489,18 @@ const CheckinPage = () => {
                     {/* Render History */}
                     {bp.History?.length > 0 && (
                       <div className="mt-3 border-l-2 border-green-500 pl-3">
-                        <span className="text-gray-600 font-semibold block mb-1">Lịch sử giá:</span>
+                        <span className="text-gray-600 font-semibold block mb-1">Lịch sử giá:</span>  
                         <ul className="space-y-2">
                           {bp.History.map((h, hIndex) => (
                             <li key={hIndex} className="bg-gray-50 p-2 rounded text-sm flex flex-col">
                               <div className="flex justify-between">
-                                <span className="font-bold text-green-700">{translateBookingType(h.PriceType)}</span>
-                                <span className="font-bold text-green-700">{h.Amount?.toLocaleString('vi-VN')} đ</span>
+                                <span className="font-bold text-green-700">{translateBookingType(h.priceType)}</span>
+                                <span className="font-bold text-green-700">{h.amount?.toLocaleString('vi-VN')} đ</span>
                               </div>
 
                               <span className="text-gray-500 text-xs">
                                 Từ:{' '}
-                                {new Date(h.AppliedFrom).toLocaleString('vi-VN', {
+                                {new Date(h?.appliedFrom).toLocaleString('vi-VN', {
                                   hour: '2-digit',
                                   minute: '2-digit',
                                   day: '2-digit',
@@ -505,10 +508,10 @@ const CheckinPage = () => {
                                   year: 'numeric'
                                 })}
                               </span>
-                              {h.AppliedTo && (
+                              {h.appliedTo && (
                                 <span className="text-gray-500 text-xs">
                                   Đến:{' '}
-                                  {new Date(h.AppliedTo).toLocaleString('vi-VN', {
+                                  {new Date(h?.appliedTo).toLocaleString('vi-VN', {
                                     hour: '2-digit',
                                     minute: '2-digit',
                                     day: '2-digit',
@@ -525,15 +528,15 @@ const CheckinPage = () => {
                               {/* Nếu là HOUR thì hiển thị giá giờ đầu / giờ sau */}
                               {h.PriceType === 'HOUR' && (
                                 <div className="text-xs text-gray-600 mt-1">
-                                  <div>Giờ đầu: {h.AppliedFirstHourPrice?.toLocaleString('vi-VN')} đ</div>
-                                  <div>Giờ tiếp: {h.AppliedNextHourPrice?.toLocaleString('vi-VN')} đ</div>
+                                  <div>Giờ đầu: {h.appliedFirstHourPrice?.toLocaleString('vi-VN')} đ</div>
+                                  <div>Giờ tiếp: {h.appliedNextHourPrice?.toLocaleString('vi-VN')} đ</div>
                                 </div>
                               )}
 
                               {/* Nếu là NIGHT thì hiển thị giá ban đêm */}
                               {h.PriceType === 'NIGHT' && (
                                 <div className="text-xs text-gray-600 mt-1">
-                                  Giá ban đêm: {h.AppliedNightPrice?.toLocaleString('vi-VN')} đ
+                                  Giá ban đêm: {h.appliedNightPrice?.toLocaleString('vi-VN')} đ
                                 </div>
                               )}
                             </li>

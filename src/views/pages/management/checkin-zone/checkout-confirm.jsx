@@ -371,17 +371,17 @@ const CheckoutConfirm = () => {
                         <div className="flex items-center space-x-3">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-medium ${
-                              historyItem.Action === 'CREATE' ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'
+                              historyItem.action === 'CREATE' ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'
                             }`}
                           >
-                            {historyItem.Action === 'CREATE' ? 'Tạo mới' : 'Đổi loại'}
+                            {historyItem.action === 'CREATE' ? 'Tạo mới' : 'Đổi loại'}
                           </span>
                           <span className="px-2 py-1 bg-green-600 text-white rounded text-sm">
-                            {translateBookingType(historyItem.PriceType)}
+                            {translateBookingType(historyItem.priceType)}
                           </span>
                           <span className="text-sm text-gray-600">{historyItem.Times} giờ</span>
                         </div>
-                        <div className="text-lg font-bold text-green-700">{formatCurrency(historyItem.Amount)}</div>
+                        <div className="text-lg font-bold text-green-700">{formatCurrency(historyItem.amount)}</div>
                       </div>
 
                       {/* Time Information */}
@@ -389,12 +389,12 @@ const CheckoutConfirm = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           <div>
                             <span className="font-medium">Từ: </span>
-                            {new Date(historyItem.AppliedFrom).toLocaleString('vi-VN')}
+                            {new Date(historyItem.appliedFrom).toLocaleString('vi-VN')}
                           </div>
-                          {historyItem.AppliedTo && (
+                          {historyItem.appliedTo && (
                             <div>
                               <span className="font-medium">Đến: </span>
-                              {new Date(historyItem.AppliedTo).toLocaleString('vi-VN')}
+                              {new Date(historyItem.appliedTo).toLocaleString('vi-VN')}
                             </div>
                           )}
                         </div>

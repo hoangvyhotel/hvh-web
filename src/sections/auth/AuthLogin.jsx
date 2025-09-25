@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApiMutation } from '../../hooks/useApi';
 import { authRequests } from '../../services/authService';
+import { http } from '../../lib/http/axios';
 import { useAuthState, useHotelState } from '../../hooks/useAuth';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -26,7 +27,7 @@ export default function LoginPage() {
     formState: { errors }
   } = useForm();
   const navigate = useNavigate();
-  const { setAuth } = useAuthState();
+  const { setAuth, setUserRole } = useAuthState();
   const { setHotelId, setHotelName } = useHotelState();
   useEffect(() => {
     const savedHotelName = localStorage.getItem('hotel_name');
@@ -34,6 +35,20 @@ export default function LoginPage() {
       setHotelName(savedHotelName);
     }
   }, [setHotelName]);
+
+  const fetchUserInfo = async () => {
+    try {
+      const response = await http(authRequests.me());
+      const userRole = response?.data?.data?.role || response?.data?.role;
+      if (userRole) {
+        setUserRole(userRole);
+      }
+      navigate('/');
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      navigate('/');
+    }
+  };
 
   const loginMutation = useApiMutation((dto) => authRequests.login(dto), {
     onSuccess: (res) => {
@@ -50,8 +65,16 @@ export default function LoginPage() {
           setHotelName(hotelName);
           localStorage.setItem('hotel_name', hotelName);
         }
+        // Check multiple possible paths for role
+        const userRole = res?.data?.user?.role || res?.data?.role || res?.user?.role;
 
-        navigate('/');
+        if (userRole) {
+          setUserRole(userRole);
+          navigate('/');
+        } else {
+          // Fetch user info to get role
+          fetchUserInfo();
+        }
       } else {
         // show server message
         alert(res?.message || 'Login failed');

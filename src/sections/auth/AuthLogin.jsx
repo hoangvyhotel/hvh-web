@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApiMutation } from '../../hooks/useApi';
 import { authRequests } from '../../services/authService';
+import { http } from '../../lib/http/axios';
 import { useAuthState, useHotelState } from '../../hooks/useAuth';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -26,18 +27,54 @@ export default function LoginPage() {
     formState: { errors }
   } = useForm();
   const navigate = useNavigate();
-  const { setAuth } = useAuthState();
-  const { setHotelId } = useHotelState();
+  const { setAuth, setUserRole } = useAuthState();
+  const { setHotelId, setHotelName } = useHotelState();
+  useEffect(() => {
+    const savedHotelName = localStorage.getItem('hotel_name');
+    if (savedHotelName) {
+      setHotelName(savedHotelName);
+    }
+  }, [setHotelName]);
+
+  const fetchUserInfo = async () => {
+    try {
+      const response = await http(authRequests.me());
+      const userRole = response?.data?.data?.role || response?.data?.role;
+      if (userRole) {
+        setUserRole(userRole);
+      }
+      navigate('/');
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      navigate('/');
+    }
+  };
 
   const loginMutation = useApiMutation((dto) => authRequests.login(dto), {
     onSuccess: (res) => {
       if (res?.succeeded) {
         // mark logged in and store hotelId
         setAuth(true);
-  try { localStorage.setItem('username', res?.data?.user?.username || ''); } catch (e) {}
+        try {
+          localStorage.setItem('username', res?.data?.user?.username || '');
+        } catch (e) {}
         const hotelId = res?.data?.user?.hotelId;
+        const hotelName = res?.data?.user?.hotelName;
         if (hotelId) setHotelId(hotelId);
-        navigate('/');
+        if (hotelName) {
+          setHotelName(hotelName);
+          localStorage.setItem('hotel_name', hotelName);
+        }
+        // Check multiple possible paths for role
+        const userRole = res?.data?.user?.role || res?.data?.role || res?.user?.role;
+
+        if (userRole) {
+          setUserRole(userRole);
+          navigate('/');
+        } else {
+          // Fetch user info to get role
+          fetchUserInfo();
+        }
       } else {
         // show server message
         alert(res?.message || 'Login failed');
@@ -64,10 +101,10 @@ export default function LoginPage() {
               autoComplete="username"
               variant="outlined"
               size="small"
-              {...register('userName', { required: 'Username is required' })}
-              placeholder="your username"
+              {...register('userName', { required: 'Tên đăng nhập là bắt buộc' })}
+              placeholder="tên đăng nhập"
               fullWidth
-              label="Username"
+              label="Tên đăng nhập"
               error={Boolean(errors.userName)}
               sx={{ '& .MuiInputBase-root': { borderRadius: 1 }, '& .MuiInputBase-input': { fontSize: '1rem' } }}
             />
@@ -76,21 +113,17 @@ export default function LoginPage() {
 
           <Box>
             <FormControl fullWidth error={Boolean(errors.password)} variant="outlined" size="small">
-              <InputLabel htmlFor="password">Password</InputLabel>
+              <InputLabel htmlFor="password">Mật khẩu</InputLabel>
               <OutlinedInput
-                {...register('password', { required: 'Password is required' })}
+                {...register('password', { required: 'Mật khẩu là bắt buộc' })}
                 id="password"
                 name="password"
                 autoComplete="current-password"
                 type={isPasswordVisible ? 'text' : 'password'}
                 label="Password"
-                placeholder="Enter your password"
+                placeholder="mật khẩu"
                 endAdornment={
-                  <InputAdornment
-                    position="end"
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                  >
+                  <InputAdornment position="end" sx={{ cursor: 'pointer' }} onClick={() => setIsPasswordVisible(!isPasswordVisible)}>
                     {isPasswordVisible ? <Visibility /> : <VisibilityOff />}
                   </InputAdornment>
                 }
@@ -107,7 +140,7 @@ export default function LoginPage() {
             sx={{ minWidth: 140, mt: 2, py: 1.5, fontSize: '1rem' }}
             disabled={loginMutation.isLoading}
           >
-            {loginMutation.isLoading ? 'Signing in…' : 'Sign In'}
+            {loginMutation.isLoading ? 'Đang đăng nhập…' : 'Đăng nhập'}
           </Button>
         </Stack>
       </Box>

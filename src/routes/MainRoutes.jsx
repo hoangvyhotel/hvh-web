@@ -115,7 +115,9 @@ const MainRoutes = {
         },
         {
           path: 'create-user',
-          element: <AddUserPage />
+          element: (
+              <AddUserPage />
+          )
         }
       ]
     },

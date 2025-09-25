@@ -18,7 +18,6 @@ import { utilitiesRequests } from 'services/utilitiesService';
 import { roomRequests } from 'services/roomService';
 import MoveRoomModal from './modal-actions/move-room-modal';
 import ChangeBookingTypeModal from './modal-actions/change-booking-type';
-import { createBill } from 'services/billsService';
 function translateBookingType(type) {
   // normalize input safely to avoid calling toLowerCase on undefined/null
   let key = '';
@@ -89,6 +88,8 @@ const CheckinPage = () => {
 
       const res = await http(bookingRequests.getBooking(roomId));
       setBooking(res.data.data);
+            console.log("res", booking);
+
     } catch (err) {
       console.error(err);
       setError('Không thể tải thông tin booking');
@@ -199,12 +200,13 @@ const CheckinPage = () => {
   };
 
   const handleCheckout = async () => {
-    navigate(`/pages/management/checkin-zone/checkout-confirm?bookingId=${booking.BookingId}&roomId=${roomId}`);
+    navigate(`/pages/management/checkin-zone/checkout-confirm?bookingId=${booking.BookingId}&roomId=${roomId}&hotelId=${hotelId}`);
   };
 
   if (loading) return <div className="p-4 text-center">Đang tải...</div>;
   if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
   if (!booking) return <div className="p-4 text-center">Không có dữ liệu</div>;
+  console.log("booking", booking);
   return (
     <>
       <div className="bg-gray-100 min-h-screen font-sans">
@@ -238,7 +240,7 @@ const CheckinPage = () => {
                     className="bg-green-600 text-white px-2 sm:px-3 py-1 rounded-md font-bold cursor-pointer"
                     onClick={() => setIsChangeTypeOpen(true)}
                   >
-                    {translateBookingType(booking.TypeBooking) || ''}
+                    {translateBookingType(booking?.TypeBooking) || ''}
                   </button>
                   <span className="text-lg font-bold">LÚC:</span>
                   <span className="font-semibold">{formatToMySQL(booking.CheckinDate)}</span>
@@ -427,72 +429,56 @@ const CheckinPage = () => {
 
               {/* Nhóm dưới: Nước & Đồ ăn */}
               <div className="grid grid-cols-2 sm:grid-cols-4 border border-green-500 rounded-md p-1 sm:p-2">
-                {utilities.map((u) => {
-                  const parseIconVal = (val) => {
-                    if (val == null) return '';
-                    if (typeof val === 'object') return val;
-                    if (typeof val === 'string') {
-                      try {
-                        return JSON.parse(val);
-                      } catch (e) {
-                        return val;
-                      }
-                    }
-                    return '';
-                  };
-
-                  const iconVal = parseIconVal(u.icon ?? u.Icon ?? u.IconName ?? u.IconKey);
-
-                  return (
-                    <div
-                      key={u._id}
-                      className="flex flex-col items-center p-1 sm:p-2"
-                      onClick={async () => {
+                {utilities
+                  .filter((u) => u?.status === true || u?.Status === true)
+                  .map((u) => {
+                    const parseIconVal = (val) => {
+                      if (val == null) return '';
+                      if (typeof val === 'object') return val;
+                      if (typeof val === 'string') {
                         try {
-                          // defensive id extraction: accept multiple possible id fields
-                          const bookingId = booking?.BookingId || booking?._id || booking?.id;
-                          const utilityId = u?._id || u?.id;
-
-                          if (!bookingId || !utilityId) {
-                            // Log diagnostic info so we can see what's missing in the client
-                            console.error('addUtility aborted: missing bookingId or utilityId', { bookingId, utilityId, booking, utility: u });
-                            toast.error('Không thể thêm tiện ích: thiếu bookingId hoặc utilityId.');
-                            return;
-                          }
-
-                          const dto = {
-                            // include multiple key variants to match different backend expectations
-                            bookingId,
-                            BookingId: bookingId,
-                            utilityId,
-                            UtilityId: utilityId,
-                            quantity: 1
-                          };
-
-                          // Log DTO to help debug 400 from server
-                          console.log('addUtility dto ->', dto);
-
-                          const res = await http(bookingRequests.addUtility(dto));
-
-                          // reload lại booking để cập nhật UI
-                          const updated = await http(bookingRequests.getBooking(roomId));
-                          setBooking(updated.data.data);
-                          toast.success(res.data.message || 'Thêm tiện ích thành công');
-                        } catch (err) {
-                          // Surface server message when available and log full response
-                          console.error('addUtility error ->', err?.response?.data || err);
-                          const serverMsg = err?.response?.data?.message || err?.message || 'Thêm tiện ích thất bại';
-                          toast.error(serverMsg);
+                          return JSON.parse(val);
+                        } catch (e) {
+                          return val;
                         }
-                      }}
-                    >
-                      <div className="text-xl sm:text-2xl text-green-600 cursor-pointer">
-                        {resolveIcon(iconVal, { size: 22, color: '#16a34a' })}
+                      }
+                      return '';
+                    };
+
+                    const iconVal = parseIconVal(u.icon ?? u.Icon ?? u.IconName ?? u.IconKey);
+
+                    return (
+                      <div
+                        key={u._id}
+                        className="flex flex-col items-center p-1 sm:p-2"
+                        onClick={async () => {
+                          try {
+                            if (!booking.BookingId) return;
+
+                            const dto = {
+                              bookingId: booking.BookingId, // id booking
+                              utilityId: u.id, // id utility
+                              quantity: 1 // mặc định 1, có thể tùy chỉnh
+                            };
+
+                            const res = await http(bookingRequests.addUtility(dto));
+                            // reload lại booking để cập nhật UI
+                            const updated = await http(bookingRequests.getBooking(roomId));
+                            setBooking(updated.data.data);
+                            toast.success(res.data.message || 'Thêm tiện ích thành công');
+                          } catch (err) {
+                            console.error(err);
+                            toast.error('Thêm tiện ích thất bại');
+                          }
+                        }}
+                      >
+                        <div className="text-xl sm:text-2xl text-green-600 cursor-pointer">
+                          {resolveIcon(iconVal, { size: 22, color: '#16a34a' })}
+                        </div>
+                        <span className="text-xs sm:text-sm mt-1">{u.name || u.Name}</span>
                       </div>
-                      <span className="text-xs sm:text-sm mt-1">{u.name || u.Name}</span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </div>
 
@@ -518,7 +504,7 @@ const CheckinPage = () => {
                     {/* Render History */}
                     {bp.History?.length > 0 && (
                       <div className="mt-3 border-l-2 border-green-500 pl-3">
-                        <span className="text-gray-600 font-semibold block mb-1">Lịch sử giá:</span>
+                        <span className="text-gray-600 font-semibold block mb-1">Lịch sử giá:</span>  
                         <ul className="space-y-2">
                           {bp.History.map((h, hIndex) => {
                             const nh = normalizeHistoryItem(h);

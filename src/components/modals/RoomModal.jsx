@@ -83,7 +83,7 @@ const RoomModal = ({ isOpen, onClose, room, onCreate, onUpdate }) => {
               >
                 {floorData.map(
                   (floor) =>
-                    floorData.id !== 0 && (
+                    floor.id !== -1 && (
                       <option key={floor.id} value={floor.id}>
                         {floor.name}
                       </option>

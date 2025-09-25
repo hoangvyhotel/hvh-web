@@ -2,8 +2,9 @@ import { CircleDot, Calendar } from 'lucide-react';
 import Header from '../../../layouts/HotelManagementLayout/Header';
 
 import RentalItem from '../../../components/items/RentalItem';
+import formatToMySQL from 'utils/dateFormat';
 import { useEffect, useState } from 'react';
-import { fetchAllBills } from 'services/billsService';
+import { fetchAllBills, updateBill } from 'services/billsService';
 import { toast } from 'react-toastify';
 import { useHotelState } from 'hooks/useAuth';
 
@@ -23,7 +24,7 @@ const RetalManagement = () => {
 
   const fetchBills = async (date) => {
     if (!hotelId) return;
-    
+
     setLoading(true);
     try {
       const billsResponse = await fetchAllBills(hotelId, date);
@@ -47,6 +48,21 @@ const RetalManagement = () => {
     const newDate = event.target.value;
     setSelectedDate(newDate);
   };
+  const handleEditBill = async (updatedBill) => {
+    try {
+      const dto = { totalRoomPrice: updatedBill.totalRoomPrice };
+      await updateBill(updatedBill.id, dto);
+
+      toast.success(`Cập nhật hóa đơn phòng ${updatedBill.roomName} thành công!`);
+
+      // Reload toàn bộ danh sách từ API
+      fetchBills(selectedDate);
+    } catch (error) {
+      console.error('Update bill error:', error);
+      toast.error('Lỗi khi cập nhật hóa đơn');
+    }
+  };
+
   const totalRoomPrice = bills.reduce((sum, bill) => sum + (bill.totalRoomPrice || 0), 0);
 
   return (
@@ -57,7 +73,7 @@ const RetalManagement = () => {
 
       <div className="p-6">
         {/* Date Filter */}
-        <div className="mb-6 flex items-center gap-4">
+  <div className="mb-6 flex items-center gap-4 justify-end">
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-gray-600" />
             <label className="font-medium text-gray-700">Chọn ngày:</label>
@@ -79,9 +95,11 @@ const RetalManagement = () => {
         {/* Header Table */}
         <div className="grid grid-cols-12 gap-2 py-4 px-4 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
           <div className="col-span-1">Phòng</div>
-          <div className="col-span-5 flex justify-center">Giờ</div>
+          <div className="col-span-4 flex justify-center">Giờ</div>
           <div className="col-span-2 flex justify-center">Tiền dịch vụ</div>
           <div className="col-span-2 flex justify-center">Tiền phòng</div>
+          <div className="col-span-2 flex justify-center"></div>
+
           {/* <div className="col-span-3 text-center">Chức năng</div> */}
         </div>
 
@@ -97,8 +115,8 @@ const RetalManagement = () => {
               <RentalItem key={(bill && (bill._id || bill.id) ? (bill._id || bill.id).toString() : String(idx))} bill={bill} />
             ))
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              Không có hóa đơn nào cho ngày {new Date(selectedDate).toLocaleDateString('vi-VN')}
+              <div className="text-center py-8 text-gray-500">
+              Không có hóa đơn nào cho ngày {formatToMySQL(selectedDate)}
             </div>
           )}
         </div>

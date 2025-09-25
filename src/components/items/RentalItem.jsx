@@ -4,15 +4,20 @@ import { fetchBillById } from 'services/billsService';
 import formatToMySQL from 'utils/dateFormat';
 
 const RentalItem = ({ bill, onEdit, onDelete }) => {
-  const [isModelOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Sửa typo: isModalOpen
   const [selectedBill, setSelectedBill] = useState(null);
-
+  const [editedTotalRoomPrice, setEditedTotalRoomPrice] = useState(bill.totalRoomPrice);
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN').format(price) + ' vnđ';
+    const n = Number(price || 0);
+    return new Intl.NumberFormat('vi-VN').format(n) + ' vnđ';
   };
 
-  const handleEdit = () => {
-    if (onEdit) onEdit(rental);
+  const handleOpenEditModal = async () => {
+    console.log('Opening edit modal for bill:', bill);
+    const billData = await fetchBillById(bill.id.toString()); // Giữ nếu cần refresh data
+    setSelectedBill(billData);
+    setEditedTotalRoomPrice(billData.totalRoomPrice); // Set giá trị ban đầu
+    setIsModalOpen(true);
   };
 
   const handleViewDetails = async () => {
@@ -21,6 +26,11 @@ const RentalItem = ({ bill, onEdit, onDelete }) => {
     setSelectedBill(billData);
     setIsModalOpen(true);
   };
+  const handleUpdate = (updatedData) => {
+    if (onEdit) {
+      onEdit({ ...bill, totalRoomPrice: updatedData.totalRoomPrice });
+    }
+  };
 
   return (
     <div className="grid grid-cols-12 gap-2 py-4 px-4 border-b border-gray-200 hover:bg-gray-50 transition-colors items-center">
@@ -28,44 +38,49 @@ const RentalItem = ({ bill, onEdit, onDelete }) => {
       <div className="col-span-1">
         <span className="text-green-600 font-semibold">{bill.roomName}</span>
       </div>
-
       {/* Giờ (Check-in và Check-out) */}
-      <div className="col-span-5 space-y-1 flex flex-col pl-25">
+      <div className="col-span-4 space-y-1 flex flex-col pl-25">
         <div className="text-sm">
-          <span className="font-medium text-gray-700">Check-in: {formatToMySQL(bill.checkin)}</span>
+          <span className="font-medium text-gray-700">Check-in: {formatToMySQL(bill.checkIn ?? bill.checkin)}</span>
         </div>
         <div className="text-sm">
           <span className="font-medium text-gray-700">
-            Check-out:
-            {bill.checkout ? formatToMySQL(bill.checkout) : ' - '}
+            Check-out: {bill.checkOut ?? bill.checkout ? formatToMySQL(bill.checkOut ?? bill.checkout) : ' - '}
           </span>
         </div>
       </div>
-
       {/* Tiền Nước */}
       <div className="col-span-2 flex justify-center">
         <span className="text-gray-600">{formatPrice(bill.totalUtilitiesPrice)}</span>
       </div>
-
-      {/* Số Tiền */}
+      {/* Tổng Tiền (hiển thị tiền phòng) */}
       <div className="col-span-2 flex justify-center">
         <span className="text-green-600 font-semibold">{formatPrice(bill.totalRoomPrice)}</span>
       </div>
-
       {/* Actions */}
-      {/* <div className="col-span-3 flex items-center justify-center space-x-1">
-        <button onClick={handleEdit} className="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors">
-          CẬP NHẬT
-        </button>
-        <span className="text-gray-400 text-sm">|</span>
-        <button
+      <div className="col-span-3 flex items-center justify-center space-x-1">
+        {bill.type === 'bill' && (
+          <button
+            onClick={handleOpenEditModal} // Thay vì handleEdit, mở modal
+            className="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
+          >
+            CẬP NHẬT
+          </button>
+        )}
+        {/* <span className="text-gray-400 text-sm">|</span> */}
+        {/* <button
           onClick={handleViewDetails}
           className="px-3 py-1 text-xs bg-green-100 text-green-600 rounded hover:bg-green-200 transition-colors"
         >
           XEM CHI TIẾT
-        </button>
-      </div> */}
-      <BillModal isOpen={isModelOpen} onClose={() => setIsModalOpen(false)} bill={bill} />
+        </button> */}
+      </div>
+      <BillModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        bill={selectedBill}
+        onUpdate={handleUpdate} // Truyền onUpdate để modal gọi khi save
+      />{' '}
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { Navigate } from 'react-router-dom';
 const IS_AUTH_KEY = 'is_logged_in';
 const USER_ROLE_KEY = 'user_role'; // 'admin' hoặc 'staff'
 const HOTEL_ID_KEY = 'hotel_id';
+const HOTEL_NAME_KEY = 'hotel_name';
 
 // username storage with optional expiry
 const USERNAME_KEY = 'username';
@@ -191,7 +192,7 @@ export function useAuthState() {
 }
 
 export function useHotelState() {
-  const getInitial = () => {
+  const getInitialId = () => {
     try {
       return localStorage.getItem(HOTEL_ID_KEY) || '';
     } catch (e) {
@@ -199,7 +200,16 @@ export function useHotelState() {
     }
   };
 
-  const [hotelId, setHotelIdState] = useState(getInitial);
+  const getInitialName = () => {
+    try {
+      return localStorage.getItem(HOTEL_NAME_KEY) || '';
+    } catch (e) {
+      return '';
+    }
+  };
+
+  const [hotelId, setHotelIdState] = useState(getInitialId);
+  const [hotelName, setHotelNameState] = useState(getInitialName);
 
   useEffect(() => {
     try {
@@ -207,6 +217,13 @@ export function useHotelState() {
       else localStorage.removeItem(HOTEL_ID_KEY);
     } catch (e) {}
   }, [hotelId]);
+
+  useEffect(() => {
+    try {
+      if (hotelName) localStorage.setItem(HOTEL_NAME_KEY, hotelName);
+      else localStorage.removeItem(HOTEL_NAME_KEY);
+    } catch (e) {}
+  }, [hotelName]);
 
   const setHotelId = useCallback((id) => {
     try {
@@ -219,7 +236,18 @@ export function useHotelState() {
     setHotelIdState(id);
   }, []);
 
-  return { hotelId, setHotelId };
+  const setHotelName = useCallback((name) => {
+    try {
+      if (name === null || typeof name === 'undefined') {
+        localStorage.removeItem(HOTEL_NAME_KEY);
+        setHotelNameState('');
+        return;
+      }
+    } catch (e) {}
+    setHotelNameState(name);
+  }, []);
+
+  return { hotelId, setHotelId, hotelName, setHotelName };
 }
 
 export function ProtectedRoute({ children }) {

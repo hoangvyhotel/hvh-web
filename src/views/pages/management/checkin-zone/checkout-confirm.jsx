@@ -34,7 +34,7 @@ const CheckoutConfirm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState(false);
-  
+
   const formatCurrency = (value) => {
     const numValue = Number(value);
     if (isNaN(numValue) || numValue === null || numValue === undefined) return '0 đ';
@@ -86,50 +86,60 @@ const CheckoutConfirm = () => {
   const calculateTotals = () => {
     if (!data) return { roomTotal: 0, utilitiesTotal: 0, surchargeTotal: 0, finalTotal: 0 };
 
-    // Room price from BookingPricing History
-    let roomTotal = 0;
-    if (data.BookingPricing?.[0]?.History) {
-      roomTotal = data.BookingPricing[0].History.reduce((sum, historyItem) => {
-        // Some APIs return different field names for price (Amount, Price, Value)
-        const amt = historyItem?.Amount ?? historyItem?.Price ?? historyItem?.Value ?? historyItem?.AmountValue ?? 0;
-        return sum + (Number(amt) || 0);
-      }, 0);
-    }
-
-    // Utilities total
-    const utilitiesTotal =
-      data.Utilities?.reduce((sum, utility) => {
-        return sum + utility.Price * utility.Quantity;
-      }, 0) || 0;
+    // Utilities total: prefer API-provided TotalAmountUtilities when present
+    const apiUtilitiesTotal = data.TotalAmountUtilities ?? data.totalAmountUtilities;
+    const computedUtilitiesTotal =
+      data.Utilities
+        ? data.Utilities.reduce((sum, utility) => {
+            const price = Number(utility?.Price ?? utility?.price ?? 0) || 0;
+            const qty = Number(utility?.Quantity ?? utility?.quantity ?? 0) || 0;
+            return sum + price * qty;
+          }, 0)
+        : 0;
+    const utilitiesTotal = typeof apiUtilitiesTotal !== 'undefined' && apiUtilitiesTotal !== null ? Number(apiUtilitiesTotal) || 0 : computedUtilitiesTotal;
 
     // Surcharge total
     const surchargeTotal =
       data.Surcharge?.reduce((sum, surcharge) => {
-        return sum + (surcharge.Amount || 0);
+        return sum + (Number(surcharge.Amount ?? surcharge.amount ?? 0) || 0);
       }, 0) || 0;
 
     // Apply discounts and adjustments from Notes
-    let discount = 0;
-    let payInAdvance = 0;
-    let negotiatedPrice = 0;
+    const discount = Number(data.Notes?.Discount ?? data.Notes?.discount ?? 0) || 0;
+    const payInAdvance = Number(data.Notes?.PayInAdvance ?? data.Notes?.payInAdvance ?? 0) || 0;
+    const negotiatedPrice = Number(data.Notes?.NegotiatedPrice ?? data.Notes?.negotiatedPrice ?? 0) || 0;
 
-    if (data.Notes) {
-      discount = data.Notes.Discount || 0;
-      payInAdvance = data.Notes.PayInAdvance || 0;
-      negotiatedPrice = data.Notes.NegotiatedPrice || 0;
+    // Final total is CalculatedAmount from BookingPricing (or negotiatedPrice if provided)
+    let finalTotal = Number(data.BookingPricing?.[0]?.CalculatedAmount ?? data.BookingPricing?.[0]?.calculatedAmount ?? 0) || 0;
+    if (negotiatedPrice > 0) finalTotal = negotiatedPrice;
+
+    // Derive roomTotal. Preferred sources:
+    // 1) explicit room amount fields on BookingPricing if available
+    // 2) sum of normalized history amounts
+    // 3) fallback to finalTotal minus utilities and surcharges
+    let roomTotal = 0;
+
+    // 1) explicit fields
+    roomTotal = Number(data.BookingPricing?.[0]?.RoomAmount ?? data.BookingPricing?.[0]?.roomAmount ?? 0) || 0;
+
+    // 2) sum history items (normalized)
+    if (!roomTotal && data.BookingPricing?.[0]?.History) {
+      roomTotal = data.BookingPricing[0].History.reduce((sum, historyItem) => {
+        const amt = Number(
+          historyItem?.Amount ?? historyItem?.Price ?? historyItem?.Value ?? historyItem?.amount ?? historyItem?.price ?? 0
+        ) || 0;
+        return sum + amt;
+      }, 0);
     }
 
-    // Final total is CalculatedAmount from BookingPricing
-  let finalTotal = data.BookingPricing?.[0]?.CalculatedAmount || 0;
-
-    // If there's a negotiated price, use it instead
-    if (negotiatedPrice > 0) {
-      finalTotal = negotiatedPrice;
+    // 3) fallback
+    if (!roomTotal && finalTotal) {
+      // finalTotal may already include utilities/surcharges, so subtract them to get room-only charge
+      roomTotal = Math.max(0, finalTotal - utilitiesTotal - surchargeTotal);
     }
 
     return {
-      // if roomTotal couldn't be derived from history, fallback to CalculatedAmount
-      roomTotal: roomTotal || (finalTotal ? finalTotal - utilitiesTotal - surchargeTotal + discount + payInAdvance : 0),
+      roomTotal: roomTotal || 0,
       utilitiesTotal,
       surchargeTotal,
       discount,
@@ -236,10 +246,8 @@ const CheckoutConfirm = () => {
       {/* Main Content - Optimized Layout */}
       <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
           {/* Left Column - Booking Details (2/3 width) */}
           <div className="lg:col-span-2 space-y-6">
-            
             {/* Basic Info Card */}
             <div className="bg-white rounded-lg shadow-md border border-green-400 p-6">
               <h2 className="text-xl font-bold text-green-700 mb-4 flex items-center">
@@ -296,22 +304,26 @@ const CheckoutConfirm = () => {
                         {data.Documents.map((doc, index) => (
                           <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                             <div className="flex items-center justify-between mb-3">
-                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                doc.TypeID === 'CCCD' 
-                                  ? 'bg-blue-100 text-blue-800' 
-                                  : doc.TypeID === 'CMND'
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-purple-100 text-purple-800'
-                              }`}>
+                              <span
+                                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                  doc.TypeID === 'CCCD'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : doc.TypeID === 'CMND'
+                                      ? 'bg-green-100 text-green-800'
+                                      : 'bg-purple-100 text-purple-800'
+                                }`}
+                              >
                                 {doc.TypeID}
                               </span>
-                              <span className={`px-2 py-1 rounded text-xs ${
-                                doc.Gender ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800'
-                              }`}>
+                              <span
+                                className={`px-2 py-1 rounded text-xs ${
+                                  doc.Gender ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800'
+                                }`}
+                              >
                                 {doc.Gender ? 'Nam' : 'Nữ'}
                               </span>
                             </div>
-                            
+
                             <div className="space-y-2">
                               {doc.FullName && (
                                 <div>
@@ -328,9 +340,7 @@ const CheckoutConfirm = () => {
                               {doc.BirthDay && (
                                 <div>
                                   <span className="text-sm font-medium text-gray-600">Ngày sinh: </span>
-                                  <span className="text-sm text-gray-800">
-                                    {new Date(doc.BirthDay).toLocaleDateString('vi-VN')}
-                                  </span>
+                                  <span className="text-sm text-gray-800">{new Date(doc.BirthDay).toLocaleDateString('vi-VN')}</span>
                                 </div>
                               )}
                               {doc.Address && (
@@ -461,9 +471,7 @@ const CheckoutConfirm = () => {
                           </span>
                         </div>
                         <div className="text-sm font-medium">{utility.Name}</div>
-                        <div className="text-sm text-green-600 font-semibold">
-                          {formatCurrency(utility.Price * utility.Quantity)}
-                        </div>
+                        <div className="text-sm text-green-600 font-semibold">{formatCurrency(utility.Price * utility.Quantity)}</div>
                       </div>
                     );
                   })}
@@ -487,13 +495,13 @@ const CheckoutConfirm = () => {
                   <span className="font-semibold text-gray-900">{formatCurrency(totals.roomTotal)}</span>
                 </div>
 
-                {/* Utilities charges */}
-                {totals.utilitiesTotal > 0 && (
-                  <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                    <span className="text-gray-700">Dịch vụ</span>
-                    <span className="font-semibold text-gray-900">{formatCurrency(totals.utilitiesTotal)}</span>
+                {/* Utilities charges (always shown) */}
+                <div className="py-3 border-b border-gray-200">
+                  <div className="grid grid-cols-2 items-center">
+                    <div className="text-gray-700">Dịch vụ</div>
+                    <div className="font-semibold text-gray-900 text-right">{formatCurrency(totals.utilitiesTotal || 0)}</div>
                   </div>
-                )}
+                </div>
 
                 {/* Surcharges */}
                 {data.Surcharge && data.Surcharge.length > 0 && (

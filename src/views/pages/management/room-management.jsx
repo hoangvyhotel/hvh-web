@@ -35,7 +35,6 @@ const RoomManagement = () => {
         }
       }
     };
-
     loadRooms();
   }, [hotelId]);
 
@@ -71,10 +70,21 @@ const RoomManagement = () => {
     setSelectedRoom(null);
   };
 
+  const isRoomExist = (roomName) => {
+    return rooms.some((room) => room.name.trim().toLowerCase() === roomName.trim().toLowerCase());
+  };
+
   // Xử lý tạo phòng mới
   const handleCreateRoom = async (roomData) => {
     try {
       console.log('Creating new room:', roomData);
+      // check room exist
+      if (isRoomExist(roomData.name)) {
+        toast.error('Phòng đã tồn tại! Nhập tên phòng khác.');
+        return;
+      }
+
+      console.log('Go to here so room does not exist');
       const response = await addRoom({ ...roomData, hotelId });
 
       if (response?.data) {

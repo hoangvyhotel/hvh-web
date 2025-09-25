@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import Header from '../../../../layouts/HotelManagementLayout/Header';
-import { http } from '../../../../lib/http/axios';
-import { expenseRequests } from '../../../../services/expenseService';
-import { useHotelState } from 'hooks/useAuth';
-import ExpenseItem from '../../../../components/items/ExpenseItem';
-import ExpenseModal from './action-form/form-expense';
-import ConfirmModal from 'components/ui/modal/confirm-modal';
-import { FileText } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import Header from "../../../../layouts/HotelManagementLayout/Header";
+import { http } from "../../../../lib/http/axios";
+import { expenseRequests } from "../../../../services/expenseService";
+import { useHotelState } from "hooks/useAuth";
+import ExpenseItem from "../../../../components/items/ExpenseItem";
+import ExpenseModal from "./action-form/form-expense";
+import ConfirmModal from "components/ui/modal/confirm-modal";
+import { FileText, Calendar } from "lucide-react";
 
 const ExpenseManagement = () => {
   // ---------------- STATE ----------------
@@ -16,7 +16,7 @@ const ExpenseManagement = () => {
   const [error, setError] = useState(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('add');
+  const [modalMode, setModalMode] = useState("add");
   const [editingExpense, setEditingExpense] = useState(null);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -26,57 +26,57 @@ const ExpenseManagement = () => {
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth() + 1;
 
-  const [year, setYear] = useState(currentYear);
-  const [month, setMonth] = useState(currentMonth);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth.toString());
+  const [selectedYear, setSelectedYear] = useState(currentYear.toString());
 
   // ---------------- FETCH DATA ----------------
   const { hotelId } = useHotelState();
 
-  const fetchData = async (y, m) => {
+  const fetchData = async (month, year) => {
     setLoading(true);
     setError(null);
     try {
-      const monthStr = `${y}-${String(m).padStart(2, '0')}`;
+      const monthStr = `${year}-${month.padStart(2, "0")}`; // YYYY-MM
       const res = await http(expenseRequests.getAll(hotelId, monthStr));
       setExpenses(res.data.data);
     } catch (err) {
       console.error(err);
-      setError('Không thể tải danh sách chi phí');
+      setError("Không thể tải danh sách chi phí");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData(year, month);
-  }, [year, month]);
+    fetchData(selectedMonth, selectedYear);
+  }, [selectedMonth, selectedYear, hotelId]);
 
   // ---------------- HANDLERS ----------------
   const openAddModal = () => {
-    setModalMode('add');
+    setModalMode("add");
     setEditingExpense(null);
     setIsModalOpen(true);
   };
 
   const openEditModal = (expense) => {
-    setModalMode('edit');
+    setModalMode("edit");
     setEditingExpense(expense);
     setIsModalOpen(true);
   };
 
   const handleSaveExpense = async (expense, mode) => {
     try {
-      if (mode === 'add') {
+      if (mode === "add") {
         await http(expenseRequests.add(expense));
-        toast.success('Thêm chi phí thành công!');
+        toast.success("Thêm chi phí thành công!");
       } else {
         await http(expenseRequests.update(expense._id, expense));
-        toast.success('Cập nhật chi phí thành công!');
+        toast.success("Cập nhật chi phí thành công!");
       }
-      fetchData(year, month);
+      fetchData(selectedMonth, selectedYear);
     } catch (err) {
       console.error(err);
-      toast.error('Thao tác thất bại!');
+      toast.error("Thao tác thất bại!");
     }
   };
 
@@ -89,11 +89,11 @@ const ExpenseManagement = () => {
     if (!deleteId) return;
     try {
       await http(expenseRequests.delete(deleteId));
-      toast.success('Xóa chi phí thành công!');
-      fetchData(year, month);
+      toast.success("Xóa chi phí thành công!");
+      fetchData(selectedMonth, selectedYear);
     } catch (err) {
       console.error(err);
-      toast.error('Xóa chi phí thất bại!');
+      toast.error("Xóa chi phí thất bại!");
     } finally {
       setIsConfirmOpen(false);
       setDeleteId(null);
@@ -107,36 +107,49 @@ const ExpenseManagement = () => {
   return (
     <>
       {/* HEADER */}
-      <div className="border-b border-gray-300 mb-4" style={{ borderBottomWidth: '0.5px' }}>
-        <Header title="Quản lý chi phí" icon={<FileText className="w-6 h-6 mr-2 text-green-600" />} />
+      <div
+        className="border-b border-gray-300 mb-4"
+        style={{ borderBottomWidth: "0.5px" }}
+      >
+        <Header
+          title="Quản lý chi phí"
+          icon={<FileText className="w-6 h-6 mr-2 text-green-600" />}
+        />
       </div>
 
       {/* FILTER & ADD BUTTON */}
       <div className="p-2 sm:p-4 md:p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+        <div className="flex items-center justify-end mb-4 gap-2">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-gray-600" />
+
+            {/* Select Month */}
             <select
-              value={month}
-              onChange={(e) => setMonth(Number(e.target.value))}
-              className="border border-gray-300 rounded px-2 py-1 w-full sm:w-auto"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             >
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                <option key={m} value={m}>
-                  Tháng {m}
+              {Array.from({ length: 12 }, (_, i) => (
+                <option key={i + 1} value={(i + 1).toString()}>
+                  Tháng {i + 1}
                 </option>
               ))}
             </select>
 
+            {/* Select Year */}
             <select
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
-              className="border border-gray-300 rounded px-2 py-1 w-full sm:w-auto"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             >
-              {Array.from({ length: 5 }, (_, i) => currentYear - 2 + i).map((y) => (
-                <option key={y} value={y}>
-                  Năm {y}
-                </option>
-              ))}
+              {Array.from({ length: 5 }, (_, i) => {
+                const year = currentYear - i;
+                return (
+                  <option key={year} value={year.toString()}>
+                    {year}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -162,7 +175,14 @@ const ExpenseManagement = () => {
           {expenses.length === 0 ? (
             <div className="text-center py-8 text-gray-400">Không có dữ liệu</div>
           ) : (
-            expenses.map((exp) => <ExpenseItem key={exp._id} expense={exp} onEdit={openEditModal} onDelete={openConfirmModal} />)
+            expenses.map((exp) => (
+              <ExpenseItem
+                key={exp._id}
+                expense={exp}
+                onEdit={openEditModal}
+                onDelete={openConfirmModal}
+              />
+            ))
           )}
         </div>
 

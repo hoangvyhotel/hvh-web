@@ -1,6 +1,3 @@
-import { resolveIcon } from 'utils/iconResolver';
-import IconErrorBoundary from 'components/IconErrorBoundary';
-
 const RoomItem = ({ room, onEdit, onUpdateStatus, index }) => {
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN').format(price) + ' vnđ';
@@ -31,9 +28,7 @@ const RoomItem = ({ room, onEdit, onUpdateStatus, index }) => {
       </div>
 
       {/* Tầng */}
-      <div className="col-span-1 flex justify-center">
-        <span className="text-green-600 font-semibold">{room.floor}</span>
-      </div>
+      <span className="text-green-600 font-semibold">{Number(room.floor) === 0 ? 'Tầng trệt' : `Tầng ${room.floor}`}</span>
 
       {/* Giá */}
       <div className="col-span-5 space-y-1 flex flex-col pl-20">
@@ -100,14 +95,19 @@ const RoomItem = ({ room, onEdit, onUpdateStatus, index }) => {
 
       {/* Actions */}
       <div className="col-span-3 flex items-center justify-center space-x-1">
-        <button onClick={handleEdit} className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors cursor-pointer">
+        <button
+          onClick={handleEdit}
+          className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors cursor-pointer"
+        >
           CẬP NHẬT
         </button>
         <span className="text-gray-400 text-sm">|</span>
         <button
           onClick={handleUpdateStatus}
           className={`px-2 py-1 text-xs ${
-            room.status === true ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-gray-100 text-green-600 hover:bg-gray-200 cursor-pointer'
+            room.status === true
+              ? 'bg-red-100 text-red-600 hover:bg-red-200'
+              : 'bg-gray-100 text-green-600 hover:bg-gray-200 cursor-pointer'
           }`}
         >
           {room.status === true ? 'Bảo trì' : 'Hoạt động'}

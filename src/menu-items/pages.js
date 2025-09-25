@@ -44,14 +44,6 @@ const pages = {
       icon: icons.ChromeReaderModeOutlinedIcon
     },
     {
-      id: 'instruction',
-      title: 'Hướng dẫn',
-      type: 'item',
-      url: '/pages/instruction',
-      icon: icons.ChromeReaderModeOutlinedIcon
-    }
-    ,
-    {
       id: 'logout',
       title: 'Đăng xuất',
       type: 'item',

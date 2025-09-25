@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 // project imports
 import { APP_DEFAULT_PATH } from 'config';
 import menuItems from 'menu-items';
+import { useHotelState } from 'hooks/useAuth';
 
 //assets
 import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone';
@@ -21,6 +22,7 @@ const flexStyle = { display: 'flex', alignItems: 'center', gap: 0.5 };
 
 export default function Breadcrumbs({ data, divider = true, title, icons = false, sx, ...rest }) {
   const location = useLocation();
+  const { hotelName } = useHotelState();
 
   const [breadcrumbItems, setBreadcrumbItems] = useState([]);
   const [activeItem, setActiveItem] = useState();
@@ -50,8 +52,10 @@ export default function Breadcrumbs({ data, divider = true, title, icons = false
       const home = { ...homeBreadcrumb };
       linkItems.unshift(home);
     }
+    // Remove 'Trang chủ' item if present to avoid showing '/ Trang chủ'
+    const cleanedLinkItems = linkItems.filter((it) => (it?.title || '').trim() !== 'Trang chủ');
     setActiveItem(active);
-    setBreadcrumbItems(linkItems);
+    setBreadcrumbItems(cleanedLinkItems);
   };
 
   function findParentElements(navItems, targetUrl, parents = []) {
@@ -81,35 +85,60 @@ export default function Breadcrumbs({ data, divider = true, title, icons = false
   }
 
   function CoreBreadcrumb() {
+    console.log('hotelName:', hotelName);
     return (
-      <Stack>
-        <MuiBreadcrumbs aria-label="breadcrumb" {...rest}>
-          {breadcrumbItems.length &&
-            breadcrumbItems.map((item, index) => (
-              <Typography
-                {...(item.url && { component: Link, to: item.url })}
-                variant="subtitle2"
-                color="text.primary"
-                sx={{
-                  fontSize: '0.75rem',
-                  textDecoration: 'none',
-                  ...(item.url && { cursor: 'pointer', ':hover': { color: 'primary.main' } }),
-                  ...flexStyle
-                }}
-                key={index}
-              >
-                {icons && item.icon && <item.icon />} {item.title}
+      <Stack sx={{ mb: 2 }}>
+        {/* Hàng 1: Breadcrumb (trái) + HotelName (giữa) */}
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          {/* Left: Breadcrumb */}
+          <MuiBreadcrumbs aria-label="breadcrumb" sx={{ fontSize: '0.75rem', color: 'text.secondary' }} {...rest}>
+            {breadcrumbItems.length &&
+              breadcrumbItems.map((item, index) => (
+                <Typography
+                  {...(item.url && { component: Link, to: item.url })}
+                  key={index}
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{
+                    textDecoration: 'none',
+                    ...(item.url && {
+                      cursor: 'pointer',
+                      ':hover': { color: 'primary.main' }
+                    }),
+                    ...flexStyle
+                  }}
+                >
+                  {icons && item.icon && <item.icon />} {item.title}
+                </Typography>
+              ))}
+            {activeItem && (
+              <Typography variant="caption" color="primary" sx={{ ...flexStyle }}>
+                {icons && activeItem.icon && <activeItem.icon />}
+                {activeItem.title}
               </Typography>
-            ))}
-          {activeItem && (
-            <Typography variant="subtitle2" color="primary" sx={{ fontSize: '0.75rem', ...(icons && activeItem.icon && flexStyle) }}>
-              {icons && activeItem.icon && <activeItem.icon />}
-              {activeItem.title}
-            </Typography>
-          )}
-        </MuiBreadcrumbs>
+            )}
+          </MuiBreadcrumbs>
 
-        <Typography variant="h3" sx={{ fontWeight: 500, mt: 1 }}>
+          {/* Center: Hotel Name */}
+          <Typography
+            variant="h1"
+            sx={{
+              fontWeight: 700,
+              color: 'primary.main',
+              flexGrow: 2,
+              textAlign: 'center',
+              // position: 'absolute',
+              left: 0,
+              right: 0,
+              pointerEvents: 'none'
+            }}
+          >
+            {hotelName || 'Khách sạn Hoàng Vy'}
+          </Typography>
+        </Stack>
+
+        {/* Hàng 2: Title */}
+        <Typography variant="h4" sx={{ fontWeight: 600, color: 'text.primary', mt: 1 }}>
           {title || activeItem?.title}
         </Typography>
       </Stack>
@@ -119,7 +148,7 @@ export default function Breadcrumbs({ data, divider = true, title, icons = false
   return (
     <Stack>
       <CoreBreadcrumb />
-      {divider && <Divider sx={{ mb: 3, mt: 2 }} />}
+      {divider && <Divider sx={{ mb: 0, mt: 0 }} />}
     </Stack>
   );
 }

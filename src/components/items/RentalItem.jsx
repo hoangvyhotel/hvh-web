@@ -1,6 +1,7 @@
 import BillModal from 'components/modals/BillModal';
 import { useState } from 'react';
 import { fetchBillById } from 'services/billsService';
+import formatToMySQL from 'utils/dateFormat';
 
 const RentalItem = ({ bill, onEdit, onDelete }) => {
   const [isModelOpen, setIsModalOpen] = useState(false);
@@ -31,12 +32,12 @@ const RentalItem = ({ bill, onEdit, onDelete }) => {
       {/* Giờ (Check-in và Check-out) */}
       <div className="col-span-5 space-y-1 flex flex-col pl-25">
         <div className="text-sm">
-          <span className="font-medium text-gray-700">Check-in: {new Date(bill.checkin).toLocaleString()}</span>
+          <span className="font-medium text-gray-700">Check-in: {formatToMySQL(bill.checkin)}</span>
         </div>
         <div className="text-sm">
           <span className="font-medium text-gray-700">
             Check-out:
-            {bill.checkout ? new Date(bill.checkout).toLocaleString() : ' - '}
+            {bill.checkout ? formatToMySQL(bill.checkout) : ' - '}
           </span>
         </div>
       </div>

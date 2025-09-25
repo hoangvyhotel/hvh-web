@@ -1,4 +1,5 @@
 import { http } from 'lib/http/axios';
+import formatToMySQL from 'utils/dateFormat';
 import { Home, Car, FileText } from 'lucide-react';
 import { resolveIcon } from 'utils/iconResolver';
 import { useEffect, useState } from 'react';
@@ -19,12 +20,22 @@ import MoveRoomModal from './modal-actions/move-room-modal';
 import ChangeBookingTypeModal from './modal-actions/change-booking-type';
 import { createBill } from 'services/billsService';
 function translateBookingType(type) {
-  switch (type.toLowerCase()) {
+  // normalize input safely to avoid calling toLowerCase on undefined/null
+  let key = '';
+  if (typeof type === 'string') key = type.trim().toLowerCase();
+  else if (type != null && typeof type !== 'object') key = String(type).toLowerCase();
+
+  switch (key) {
     case 'day':
+    case 'ngày':
       return 'Ngày';
     case 'night':
+    case 'đêm':
+    case 'dem':
       return 'Đêm';
     case 'hour':
+    case 'giờ':
+    case 'gio':
       return 'Giờ';
     default:
       return 'Không xác định';
@@ -33,6 +44,23 @@ function translateBookingType(type) {
 
 const CheckinPage = () => {
   const navigate = useNavigate();
+
+  // Normalize history item fields (handle camelCase / PascalCase / lowercase keys from API)
+  const normalizeHistoryItem = (item) => {
+    if (!item) return {};
+    const getVal = (keys) => keys.reduce((acc, k) => acc ?? item[k] ?? item[k.toLowerCase()] ?? item[k.charAt(0).toUpperCase() + k.slice(1)], undefined);
+    const priceType = (getVal(['PriceType', 'priceType', 'price_type']) || '').toString();
+    return {
+      PriceType: priceType.toUpperCase(),
+      Amount: Number(getVal(['Amount', 'amount', 'Price', 'price', 'value']) || 0) || 0,
+      AppliedFrom: getVal(['AppliedFrom', 'appliedFrom', 'applied_from']) || null,
+      AppliedTo: getVal(['AppliedTo', 'appliedTo', 'applied_to']) || null,
+      Times: getVal(['Times', 'times']) || 0,
+      AppliedFirstHourPrice: Number(getVal(['AppliedFirstHourPrice', 'appliedFirstHourPrice', 'applied_first_hour_price']) || 0) || 0,
+      AppliedNextHourPrice: Number(getVal(['AppliedNextHourPrice', 'appliedNextHourPrice', 'applied_next_hour_price']) || 0) || 0,
+      AppliedNightPrice: Number(getVal(['AppliedNightPrice', 'appliedNightPrice', 'applied_night_price']) || 0) || 0
+    };
+  };
 
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get('roomId');
@@ -213,15 +241,7 @@ const CheckinPage = () => {
                     {translateBookingType(booking.TypeBooking) || ''}
                   </button>
                   <span className="text-lg font-bold">LÚC:</span>
-                  <span className="font-semibold">
-                    {new Date(booking.CheckinDate).toLocaleString('vi-VN', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric'
-                    })}
-                  </span>
+                  <span className="font-semibold">{formatToMySQL(booking.CheckinDate)}</span>
                 </div>
                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mt-2 sm:mt-0">
                   <button
@@ -290,24 +310,32 @@ const CheckinPage = () => {
                       className="flex flex-col items-center p-2 relative w-16 sm:w-24 cursor-pointer"
                       onClick={async () => {
                         try {
-                          if (!booking.BookingId) return;
+                          const bookingId = booking?.BookingId || booking?._id || booking?.id;
+                          const utilityId = u?._id || u?.id || u?.utilitiesId;
+
+                          if (!bookingId || !utilityId) {
+                            toast.error('Không thể xử lý tiện ích: thiếu bookingId hoặc utilityId.');
+                            return;
+                          }
 
                           const dto = {
-                            bookingId: booking.BookingId,
-                            utilityId: u._id, // hoặc u.utilitiesId nếu bạn lưu ObjectId
+                            bookingId,
+                            BookingId: bookingId,
+                            utilityId,
+                            UtilityId: utilityId,
                             quantity: 1
                           };
-
                           // gọi API removeUtility
                           const res = await http(bookingRequests.removeUtility(dto));
 
                           // reload lại booking để cập nhật UI
                           const updated = await http(bookingRequests.getBooking(roomId));
                           setBooking(updated.data.data);
-                          toast.success(res.data.message || 'Đã giảm/xóa tiện ích thành công');
+                          toast.success(res.data.message || 'Đã giảm tiện ích thành công');
                         } catch (err) {
-                          console.error(err);
-                          toast.error('Xử lý tiện ích thất bại');
+                          
+                          const serverMsg = err?.response?.data?.message || err?.message || 'Xử lý tiện ích thất bại';
+                          toast.error(serverMsg);
                         }
                       }}
                     >
@@ -421,22 +449,40 @@ const CheckinPage = () => {
                       className="flex flex-col items-center p-1 sm:p-2"
                       onClick={async () => {
                         try {
-                          if (!booking.BookingId) return;
+                          // defensive id extraction: accept multiple possible id fields
+                          const bookingId = booking?.BookingId || booking?._id || booking?.id;
+                          const utilityId = u?._id || u?.id;
+
+                          if (!bookingId || !utilityId) {
+                            // Log diagnostic info so we can see what's missing in the client
+                            console.error('addUtility aborted: missing bookingId or utilityId', { bookingId, utilityId, booking, utility: u });
+                            toast.error('Không thể thêm tiện ích: thiếu bookingId hoặc utilityId.');
+                            return;
+                          }
 
                           const dto = {
-                            bookingId: booking.BookingId, // id booking
-                            utilityId: u._id, // id utility
-                            quantity: 1 // mặc định 1, có thể tùy chỉnh
+                            // include multiple key variants to match different backend expectations
+                            bookingId,
+                            BookingId: bookingId,
+                            utilityId,
+                            UtilityId: utilityId,
+                            quantity: 1
                           };
 
+                          // Log DTO to help debug 400 from server
+                          console.log('addUtility dto ->', dto);
+
                           const res = await http(bookingRequests.addUtility(dto));
+
                           // reload lại booking để cập nhật UI
                           const updated = await http(bookingRequests.getBooking(roomId));
                           setBooking(updated.data.data);
                           toast.success(res.data.message || 'Thêm tiện ích thành công');
                         } catch (err) {
-                          console.error(err);
-                          toast.error('Thêm tiện ích thất bại');
+                          // Surface server message when available and log full response
+                          console.error('addUtility error ->', err?.response?.data || err);
+                          const serverMsg = err?.response?.data?.message || err?.message || 'Thêm tiện ích thất bại';
+                          toast.error(serverMsg);
                         }
                       }}
                     >
@@ -459,25 +505,13 @@ const CheckinPage = () => {
                   <div key={index} className="p-2 sm:p-4">
                     <div className="text-gray-500 text-sm mt-1">
                       Giờ vào:{' '}
-                      {new Date(bp.StartDate).toLocaleString('vi-VN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                      })}
+                      {formatToMySQL(bp.StartDate)}
                     </div>
 
                     {bp.EndDate && (
                       <div className="text-gray-500 text-sm">
                         Kết thúc:{' '}
-                        {new Date(bp.EndDate).toLocaleString('vi-VN', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric'
-                        })}
+                        {formatToMySQL(bp.EndDate)}
                       </div>
                     )}
 
@@ -486,56 +520,45 @@ const CheckinPage = () => {
                       <div className="mt-3 border-l-2 border-green-500 pl-3">
                         <span className="text-gray-600 font-semibold block mb-1">Lịch sử giá:</span>
                         <ul className="space-y-2">
-                          {bp.History.map((h, hIndex) => (
-                            <li key={hIndex} className="bg-gray-50 p-2 rounded text-sm flex flex-col">
-                              <div className="flex justify-between">
-                                <span className="font-bold text-green-700">{translateBookingType(h.PriceType)}</span>
-                                <span className="font-bold text-green-700">{h.Amount?.toLocaleString('vi-VN')} đ</span>
-                              </div>
+                          {bp.History.map((h, hIndex) => {
+                            const nh = normalizeHistoryItem(h);
+                            return (
+                              <li key={hIndex} className="bg-gray-50 p-2 rounded text-sm flex flex-col">
+                                <div className="flex justify-between">
+                                  <span className="font-bold text-green-700">{translateBookingType(nh.PriceType)}</span>
+                                  <span className="font-bold text-green-700">{(nh.Amount || 0).toLocaleString('vi-VN')} đ</span>
+                                </div>
 
-                              <span className="text-gray-500 text-xs">
-                                Từ:{' '}
-                                {new Date(h.AppliedFrom).toLocaleString('vi-VN', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  day: '2-digit',
-                                  month: '2-digit',
-                                  year: 'numeric'
-                                })}
-                              </span>
-                              {h.AppliedTo && (
                                 <span className="text-gray-500 text-xs">
-                                  Đến:{' '}
-                                  {new Date(h.AppliedTo).toLocaleString('vi-VN', {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    year: 'numeric'
-                                  })}
+                                  Từ:{' '}
+                                  {nh.AppliedFrom ? formatToMySQL(nh.AppliedFrom) : '—'}
                                 </span>
-                              )}
+                                {nh.AppliedTo ? (
+                                  <span className="text-gray-500 text-xs">
+                                    Đến:{' '}
+                                    {formatToMySQL(nh.AppliedTo)}
+                                  </span>
+                                ) : null}
 
-                              <span className="text-gray-500 text-xs mt-1">
-                                Số giờ: <b>{h.Times}</b> giờ
-                              </span>
+                                <span className="text-gray-500 text-xs mt-1">
+                                  Số giờ: <b>{nh.Times}</b> giờ
+                                </span>
 
-                              {/* Nếu là HOUR thì hiển thị giá giờ đầu / giờ sau */}
-                              {h.PriceType === 'HOUR' && (
-                                <div className="text-xs text-gray-600 mt-1">
-                                  <div>Giờ đầu: {h.AppliedFirstHourPrice?.toLocaleString('vi-VN')} đ</div>
-                                  <div>Giờ tiếp: {h.AppliedNextHourPrice?.toLocaleString('vi-VN')} đ</div>
-                                </div>
-                              )}
+                                {nh.PriceType === 'HOUR' && (
+                                  <div className="text-xs text-gray-600 mt-1">
+                                    <div>Giờ đầu: {Number(nh.AppliedFirstHourPrice || 0).toLocaleString('vi-VN')} đ</div>
+                                    <div>Giờ tiếp: {Number(nh.AppliedNextHourPrice || 0).toLocaleString('vi-VN')} đ</div>
+                                  </div>
+                                )}
 
-                              {/* Nếu là NIGHT thì hiển thị giá ban đêm */}
-                              {h.PriceType === 'NIGHT' && (
-                                <div className="text-xs text-gray-600 mt-1">
-                                  Giá ban đêm: {h.AppliedNightPrice?.toLocaleString('vi-VN')} đ
-                                </div>
-                              )}
-                            </li>
-                          ))}
+                                {nh.PriceType === 'NIGHT' && (
+                                  <div className="text-xs text-gray-600 mt-1">
+                                    Giá ban đêm: {Number(nh.AppliedNightPrice || 0).toLocaleString('vi-VN')} đ
+                                  </div>
+                                )}
+                              </li>
+                            );
+                          })}
                         </ul>
                       </div>
                     )}

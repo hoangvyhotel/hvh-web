@@ -6,6 +6,7 @@ import { bookingRequests } from 'services/bookingService';
 import { createBill } from 'services/billsService';
 import { resolveIcon } from 'utils/iconResolver';
 import { toast } from 'react-toastify';
+import formatToMySQL from 'utils/dateFormat';
 
 // Helper function to translate booking type
 function translateBookingType(type) {
@@ -40,6 +41,23 @@ const CheckoutConfirm = () => {
     return numValue.toLocaleString('vi-VN') + ' đ';
   };
 
+  // Normalize history item fields (accept API fields in various casings)
+  const normalizeHistoryItem = (item) => {
+    if (!item) return {};
+    const get = (keys) => keys.reduce((acc, k) => acc ?? item[k] ?? item[k.toLowerCase()] ?? item[k.charAt(0).toUpperCase() + k.slice(1)], undefined);
+    const priceType = (get(['PriceType', 'priceType', 'price_type']) || '').toString();
+    return {
+      PriceType: priceType.toUpperCase(),
+      Amount: Number(get(['Amount', 'amount', 'Price', 'price', 'value']) || 0) || 0,
+      AppliedFrom: get(['AppliedFrom', 'appliedFrom', 'applied_from']) || null,
+      AppliedTo: get(['AppliedTo', 'appliedTo', 'applied_to']) || null,
+      Times: get(['Times', 'times']) || 0,
+      AppliedFirstHourPrice: Number(get(['AppliedFirstHourPrice', 'appliedFirstHourPrice', 'applied_first_hour_price']) || 0) || 0,
+      AppliedNextHourPrice: Number(get(['AppliedNextHourPrice', 'appliedNextHourPrice', 'applied_next_hour_price']) || 0) || 0,
+      AppliedNightPrice: Number(get(['AppliedNightPrice', 'appliedNightPrice', 'applied_night_price']) || 0) || 0
+    };
+  };
+
   const fetchBooking = async () => {
     if (!roomId) {
       setError('Không có roomId để tải thông tin booking');
@@ -72,7 +90,9 @@ const CheckoutConfirm = () => {
     let roomTotal = 0;
     if (data.BookingPricing?.[0]?.History) {
       roomTotal = data.BookingPricing[0].History.reduce((sum, historyItem) => {
-        return sum + (historyItem.Amount || 0);
+        // Some APIs return different field names for price (Amount, Price, Value)
+        const amt = historyItem?.Amount ?? historyItem?.Price ?? historyItem?.Value ?? historyItem?.AmountValue ?? 0;
+        return sum + (Number(amt) || 0);
       }, 0);
     }
 
@@ -100,7 +120,7 @@ const CheckoutConfirm = () => {
     }
 
     // Final total is CalculatedAmount from BookingPricing
-    let finalTotal = data.BookingPricing?.[0]?.CalculatedAmount || 0;
+  let finalTotal = data.BookingPricing?.[0]?.CalculatedAmount || 0;
 
     // If there's a negotiated price, use it instead
     if (negotiatedPrice > 0) {
@@ -108,7 +128,8 @@ const CheckoutConfirm = () => {
     }
 
     return {
-      roomTotal,
+      // if roomTotal couldn't be derived from history, fallback to CalculatedAmount
+      roomTotal: roomTotal || (finalTotal ? finalTotal - utilitiesTotal - surchargeTotal + discount + payInAdvance : 0),
       utilitiesTotal,
       surchargeTotal,
       discount,
@@ -365,46 +386,47 @@ const CheckoutConfirm = () => {
                   Lịch sử giá phòng
                 </h3>
                 <div className="space-y-3">
-                  {data.BookingPricing[0].History.map((historyItem, index) => (
-                    <div key={index} className="bg-gray-50 border border-gray-200 rounded p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-3">
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            historyItem.Action === 'CREATE' 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : 'bg-orange-100 text-orange-800'
-                          }`}>
-                            {historyItem.Action === 'CREATE' ? 'Tạo mới' : 'Đổi loại'}
-                          </span>
-                          <span className="px-2 py-1 bg-green-600 text-white rounded text-sm">
-                            {translateBookingType(historyItem.PriceType)}
-                          </span>
-                          <span className="text-sm text-gray-600">
-                            {historyItem.Times} giờ
-                          </span>
-                        </div>
-                        <div className="text-lg font-bold text-green-700">
-                          {formatCurrency(historyItem.Amount)}
-                        </div>
-                      </div>
-                      
-                      {/* Time Information */}
-                      <div className="text-sm text-gray-600 border-t border-gray-200 pt-2">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          <div>
-                            <span className="font-medium">Từ: </span>
-                            {new Date(historyItem.AppliedFrom).toLocaleString('vi-VN')}
+                  {data.BookingPricing[0].History.map((historyItem, index) => {
+                    const nh = normalizeHistoryItem(historyItem);
+                    return (
+                      <div key={index} className="bg-gray-50 border border-gray-200 rounded p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              (historyItem?.Action === 'CREATE' || historyItem?.action === 'CREATE') ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'
+                            }`}>
+                              {(historyItem?.Action === 'CREATE' || historyItem?.action === 'CREATE') ? 'Tạo mới' : 'Đổi loại'}
+                            </span>
+                            <span className="px-2 py-1 bg-green-600 text-white rounded text-sm">
+                              {translateBookingType(nh.PriceType)}
+                            </span>
+                            <span className="text-sm text-gray-600">
+                              {nh.Times} giờ
+                            </span>
                           </div>
-                          {historyItem.AppliedTo && (
+                          <div className="text-lg font-bold text-green-700">
+                            {formatCurrency(nh.Amount)}
+                          </div>
+                        </div>
+
+                        {/* Time Information */}
+                        <div className="text-sm text-gray-600 border-t border-gray-200 pt-2">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div>
-                              <span className="font-medium">Đến: </span>
-                              {new Date(historyItem.AppliedTo).toLocaleString('vi-VN')}
+                              <span className="font-medium">Từ: </span>
+                              {nh.AppliedFrom ? formatToMySQL(nh.AppliedFrom) : '—'}
                             </div>
-                          )}
+                            {nh.AppliedTo ? (
+                              <div>
+                                <span className="font-medium">Đến: </span>
+                                {formatToMySQL(nh.AppliedTo)}
+                              </div>
+                            ) : null}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

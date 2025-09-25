@@ -93,8 +93,8 @@ const RetalManagement = () => {
               <span className="ml-2 text-gray-600">Đang tải...</span>
             </div>
           ) : bills.length > 0 ? (
-            bills.map((bill) => (
-              <RentalItem key={bill._id.toString()} bill={bill} />
+            bills.map((bill, idx) => (
+              <RentalItem key={(bill && (bill._id || bill.id) ? (bill._id || bill.id).toString() : String(idx))} bill={bill} />
             ))
           ) : (
             <div className="text-center py-8 text-gray-500">

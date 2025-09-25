@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import formatToMySQL from 'utils/dateFormat';
 import { bookingRequests } from 'services/bookingService';
 import { http } from 'lib/http/axios';
 import { resolveIcon } from 'utils/iconResolver';
@@ -61,15 +62,7 @@ const RoomCard = ({ room, handleAddBooking, handleRouteToCheckinZone, fetchData 
               } min-h-[24px]`}
             >
               Giờ vào:{' '}
-              {room.Checkin
-                ? new Date(room.Checkin).toLocaleString('vi-VN', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                : '-'}
+              {room.Checkin ? formatToMySQL(room.Checkin) : '-'}
             </div>
 
             <button

@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
+import formatToMySQL from 'utils/dateFormat';
 
 const BillModal = ({ isOpen, onClose, bill }) => {
   // Handle keyboard events
@@ -63,7 +64,7 @@ const BillModal = ({ isOpen, onClose, bill }) => {
               <label className="block text-sm font-medium text-gray-700">Thời gian thuê</label>
               <p className="mt-1 text-sm text-gray-900">
                 {bill.checkIn && bill.checkOut
-                  ? `${new Date(bill.checkIn).toLocaleString('vi-VN')} - ${new Date(bill.checkOut).toLocaleString('vi-VN')}`
+                  ? `${formatToMySQL(bill.checkIn)} - ${formatToMySQL(bill.checkOut)}`
                   : 'N/A'}
               </p>
             </div>

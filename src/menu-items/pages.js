@@ -35,13 +35,14 @@ const pages = {
       url: '/pages/home',
       icon: icons.ChromeReaderModeOutlinedIcon
     },
-     {
+    {
       id: 'management',
       title: 'Quản lý',
       type: 'item',
       url: '/pages/management',
       icon: icons.ChromeReaderModeOutlinedIcon
     },
+  // utilities menu removed
      {
       id: 'lodging-report',
       title: 'Báo lưu trú',
@@ -49,13 +50,13 @@ const pages = {
       url: '/pages/lodging-report',
       icon: icons.ChromeReaderModeOutlinedIcon
     },
-     {
+    {
       id: 'instruction',
       title: 'Hướng dẫn',
       type: 'item',
       url: '/pages/instruction',
       icon: icons.ChromeReaderModeOutlinedIcon
-    },
+    }
     // {
     //   id: 'auth',
     //   title: 'Authentication',

@@ -1,6 +1,6 @@
 // Replace with secure storage in production (e.g., httpOnly cookies + CSRF)
-const ACCESS_TOKEN_KEY = "access_token";
-const REFRESH_TOKEN_KEY = "refresh_token";
+const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 export const tokenStorage = {
   get access() {
@@ -20,5 +20,5 @@ export const tokenStorage = {
   clear() {
     this.access = null;
     this.refresh = null;
-  },
+  }
 };

@@ -1,6 +1,6 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { http } from "../lib/http/axios";
-import { normalizeError } from "../lib/http/utils";
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { http } from '../lib/http/axios';
+import { normalizeError } from '../lib/http/utils';
 
 export function useApiQuery(key, req, options = {}) {
   return useQuery({
@@ -9,7 +9,7 @@ export function useApiQuery(key, req, options = {}) {
       const res = await http.request(req);
       return res.data;
     },
-    ...options,
+    ...options
   });
 }
 
@@ -23,6 +23,6 @@ export function useApiMutation(reqBuilder, options = {}) {
         throw normalizeError(e);
       }
     },
-    ...options,
+    ...options
   });
 }

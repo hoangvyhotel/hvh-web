@@ -1,6 +1,6 @@
-import { endpoints } from "../lib/http/endpoints";
+import { endpoints } from '../lib/http/endpoints';
 
 export const authRequests = {
-  login: (dto) => ({ method: "POST", url: endpoints.auth.login(), data: dto }),
-  me: () => ({ method: "GET", url: endpoints.auth.me() }),
+  login: (dto) => ({ method: 'POST', url: endpoints.auth.login(), data: dto }),
+  me: () => ({ method: 'GET', url: endpoints.auth.me() })
 };

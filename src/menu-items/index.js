@@ -3,7 +3,7 @@ import pages from './pages';
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems = {
-  items: [ pages]
+  items: [pages]
 };
 
 export default menuItems;
